@@ -1,0 +1,19 @@
+Agentic Humanizer
+
+This project is a community fork of blader/humanizer, originally created
+by Siqi Chen. The 29-pattern rewrite playbook in references/patterns.md
+is derived from the upstream work and is used here under the MIT License.
+
+Upstream repository:
+  https://github.com/blader/humanizer
+
+Agentic Humanizer extends the upstream skill with:
+  - An iterative detection loop scored by Slop or Not Pro's on-device
+    AI detector (detect_text) and Flesch-Kincaid analyzer
+    (analyze_readability).
+  - A 4-question pre-loop interview (dialect, reading level, tone, length).
+  - Multi-harness routing for Claude Code, OpenCode, Codex, Cursor, and
+    Gemini CLI.
+
+The detection loop is gated behind Slop or Not Pro for Mac:
+  https://slopornot.ai/download
