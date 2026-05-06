@@ -14,7 +14,7 @@ into a slash command in your AI assistant (Claude Code, Codex CLI,
 Cursor, Gemini CLI, or OpenCode), and the skill rewrites it iteratively
 until two targets are met:
 
-1. The output's AI-generation probability falls below 30% per Slop or
+1. The output's AI-generation probability falls below 40% per Slop or
    Not's on-device detector.
 2. The Flesch-Kincaid reading level is within ±1 grade of the target you
    pick (Elementary, Middle, High school, College, or Graduate).
@@ -43,7 +43,7 @@ Iteration 3   grade gap      (close the Flesch-Kincaid distance)
 Iteration 4   clean + targeted (clean_text + residual signal)
 Iteration 5   emergency surgery (sentence shapes, broken rule-of-three)
 
-Stop when AI score ≤ 30% AND |grade - target| ≤ 1
+Stop when AI score ≤ 40% AND |grade - target| ≤ 1
    OR after iteration 5.
 ```
 
@@ -55,25 +55,32 @@ may be cloud or local depending on which one you use.
 
 ## Install
 
-One clone per harness. The same repository works in every harness; only
-the install location differs.
+### Recommended (Claude Code, Cursor, Windsurf)
 
 ```bash
-# Claude Code + OpenCode (one clone covers both)
-mkdir -p ~/.claude/skills && \
-  git clone https://github.com/thilak-rao/agentic-humanizer ~/.claude/skills/agentic-humanizer
+npx skills add thilak-rao/agentic-humanizer
+```
 
+The [skills.sh](https://skills.sh) CLI downloads the skill and configures
+it for your harness automatically. No manual path wrangling.
+
+### Manual install (Codex CLI, Gemini CLI, OpenCode)
+
+skills.sh does not yet ship native support for these harnesses. Clone
+into the harness's skill directory directly:
+
+```bash
 # Codex CLI
 mkdir -p ~/.codex/skills && \
   git clone https://github.com/thilak-rao/agentic-humanizer ~/.codex/skills/agentic-humanizer
 
-# Cursor 2.4+, project-local install
-mkdir -p .agents/skills && \
-  git clone https://github.com/thilak-rao/agentic-humanizer .agents/skills/agentic-humanizer
-
 # Gemini CLI
 mkdir -p ~/.gemini/skills && \
   git clone https://github.com/thilak-rao/agentic-humanizer ~/.gemini/skills/agentic-humanizer
+
+# OpenCode (if not running via skills.sh)
+mkdir -p ~/.config/opencode/skills && \
+  git clone https://github.com/thilak-rao/agentic-humanizer ~/.config/opencode/skills/agentic-humanizer
 ```
 
 After cloning, restart your harness so the skill is discovered.

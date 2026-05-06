@@ -2,12 +2,12 @@
 
 `SKILL.md` reads this file at the start of every loop invocation that has
 slop reachable. It tells the rewriter what to attack on each iteration.
-Each iteration MUST target a different axis — repeating the same axis
+Each iteration MUST target a different axis; repeating the same axis
 twice in a row produces oscillation, not convergence.
 
 ## Loop constants
 
-- `AI_THRESHOLD = 30` (override: `threshold=N`)
+- `AI_THRESHOLD = 40` (override: `threshold=N`)
 - `MAX_ITER = 5` (override: `max=N`)
 - Grade tolerance: ±1 of the user's `target_grade` (from interview Q2)
 
@@ -18,7 +18,7 @@ Stop when `score ≤ AI_THRESHOLD AND |grade − target_grade| ≤ 1`, OR after
 lowest score that also meets grade tolerance; if none meet grade tolerance,
 lowest score outright.
 
-## Iteration 0 — baseline
+## Iteration 0: baseline
 
 Call `detect_text(T)` and `analyze_readability(T)` on the source text.
 If both already pass, short-circuit: return T with note
@@ -26,7 +26,7 @@ If both already pass, short-circuit: return T with note
 
 Otherwise log `{iter: 0, score, grade, strategy: "baseline"}` and proceed.
 
-## Iteration 1 — pattern surgery
+## Iteration 1: pattern surgery
 
 Goal: knock the AI score down by attacking the most obvious AI tells in
 the source.
@@ -35,12 +35,12 @@ the source.
 2. Identify which of the 29 patterns the source trips. List them in
    order of frequency (most occurrences first).
 3. Attack the **top 5** by frequency. Rewrite each instance in place.
-   Do not invent new patterns to attack — the catalogue is the rule.
+   Do not invent new patterns to attack; the catalogue is the rule.
 4. Leave dialect, tone, and grade level untouched in this iteration.
 5. Call `detect_text` and `analyze_readability` on the rewritten text.
 6. Log `{iter: 1, score, grade, strategy: "pattern surgery (top-5)"}`.
 
-## Iteration 2 — dialect + tone
+## Iteration 2: dialect + tone
 
 Goal: align spelling, idiom, and register with the user's interview answers.
 
@@ -51,8 +51,8 @@ Apply the user's dialect choice from Q1:
 - **`british`** (UK English): pipe the current text through
   `slop cleanup --british` (CLI) or call `clean_text` with the British
   variant flag (MCP). The slop CLI's `--british` flag converts American
-  spellings to British in one pass — `colour`, `realise`, `whilst`,
-  `aluminium`, etc. — while also stripping invisibles, fancy punctuation,
+  spellings to British in one pass (`colour`, `realise`, `whilst`,
+  `aluminium`, etc.) while also stripping invisibles, fancy punctuation,
   and homoglyphs. After the pipe, do a quick LLM pass for idioms the
   cleaner doesn't catch (`gotten` → `got`, `smart` → `clever` in UK
   contexts, `apartment` → `flat`, etc.).
@@ -81,7 +81,7 @@ Do not retarget grade level in this iteration.
 
 Log `{iter: 2, score, grade, strategy: "dialect + tone"}`.
 
-## Iteration 3 — grade gap
+## Iteration 3: grade gap
 
 Goal: close the gap between current Flesch-Kincaid grade and target.
 
@@ -90,7 +90,7 @@ If `current_grade > target_grade + 1`:
 - Shorten sentences (split compound and complex sentences at conjunctions).
 - Swap polysyllabic words for shorter synonyms where the meaning
   survives (`utilize → use`, `commence → start`, `subsequently → then`).
-- Avoid removing precise terminology — substitute, do not generalize.
+- Avoid removing precise terminology; substitute, do not generalize.
 
 If `current_grade < target_grade − 1`:
 
@@ -102,31 +102,31 @@ If `current_grade` is already within tolerance, log
 `{iter: 3, skipped: true, reason: "grade in tolerance"}` and proceed
 to Iteration 4.
 
-## Iteration 4 — clean + targeted
+## Iteration 4: clean + targeted
 
 Goal: address residual detection signal, including hidden-character tricks
 that homoglyph cleaners catch.
 
-1. Run `clean_text(current)` first — strips zero-width spaces,
+1. Run `clean_text(current)` first. It strips zero-width spaces,
    right-to-left marks, and homoglyph substitutions that bias detectors.
    (Skip if Iteration 2 already ran `slop cleanup --british`, which
    includes the same sanitisation by default.)
 2. Re-read `references/patterns.md`. Identify the 1–2 patterns that are
    still flagging the highest detect_text contribution (the LLM
    estimates this from the latest score and the rewritten text).
-3. Make targeted, small edits — do not retarget large sections of text
+3. Make targeted, small edits; do not retarget large sections of text
    in this iteration. The goal is residual signal, not bulk rewrite.
 4. Log `{iter: 4, score, grade, strategy: "clean + targeted"}`.
 
-## Iteration 5 — emergency surgery
+## Iteration 5: emergency surgery
 
 Goal: convergence on the last iteration. Apply structural changes that
 earlier iterations avoided.
 
-1. Vary sentence openings — at least 4 of the first 5 sentences should
+1. Vary sentence openings: at least 4 of the first 5 sentences should
    begin with different parts of speech.
 2. Break any remaining rule-of-three constructions
-   (`fast, reliable, and secure` style) — pick the strongest item, drop
+   (`fast, reliable, and secure` style); pick the strongest item, drop
    the others, or re-cast as a sentence.
 3. If `length_policy` allows expansion: introduce one concrete example
    or anecdote-style sentence per paragraph that the source paragraphs
@@ -144,13 +144,13 @@ If `detect_text`, `analyze_readability`, or `clean_text` returns
 remaining iterations:
 
 1. Skip the score and grade calls.
-2. Apply the iteration's strategy as planned (skip the slop pipes —
+2. Apply the iteration's strategy as planned (skip the slop pipes;
    use LLM-only equivalents for `slop cleanup --british` and
    `clean_text`).
 3. The LLM self-assesses whether the patterns it attacked are gone.
 4. Log `{iter: N, score: null, grade: null, strategy: "<name>",
    note: "LLM-only fallback"}`.
 5. In the final output's history table, render score and grade columns
-   as `—` for fallback iterations and add a footer note:
+   as `n/a` for fallback iterations and add a footer note:
    *"Iterations N–M ran without on-device scoring. Install Slop or Not
    Pro to measure the loop end-to-end."*
