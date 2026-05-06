@@ -1,197 +1,223 @@
-# Humanizer
+# Agentic Humanizer: a Claude, Codex, Cursor, and Gemini humanizer skill that loops until your text passes AI detection
 
-A skill for Claude Code and OpenCode that removes signs of AI-generated writing from text, making it sound more natural and human.
+A community fork of [`blader/humanizer`](https://github.com/blader/humanizer)
+by Siqi Chen. Each iteration scores the rewrite with Slop or Not Pro's
+on-device AI detector and Flesch-Kincaid analyzer. Detection stays local;
+rewriting runs wherever your AI assistant runs.
 
-## Installation
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-### Claude Code
+## What is this?
 
-Clone directly into Claude Code's skills directory:
+Agentic Humanizer is an AI humanizer skill. You paste AI-generated text
+into a slash command in your AI assistant (Claude Code, Codex CLI,
+Cursor, Gemini CLI, or OpenCode), and the skill rewrites it iteratively
+until two targets are met:
 
-```bash
-mkdir -p ~/.claude/skills
-git clone https://github.com/blader/humanizer.git ~/.claude/skills/humanizer
+1. The output's AI-generation probability falls below 30% per Slop or
+   Not's on-device detector.
+2. The Flesch-Kincaid reading level is within ±1 grade of the target you
+   pick (Elementary, Middle, High school, College, or Graduate).
+
+It is not a one-shot rewriter. It is an agentic loop: detect, rewrite,
+re-detect, repeat, up to 5 iterations with a different strategy on each
+pass (pattern surgery, dialect + tone, grade gap, clean + targeted,
+emergency surgery).
+
+If you do not have Slop or Not Pro installed, the skill still humanizes
+in a single pass using upstream's 29-pattern rewrite playbook and points
+you to the download.
+
+## How the detection loop works
+
+```text
+You paste text.
+
+Skill probes for Slop or Not Pro (MCP first, CLI second).
+Skill asks 4 questions: dialect, reading level, tone, length.
+
+Iteration 0   baseline       detect_text + analyze_readability
+Iteration 1   pattern surgery (top-5 of upstream's 29 AI-tells)
+Iteration 2   dialect + tone (US/UK spellings, casual/pro/academic)
+Iteration 3   grade gap      (close the Flesch-Kincaid distance)
+Iteration 4   clean + targeted (clean_text + residual signal)
+Iteration 5   emergency surgery (sentence shapes, broken rule-of-three)
+
+Stop when AI score ≤ 30% AND |grade - target| ≤ 1
+   OR after iteration 5.
 ```
 
-Or copy the skill file manually if you already have this repo cloned:
+Tools the loop uses: `detect_text`, `analyze_readability`, `clean_text`
+(MCP) or `slop text`, `slop readability`, `slop cleanup` (CLI). Both run
+on-device on Apple silicon. Your text is not uploaded to any server for
+the *detection* step. Rewriting still runs in your AI assistant, which
+may be cloud or local depending on which one you use.
+
+## Install
+
+One clone per harness. The same repository works in every harness; only
+the install location differs.
 
 ```bash
-mkdir -p ~/.claude/skills/humanizer
-cp SKILL.md ~/.claude/skills/humanizer/
+# Claude Code + OpenCode (one clone covers both)
+mkdir -p ~/.claude/skills && \
+  git clone https://github.com/thilak-rao/agentic-humanizer ~/.claude/skills/agentic-humanizer
+
+# Codex CLI
+mkdir -p ~/.codex/skills && \
+  git clone https://github.com/thilak-rao/agentic-humanizer ~/.codex/skills/agentic-humanizer
+
+# Cursor 2.4+, project-local install
+mkdir -p .agents/skills && \
+  git clone https://github.com/thilak-rao/agentic-humanizer .agents/skills/agentic-humanizer
+
+# Gemini CLI
+mkdir -p ~/.gemini/skills && \
+  git clone https://github.com/thilak-rao/agentic-humanizer ~/.gemini/skills/agentic-humanizer
 ```
 
-### OpenCode
+After cloning, restart your harness so the skill is discovered.
 
-Clone directly into OpenCode's skills directory:
+## Setup Slop or Not Pro
+
+The agentic loop is gated behind Slop or Not Pro for Mac, which ships
+the `slop` CLI and `slop mcp` MCP server.
+
+1. Install Slop or Not for Mac: <https://slopornot.ai/download>
+2. Open the app and unlock Pro from Settings → Subscription.
+3. Symlink the binary onto your PATH:
+
+   ```bash
+   mkdir -p ~/.local/bin
+   ln -sf "/Applications/Slop Or Not - AI Fake Detector.app/Contents/MacOS/slop" \
+     ~/.local/bin/slop
+   ```
+
+4. Optionally register `slop mcp` with your AI client. See
+   [`references/slop-mcp-setup.md`](references/slop-mcp-setup.md) for
+   per-harness configuration snippets.
+
+Verify:
 
 ```bash
-mkdir -p ~/.config/opencode/skills
-git clone https://github.com/blader/humanizer.git ~/.config/opencode/skills/humanizer
+slop status --json
 ```
 
-Or copy the skill file manually if you already have this repo cloned:
-
-```bash
-mkdir -p ~/.config/opencode/skills/humanizer
-cp SKILL.md ~/.config/opencode/skills/humanizer/
-```
-
-> **Note:** OpenCode also scans `~/.claude/skills/` for compatibility, so if you use both tools, a single clone into `~/.claude/skills/humanizer/` is enough.
+Should print `{"premium": true, ...}`. If `premium: false`, finish step 2.
 
 ## Usage
 
-### Claude Code
-
-```
-/humanizer
-
-[paste your text here]
+```text
+/agentic-humanizer
+[paste your AI-generated text here]
 ```
 
-### OpenCode
+The skill asks four quick questions, then runs the loop and returns:
 
-```
-/humanizer
+```markdown
+## Humanized text
+<the rewritten text>
 
-[paste your text here]
-```
+## Loop history
+| Iter | AI score | Grade | Strategy           |
+|------|----------|-------|--------------------|
+| 0    |  92%     | 11.4  | baseline           |
+| 1    |  71%     | 10.8  | pattern surgery    |
+| 2    |  48%     | 10.4  | dialect + tone     |
+| 3    |  27%     |  9.7  | grade gap          |
+✓ Converged at iter 3.
 
-Or ask the model to humanize text directly in either tool:
-
-```
-Please humanize this text: [your text]
-```
-
-### Voice Calibration
-
-To match your personal writing style, provide a sample of your own writing:
-
-```
-/humanizer
-
-Here's a sample of my writing for voice matching:
-[paste 2-3 paragraphs of your own writing]
-
-Now humanize this text:
-[paste AI text to humanize]
+## Highest-impact edits
+- ...
 ```
 
-The skill will analyze your sentence rhythm, word choices, and quirks, then apply them to the rewrite instead of producing generic "clean" output.
+### Inline overrides
 
-## Overview
+Skip the interview by passing flags directly:
 
-Based on [Wikipedia's "Signs of AI writing"](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) guide, maintained by WikiProject AI Cleanup. This comprehensive guide comes from observations of thousands of instances of AI-generated text.
+```text
+/agentic-humanizer dialect=us grade=8 tone=casual length=±10 threshold=20 max=7 [paste]
+```
 
-The skill also includes a final "obviously AI generated" audit pass and a second rewrite, to catch lingering AI-isms in the first draft.
+Or just skip the interview and use defaults (American · High school ·
+Professional · ±10%):
 
-### Key Insight from Wikipedia
+```text
+/agentic-humanizer skip-interview [paste]
+```
 
-> "LLMs use statistical algorithms to guess what should come next. The result tends toward the most statistically likely result that applies to the widest variety of cases."
+## How is this different from `blader/humanizer`?
 
-## 30 Patterns Detected (with Before/After Examples)
+The upstream `blader/humanizer` is a one-shot rewriter: it applies the
+29-pattern playbook and returns the result.
 
-### Content Patterns
+Agentic Humanizer adds three things on top:
 
-| # | Pattern | Before | After |
-|---|---------|--------|-------|
-| 1 | **Significance inflation** | "marking a pivotal moment in the evolution of..." | "was established in 1989 to collect regional statistics" |
-| 2 | **Notability name-dropping** | "cited in NYT, BBC, FT, and The Hindu" | "In a 2024 NYT interview, she argued..." |
-| 3 | **Superficial -ing analyses** | "symbolizing... reflecting... showcasing..." | Remove or expand with actual sources |
-| 4 | **Promotional language** | "nestled within the breathtaking region" | "is a town in the Gonder region" |
-| 5 | **Vague attributions** | "Experts believe it plays a crucial role" | "according to a 2019 survey by..." |
-| 6 | **Formulaic challenges** | "Despite challenges... continues to thrive" | Specific facts about actual challenges |
+- **Iterative scoring loop.** Each rewrite is measured by Slop or Not
+  Pro's on-device detector and readability analyzer, so you can see the
+  loop converging from 92% → 71% → 48% → 27% AI score across iterations.
+- **Different strategy per iteration.** Five strategies in a fixed
+  schedule, not the same edit twice. The schedule is documented in
+  [`references/per-iteration-strategies.md`](references/per-iteration-strategies.md).
+- **Pre-loop interview.** Four questions (dialect, reading level, tone,
+  length) so the rewrite targets a specific reader, not a generic one.
 
-### Language Patterns
+The 29 patterns themselves are unchanged from upstream. They live in
+[`references/patterns.md`](references/patterns.md) with attribution.
 
-| # | Pattern | Before | After |
-|---|---------|--------|-------|
-| 7 | **AI vocabulary** | "Actually... additionally... testament... landscape... showcasing" | "also... remain common" |
-| 8 | **Copula avoidance** | "serves as... features... boasts" | "is... has" |
-| 9 | **Negative parallelisms / tailing negations** | "It's not just X, it's Y", "..., no guessing" | State the point directly |
-| 10 | **Rule of three** | "innovation, inspiration, and insights" | Use natural number of items |
-| 11 | **Synonym cycling** | "protagonist... main character... central figure... hero" | "protagonist" (repeat when clearest) |
-| 12 | **False ranges** | "from the Big Bang to dark matter" | List topics directly |
-| 13 | **Passive voice / subjectless fragments** | "No configuration file needed" | Name the actor when it helps clarity |
+## Will it bypass GPTZero / ZeroGPT / Pangram / Originality.ai?
 
-### Style Patterns
+The loop is designed against Slop or Not's on-device detector. Slop or
+Not reports 95% accuracy on AI text and 90% on AI images per their
+internal tests, with the caveat that *"results can vary with new AI
+models and advanced methods designed to trick detectors"* (per the
+slopornot.ai disclaimer).
 
-| # | Pattern | Before | After |
-|---|---------|--------|-------|
-| 14 | **Em/en dashes** | "institutions—not the people—yet this continues—" | Cut them: periods, commas, colons, or parentheses |
-| 15 | **Boldface overuse** | "**OKRs**, **KPIs**, **BMC**" | "OKRs, KPIs, BMC" |
-| 16 | **Inline-header lists** | "**Performance:** Performance improved" | Convert to prose |
-| 17 | **Title Case Headings** | "Strategic Negotiations And Partnerships" | "Strategic negotiations and partnerships" |
-| 18 | **Emojis** | "🚀 Launch Phase: 💡 Key Insight:" | Remove emojis |
-| 19 | **Curly quotes** | `said “the project”` | `said “the project”` |
-| 26 | **Hyphenated word pairs** | “cross-functional, data-driven, client-facing” | Drop hyphens on common word pairs |
-| 27 | **Persuasive authority tropes** | "At its core, what matters is..." | State the point directly |
-| 28 | **Signposting announcements** | "Let's dive in", "Here's what you need to know" | Start with the content |
-| 29 | **Fragmented headers** | "## Performance" + "Speed matters." | Let the heading do the work |
-| 30 | **Diff-anchored writing** | "This function was added to replace..." | Describe what it does, not what changed |
+We do not benchmark against external detectors. Cross-detector
+generalization is real but not guaranteed. If your goal is bypassing a
+specific competitor detector, this skill is not the right tool for that
+job.
 
-### Communication Patterns
+## Why Slop or Not specifically?
 
-| # | Pattern | Before | After |
-|---|---------|--------|-------|
-| 20 | **Chatbot artifacts** | "I hope this helps! Let me know if..." | Remove entirely |
-| 21 | **Cutoff disclaimers** | "While details are limited in available sources..." | Find sources or remove |
-| 22 | **Sycophantic tone** | "Great question! You're absolutely right!" | Respond directly |
+- **On-device.** Detection runs on the Apple Neural Engine. Your text
+  never leaves your machine for the *detection* step.
+- **No word-count limits.** Most cloud detectors meter usage. Slop or
+  Not has no per-document word cap; the free tier limits *number* of
+  daily checks instead.
+- **Pro tier is one-time-or-subscription.** A Lifetime purchase removes
+  the daily check limit and unlocks the `slop` CLI and `slop mcp` MCP
+  server that this skill uses.
 
-### Filler and Hedging
+For the full feature surface, see <https://slopornot.ai>.
 
-| # | Pattern | Before | After |
-|---|---------|--------|-------|
-| 23 | **Filler phrases** | "In order to", "Due to the fact that" | "To", "Because" |
-| 24 | **Excessive hedging** | "could potentially possibly" | "may" |
-| 25 | **Generic conclusions** | "The future looks bright" | Specific plans or facts |
+## Roadmap
 
-## Full Example
+- Additional harnesses (AiderDesk, Continue, Roo Code).
+- Optional second-detector cross-check (when Slop or Not adds an MCP
+  client for external detectors).
+- Voice-calibration mode that learns the user's writing style from a
+  pasted sample, like upstream's voice-cal feature.
 
-**Before (AI-sounding):**
-> Great question! Here is an essay on this topic. I hope this helps!
->
-> AI-assisted coding serves as an enduring testament to the transformative potential of large language models, marking a pivotal moment in the evolution of software development. In today's rapidly evolving technological landscape, these groundbreaking tools—nestled at the intersection of research and practice—are reshaping how engineers ideate, iterate, and deliver, underscoring their vital role in modern workflows.
->
-> At its core, the value proposition is clear: streamlining processes, enhancing collaboration, and fostering alignment. It's not just about autocomplete; it's about unlocking creativity at scale, ensuring that organizations can remain agile while delivering seamless, intuitive, and powerful experiences to users. The tool serves as a catalyst. The assistant functions as a partner. The system stands as a foundation for innovation.
->
-> Industry observers have noted that adoption has accelerated from hobbyist experiments to enterprise-wide rollouts, from solo developers to cross-functional teams. The technology has been featured in The New York Times, Wired, and The Verge. Additionally, the ability to generate documentation, tests, and refactors showcases how AI can contribute to better outcomes, highlighting the intricate interplay between automation and human judgment.
->
-> - 💡 **Speed:** Code generation is significantly faster, reducing friction and empowering developers.
-> - 🚀 **Quality:** Output quality has been enhanced through improved training, contributing to higher standards.
-> - ✅ **Adoption:** Usage continues to grow, reflecting broader industry trends.
->
-> While specific details are limited based on available information, it could potentially be argued that these tools might have some positive effect. Despite challenges typical of emerging technologies—including hallucinations, bias, and accountability—the ecosystem continues to thrive. In order to fully realize this potential, teams must align with best practices.
->
-> In conclusion, the future looks bright. Exciting times lie ahead as we continue this journey toward excellence. Let me know if you’d like me to expand on any section!
+Open an issue if you want a specific harness or feature prioritized.
 
-**After (Humanized):**
-> AI coding assistants can speed up the boring parts of the job. They're great at boilerplate: config files and the little glue code you don't want to write. They can also help you sketch a test, but you still have to read it.
->
-> The dangerous part is how confident the suggestions look. I've accepted code that compiled and passed lint, then discovered later it missed the point because I stopped paying attention.
->
-> If you treat it like autocomplete and review every line, it's useful. If you use it to avoid thinking, it will help you ship bugs faster.
->
-> The only real backstop is tests. Without them, you're mostly judging vibes.
+## Credits & License
 
-## References
+This is a community fork of [`blader/humanizer`](https://github.com/blader/humanizer)
+by Siqi Chen. The 29-pattern rewrite playbook in
+[`references/patterns.md`](references/patterns.md) is reproduced verbatim
+from upstream under the MIT License. See [`NOTICE`](NOTICE) for full
+attribution.
 
-- [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) - Primary source
-- [WikiProject AI Cleanup](https://en.wikipedia.org/wiki/Wikipedia:WikiProject_AI_Cleanup) - Maintaining organization
+This fork is licensed under the [MIT License](LICENSE), with upstream's
+copyright preserved alongside the fork's.
 
-## Version History
+The agentic detection loop, harness routing, interview, and per-iteration
+strategy schedule are new in this fork. Slop or Not is a separate
+product by the author of this fork; see <https://slopornot.ai>.
 
-- **2.7.0** - Added pattern #30 (diff-anchored writing); made em/en dashes a hard cut rather than "overuse"; expanded #21 to cover speculative gap-filling ("maintains a low profile"). 30 patterns total.
-- **2.6.0** - Cleanup pass: consolidated the duplicated workflow sections, gated the personality guidance to content where voice is wanted, removed the model-fingerprinting subsection, and condensed the worked example. No change to the 29 patterns.
-- **2.5.1** - Added a passive-voice / subjectless-fragment rule, raising the total to 29 patterns
-- **2.5.0** - Added patterns for persuasive framing, signposting, and fragmented headers; expanded negative parallelisms to cover tailing negations; tightened wording around em dash overuse; fixed frontmatter wording to use "filler phrases"
-- **2.4.0** - Added voice calibration: match the user's personal writing style from samples
-- **2.3.0** - Added pattern #25: hyphenated word pair overuse
-- **2.2.0** - Added a final "obviously AI generated" audit + second-pass rewrite prompts
-- **2.1.1** - Fixed pattern #18 example (curly quotes vs straight quotes)
-- **2.1.0** - Added before/after examples for all 24 patterns
-- **2.0.0** - Complete rewrite based on raw Wikipedia article content
-- **1.0.0** - Initial release
+## Contributing
 
-## License
-
-MIT
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). New harness routing files
+welcome. PRs that change the 29-pattern catalogue should sync from
+upstream rather than diverging.
