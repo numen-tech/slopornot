@@ -1,0 +1,29 @@
+name: lint-skill
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install markdownlint-cli2
+        run: npm install -g markdownlint-cli2@0.18.1
+
+      - name: Markdownlint
+        run: markdownlint-cli2 "**/*.md" "#node_modules" "#WARP.md"
+
+      - name: Frontmatter check
+        run: node scripts/check-frontmatter.mjs
+
+      - name: Relative-link check
+        run: node scripts/check-links.mjs

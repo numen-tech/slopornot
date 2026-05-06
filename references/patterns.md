@@ -36,7 +36,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The Statistical Institute of Catalonia was established in 1989 to collect and publish regional statistics independently from Spain's national statistics office.
 
-
 ### 2. Undue Emphasis on Notability and Media Coverage
 
 **Words to watch:** independent coverage, local/regional/national media outlets, written by a leading expert, active social media presence
@@ -48,7 +47,6 @@ loop, each iteration targets a specific subset of patterns (see
 
 **After:**
 > In a 2024 New York Times interview, she argued that AI regulation should focus on outcomes rather than methods.
-
 
 ### 3. Superficial Analyses with -ing Endings
 
@@ -62,7 +60,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The temple uses blue, green, and gold colors. The architect said these were chosen to reference local bluebonnets and the Gulf coast.
 
-
 ### 4. Promotional and Advertisement-like Language
 
 **Words to watch:** boasts a, vibrant, rich (figurative), profound, enhancing its, showcasing, exemplifies, commitment to, natural beauty, nestled, in the heart of, groundbreaking (figurative), renowned, breathtaking, must-visit, stunning
@@ -74,7 +71,6 @@ loop, each iteration targets a specific subset of patterns (see
 
 **After:**
 > Alamata Raya Kobo is a town in the Gonder region of Ethiopia, known for its weekly market and 18th-century church.
-
 
 ### 5. Vague Attributions and Weasel Words
 
@@ -88,7 +84,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The Haolai River supports several endemic fish species, according to a 2019 survey by the Chinese Academy of Sciences.
 
-
 ### 6. Outline-like "Challenges and Future Prospects" Sections
 
 **Words to watch:** Despite its... faces several challenges..., Despite these challenges, Challenges and Legacy, Future Outlook
@@ -100,7 +95,6 @@ loop, each iteration targets a specific subset of patterns (see
 
 **After:**
 > Traffic congestion increased after 2015 when three new IT parks opened. The municipal corporation began a stormwater drainage project in 2022 to address recurring floods.
-
 
 ## LANGUAGE AND GRAMMAR PATTERNS
 
@@ -116,7 +110,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > Somali cuisine also includes camel meat, which is considered a delicacy. Pasta dishes, introduced during Italian colonization, remain common, especially in the south.
 
-
 ### 8. Avoidance of "is"/"are" (Copula Avoidance)
 
 **Words to watch:** serves as/stands as/marks/represents [a], boasts/features/offers [a]
@@ -128,7 +121,6 @@ loop, each iteration targets a specific subset of patterns (see
 
 **After:**
 > Gallery 825 is LAAA's exhibition space for contemporary art. The gallery has four rooms totaling 3,000 square feet.
-
 
 ### 9. Negative Parallelisms and Tailing Negations
 
@@ -146,7 +138,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The options come from the selected item without forcing the user to guess.
 
-
 ### 10. Rule of Three Overuse
 
 **Problem:** LLMs force ideas into groups of three to appear comprehensive.
@@ -156,7 +147,6 @@ loop, each iteration targets a specific subset of patterns (see
 
 **After:**
 > The event includes talks and panels. There's also time for informal networking between sessions.
-
 
 ### 11. Elegant Variation (Synonym Cycling)
 
@@ -168,7 +158,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The protagonist faces many challenges but eventually triumphs and returns home.
 
-
 ### 12. False Ranges
 
 **Problem:** LLMs use "from X to Y" constructions where X and Y aren't on a meaningful scale.
@@ -179,7 +168,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The book covers the Big Bang, star formation, and current theories about dark matter.
 
-
 ### 13. Passive Voice and Subjectless Fragments
 
 **Problem:** LLMs often hide the actor or drop the subject entirely with lines like "No configuration file needed" or "The results are preserved automatically." Rewrite these when active voice makes the sentence clearer and more direct.
@@ -189,7 +177,6 @@ loop, each iteration targets a specific subset of patterns (see
 
 **After:**
 > You do not need a configuration file. The system preserves the results automatically.
-
 
 ## STYLE PATTERNS
 
@@ -203,7 +190,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The term is primarily promoted by Dutch institutions, not by the people themselves. You don't say "Netherlands, Europe" as an address, yet this mislabeling continues in official documents.
 
-
 ### 15. Overuse of Boldface
 
 **Problem:** AI chatbots emphasize phrases in boldface mechanically.
@@ -214,12 +200,12 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > It blends OKRs, KPIs, and visual strategy tools like the Business Model Canvas and Balanced Scorecard.
 
-
 ### 16. Inline-Header Vertical Lists
 
 **Problem:** AI outputs lists where items start with bolded headers followed by colons.
 
 **Before:**
+
 > - **User Experience:** The user experience has been significantly improved with a new interface.
 > - **Performance:** Performance has been enhanced through optimized algorithms.
 > - **Security:** Security has been strengthened with end-to-end encryption.
@@ -227,17 +213,17 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The update improves the interface, speeds up load times through optimized algorithms, and adds end-to-end encryption.
 
-
 ### 17. Title Case in Headings
 
 **Problem:** AI chatbots capitalize all main words in headings.
 
 **Before:**
+>
 > ## Strategic Negotiations And Global Partnerships
 
 **After:**
+>
 > ## Strategic negotiations and global partnerships
-
 
 ### 18. Emojis
 
@@ -251,7 +237,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The product launches in Q3. User research showed a preference for simplicity. Next step: schedule a follow-up meeting.
 
-
 ### 19. Curly Quotation Marks
 
 **Problem:** ChatGPT uses curly quotes ("...") instead of straight quotes ("...").
@@ -261,7 +246,6 @@ loop, each iteration targets a specific subset of patterns (see
 
 **After:**
 > He said "the project is on track" but others disagreed.
-
 
 ## COMMUNICATION PATTERNS
 
@@ -277,7 +261,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The French Revolution began in 1789 when financial crisis and food shortages led to widespread unrest.
 
-
 ### 21. Knowledge-Cutoff Disclaimers
 
 **Words to watch:** as of [date], Up to my last training update, While specific details are limited/scarce..., based on available information...
@@ -290,7 +273,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The company was founded in 1994, according to its registration documents.
 
-
 ### 22. Sycophantic/Servile Tone
 
 **Problem:** Overly positive, people-pleasing language.
@@ -301,19 +283,18 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The economic factors you mentioned are relevant here.
 
-
 ## FILLER AND HEDGING
 
 ### 23. Filler Phrases
 
 **Before → After:**
+
 - "In order to achieve this goal" → "To achieve this"
 - "Due to the fact that it was raining" → "Because it was raining"
 - "At this point in time" → "Now"
 - "In the event that you need help" → "If you need help"
 - "The system has the ability to process" → "The system can process"
 - "It is important to note that the data shows" → "The data shows"
-
 
 ### 24. Excessive Hedging
 
@@ -325,7 +306,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The policy may affect outcomes.
 
-
 ### 25. Generic Positive Conclusions
 
 **Problem:** Vague upbeat endings.
@@ -335,7 +315,6 @@ loop, each iteration targets a specific subset of patterns (see
 
 **After:**
 > The company plans to open two more locations next year.
-
 
 ### 26. Hyphenated Word Pair Overuse
 
@@ -349,7 +328,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The cross functional team delivered a high quality, data driven report on our client facing tools. Their decision making process was known for being thorough and detail oriented.
 
-
 ### 27. Persuasive Authority Tropes
 
 **Phrases to watch:** The real question is, at its core, in reality, what really matters, fundamentally, the deeper issue, the heart of the matter
@@ -361,7 +339,6 @@ loop, each iteration targets a specific subset of patterns (see
 
 **After:**
 > The question is whether teams can adapt. That mostly depends on whether the organization is ready to change its habits.
-
 
 ### 28. Signposting and Announcements
 
@@ -375,7 +352,6 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > Next.js caches data at multiple layers, including request memoization, the data cache, and the router cache.
 
-
 ### 29. Fragmented Headers
 
 **Signs to watch:** A heading followed by a one-line paragraph that simply restates the heading before the real content begins.
@@ -383,6 +359,7 @@ loop, each iteration targets a specific subset of patterns (see
 **Problem:** LLMs often add a generic sentence after a heading as a rhetorical warm-up. It usually adds nothing and makes the prose feel padded.
 
 **Before:**
+>
 > ## Performance
 >
 > Speed matters.
@@ -390,6 +367,10 @@ loop, each iteration targets a specific subset of patterns (see
 > When users hit a slow page, they leave.
 
 **After:**
+
+<!-- markdownlint-disable MD024 -->
+>
 > ## Performance
 >
 > When users hit a slow page, they leave.
+<!-- markdownlint-enable MD024 -->

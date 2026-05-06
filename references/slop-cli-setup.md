@@ -12,7 +12,9 @@ setup.
 
 The binary lives at:
 
-    /Applications/Slop Or Not - AI Fake Detector.app/Contents/MacOS/slop
+```text
+/Applications/Slop Or Not - AI Fake Detector.app/Contents/MacOS/slop
+```
 
 The path contains spaces — quote it in shell commands.
 
