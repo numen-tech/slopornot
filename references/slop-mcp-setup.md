@@ -89,7 +89,7 @@ Save and restart Cursor.
 The server is `stdio`-based. Any MCP client that supports a custom
 stdio command can register it via:
 
-```
+```yaml
 command: slop
 args: ["mcp"]
 ```

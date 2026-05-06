@@ -86,12 +86,14 @@ Log `{iter: 2, score, grade, strategy: "dialect + tone"}`.
 Goal: close the gap between current Flesch-Kincaid grade and target.
 
 If `current_grade > target_grade + 1`:
+
 - Shorten sentences (split compound and complex sentences at conjunctions).
 - Swap polysyllabic words for shorter synonyms where the meaning
   survives (`utilize → use`, `commence → start`, `subsequently → then`).
 - Avoid removing precise terminology — substitute, do not generalize.
 
 If `current_grade < target_grade − 1`:
+
 - Combine short clauses with subordinating conjunctions.
 - Introduce precise terminology where the audience supports it.
 - Replace plain verbs with the field-specific verbs that match the tone.
