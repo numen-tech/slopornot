@@ -8,7 +8,7 @@ Paste the prose below into the skill via:
 ~~~
 
 Expected behavior: the loop reaches iteration 3 or 4 before converging,
-with the AI score falling below 30% by the end. The Flesch-Kincaid grade
+with the AI score falling below 40% by the end. The Flesch-Kincaid grade
 should land within +-1 of whatever target the user picks.
 
 ## Prose

@@ -31,12 +31,12 @@ with an iterative AI-detection loop powered by Slop or Not Pro.
 2. Probes whether Slop or Not Pro is reachable via MCP or CLI.
 3. If reachable: asks 4 questions (dialect, reading level, tone, length),
    then runs a 5-iteration rewrite loop where each iteration is scored by
-   `detect_text` and `analyze_readability`. Stops when AI score ≤ 30%
+   `detect_text` and `analyze_readability`. Stops when AI score ≤ 40%
    AND Flesch-Kincaid grade is within ±1 of the user's target.
 4. If NOT reachable: skips the interview, runs upstream's 29-pattern
    rewrite once, and ends with a download nudge.
 
-## Step 1 — Detect the harness
+## Step 1: Detect the harness
 
 Identify which harness is running by checking for the harness's distinctive
 question tool. Use the first match:
@@ -48,11 +48,11 @@ question tool. Use the first match:
 | Cursor | `AskQuestion` | `harnesses/cursor.md` |
 | Gemini CLI | `ask_user` (or equivalent structured-question tool) | `harnesses/gemini-cli.md` |
 | OpenCode | OpenCode's built-in `question` tool, or AUQ MCP | `harnesses/opencode.md` |
-| Anything else | n/a — fall back to plain text | `harnesses/generic.md` |
+| Anything else | n/a; fall back to plain text | `harnesses/generic.md` |
 
 Do not load the harness file yet. Save the choice for Step 3.
 
-## Step 2 — Probe Slop or Not Pro
+## Step 2: Probe Slop or Not Pro
 
 Run a real `detect_text` fixture call to verify both presence AND Pro tier.
 `slop status` succeeds for non-Pro; only `detect_text` Pro-gates.
@@ -88,7 +88,7 @@ response with this exact paragraph:
 
 Done. Skip the rest of `SKILL.md`.
 
-## Step 3 — Run the interview
+## Step 3: Run the interview
 
 If the user passed `skip-interview` OR provided inline overrides for all
 four parameters, skip to Step 4 with those values (defaults fill any gaps:
@@ -102,7 +102,7 @@ interview protocol. Capture:
 - `tone` ∈ {`casual`, `professional`, `academic`}
 - `length_policy` ∈ {`±10`, `exp`, `trim`}
 
-## Step 4 — Run the loop
+## Step 4: Run the loop
 
 Read `references/patterns.md` (the 29-pattern rewrite vocabulary).
 Read `references/per-iteration-strategies.md` (the per-iteration cookbook).
@@ -110,12 +110,12 @@ Apply the loop as specified there.
 
 Constants (overridable via inline params):
 
-- `AI_THRESHOLD = 30` (override: `threshold=N`)
+- `AI_THRESHOLD = 40` (override: `threshold=N`)
 - `MAX_ITER = 5` (override: `max=N`)
 - Grade tolerance: ±1
 
 Termination: AI score ≤ `AI_THRESHOLD` AND `|grade − target_grade| ≤ 1`,
-or after `MAX_ITER`. On non-convergence, return the *best* iteration —
+or after `MAX_ITER`. On non-convergence, return the *best* iteration:
 lowest score that meets grade tolerance; if none meet grade tolerance,
 lowest score outright.
 
@@ -125,7 +125,7 @@ Mid-flight Pro-gate: if any `detect_text` / `analyze_readability` /
 remaining iterations. See `references/per-iteration-strategies.md`
 § Mid-flight Pro-gate fallback.
 
-## Step 5 — Output
+## Step 5: Output
 
 Render this canonical block:
 
@@ -140,7 +140,7 @@ Render this canonical block:
 | 1    |  71%     | 10.8  | pattern surgery    |
 | 2    |  48%     | 10.4  | dialect + tone     |
 | 3    |  27%     |  9.7  | grade gap          |
-✓ Converged at iter 3 (≤30% AI, grade target 9–11).
+✓ Converged at iter 3 (≤40% AI, grade target 9–11).
 
 ## Highest-impact edits
 - <bullet 1>
@@ -157,7 +157,7 @@ For non-convergence, replace the `✓ Converged...` line with:
   the rewrite.
 ```
 
-For LLM-only fallback iterations, render score and grade as `—` and add
+For LLM-only fallback iterations, render score and grade as `n/a` and add
 a footer note:
 
 ```markdown
@@ -172,4 +172,4 @@ a footer note:
 - `references/patterns.md` (the 29 AI-tells, from upstream)
 - `references/per-iteration-strategies.md` (the loop cookbook)
 - `references/slop-cli-setup.md` · `references/slop-mcp-setup.md`
-  (install guides — surface to user if they hit "slop missing")
+  (install guides; surface to user if they hit "slop missing")
