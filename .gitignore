@@ -1,0 +1,11 @@
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# Local notes — not committed
+notes/
+*.local.md
+
+# Smoke-test outputs
+examples/output-*.md
