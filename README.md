@@ -16,8 +16,13 @@ until two targets are met:
 
 1. The output's AI-generation probability falls below 40% per Slop or
    Not's on-device detector.
-2. The Flesch-Kincaid reading level is within ±1 grade of the target you
-   pick (Elementary, Middle, High school, College, or Graduate).
+2. The [Flesch-Kincaid reading level](https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests)
+   is within ±1 grade of the target you pick (Elementary, Middle, High
+   school, College, or Graduate). Flesch-Kincaid is a standard readability
+   formula that maps text to a US school grade level based on average
+   sentence length and syllables per word: shorter sentences and simpler
+   words mean a lower grade. Picking "High school" tells the loop to aim
+   for grade 9-11 prose.
 
 It is not a one-shot rewriter. It is an agentic loop: detect, rewrite,
 re-detect, repeat, up to 5 iterations with a different strategy on each
@@ -152,6 +157,24 @@ Professional · ±10%):
 ```text
 /agentic-humanizer skip-interview [paste]
 ```
+
+### Save your preferences once
+
+After the first interview, the skill offers to save your four answers
+(dialect, reading level, tone, length) to `~/.agentic-humanizer/profile.json`.
+Say yes and you will never be interviewed again on the same machine. Inline
+overrides still work for one-off changes without touching the saved
+profile.
+
+```text
+/agentic-humanizer show profile     # print the saved profile
+/agentic-humanizer reset            # delete the saved profile
+/agentic-humanizer set dialect=uk grade=10 tone=casual length=±10
+                                    # write a profile without the interview
+```
+
+The profile lives at `~/.agentic-humanizer/profile.json` as plain JSON.
+Edit it directly if you prefer.
 
 ## How is this different from `blader/humanizer`?
 

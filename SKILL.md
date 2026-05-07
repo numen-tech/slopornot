@@ -90,17 +90,62 @@ Done. Skip the rest of `SKILL.md`.
 
 ## Step 3: Run the interview
 
-If the user passed `skip-interview` OR provided inline overrides for all
-four parameters, skip to Step 4 with those values (defaults fill any gaps:
-American · High school · Professional · ±10%).
+**Profile resolution order:**
 
-Otherwise, read the harness file selected in Step 1 and follow its
-interview protocol. Capture:
+1. **Inline overrides** for all four parameters → use them; do not read the profile.
+2. **`skip-interview` flag** → use the saved profile if present, otherwise fall back to defaults (American · High school · Professional · ±10%).
+3. **Saved profile at `~/.agentic-humanizer/profile.json`** → use it silently and skip the interview. Never re-prompt a user who already has a profile unless they ask.
+4. **No profile, no overrides** → run the harness interview as below.
+
+Read the saved profile with:
+
+```bash
+PROFILE=~/.agentic-humanizer/profile.json
+[ -f "$PROFILE" ] && cat "$PROFILE"
+```
+
+If the file is missing, malformed JSON, or missing required keys, treat it as absent and run the interview.
+
+**Run the interview** by reading the harness file selected in Step 1 and following its interview protocol. Capture:
 
 - `dialect` ∈ {`us`, `uk`, `other:<string>`}
 - `target_grade` ∈ {4, 7, 10, 14, 17}
 - `tone` ∈ {`casual`, `professional`, `academic`}
 - `length_policy` ∈ {`±10`, `exp`, `trim`}
+
+After the four answers, ask **one final yes/no question** (use the same harness question tool):
+
+> *"Save these as your default so I don't ask again next time? You can reset anytime with `/agentic-humanizer reset`."*
+
+If yes:
+
+```bash
+mkdir -p ~/.agentic-humanizer
+cat > ~/.agentic-humanizer/profile.json <<EOF
+{
+  "dialect": "<us|uk|other:...>",
+  "target_grade": <4|7|10|14|17>,
+  "tone": "<casual|professional|academic>",
+  "length_policy": "<±10|exp|trim>",
+  "saved_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "version": 1
+}
+EOF
+```
+
+Then continue to Step 4. Inline overrides on a future call always win over a saved profile for that one call only; they do not overwrite the file.
+
+## Profile management commands
+
+The user can manage their saved profile with these subcommands:
+
+| Command | Action |
+|---|---|
+| `/agentic-humanizer show profile` | Print `~/.agentic-humanizer/profile.json` (or "no profile saved"). |
+| `/agentic-humanizer reset` | `rm ~/.agentic-humanizer/profile.json` and confirm. |
+| `/agentic-humanizer set dialect=uk grade=10 tone=casual length=±10` | Write a profile from inline params without running the interview. Any subset of keys is allowed; missing keys keep their current value or use the default if no profile exists. |
+
+When you see one of these subcommands, execute it and stop. Do not run the loop.
 
 ## Step 4: Run the loop
 

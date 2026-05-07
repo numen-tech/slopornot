@@ -5,6 +5,16 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- `AGENTS.md` agent guide for contributors, with `CLAUDE.md` symlinked to it.
+- Saved-preferences profile at `~/.agentic-humanizer/profile.json`. After
+  the first interview the skill offers to remember your answers; subsequent
+  runs skip the interview silently. Manage via `/agentic-humanizer show profile`,
+  `/agentic-humanizer reset`, and `/agentic-humanizer set dialect=... grade=... tone=... length=...`.
+- README explanation of what Flesch-Kincaid reading level means, with a link
+  to the Wikipedia overview.
+
 ## [0.1.0] (2026-05-07)
 
 Initial release. Forked from
