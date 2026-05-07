@@ -30,10 +30,40 @@ A community fork of [`blader/humanizer`](https://github.com/blader/humanizer) th
 
 2. **No em-dashes in `README.md`, `SKILL.md`, `CHANGELOG.md`, `AGENTS.md`, commits, tag annotations, or release notes.** Use commas, colons, or parentheses. The user-facing surface of a humanizer can't credibly ship em-dash-laden copy. (Inherited em-dashes in `references/` and `harnesses/` predate the rule and are getting cleaned up incrementally; do not introduce new ones.)
 3. **Don't edit `references/patterns.md` for local taste.** Only sync from upstream `blader/humanizer`. The 29 patterns are upstream's contribution.
-4. **Conventional Commits**: `type(scope): subject`. Common scopes: `harnesses`, `references`, `docs`, `ci`, `chore`. Subject is imperative, lowercase, no trailing period.
-5. **Keep `SKILL.md` and `README.md` in sync** when you change a runtime constant (`AI_THRESHOLD`, `MAX_ITER`, grade tolerance), the interview shape, the output format, or the inline-override grammar. Stale runtime docs mislead users.
-6. **Don't add new per-iteration strategies that replace the 5-iteration schedule.** New strategies must compose with it. Open an issue first.
-7. **Harness-specific instructions stay in `harnesses/<name>.md`.** Don't sprinkle "Claude Code users…" / "Codex users…" through the top-level SKILL.md.
+4. **Conventional Commits are required, not optional.** Format: `type(scope): subject`. Subject is imperative, lowercase, no trailing period. Allowed types and their changelog mapping:
+
+   | Type | Changelog section | Use for |
+   |---|---|---|
+   | `feat` | Added | new behavior, new harness, new reference doc |
+   | `fix` | Fixed | bug fixes in scripts, lint rules, runtime logic |
+   | `perf` | Changed | measurable speed or token wins |
+   | `refactor` | Changed | restructuring without behavior change |
+   | `docs` | Changed (or omit) | `README`, `AGENTS.md`, `CHANGELOG`, `NOTICE`, `CONTRIBUTING` edits |
+   | `build` / `ci` | (omit) | workflow, lint config, release tooling |
+   | `test` | (omit) | adding or fixing tests and fixtures |
+   | `chore` | (omit) | housekeeping, dependency bumps |
+   | `revert` | matches reverted type | use `revert: <original subject>` |
+
+   Use `!` after the type/scope or a `BREAKING CHANGE:` footer for breaking changes (these always land in changelog under "Changed" with a "BREAKING" prefix). Common scopes: `harnesses`, `references`, `docs`, `ci`, `chore`, `scripts`. The changelog generator reads commit history, so a malformed subject silently drops the change from the next release notes.
+
+5. **Doc-sync is part of the change, not a follow-up.** Any PR that changes runtime behavior MUST update every affected surface in the same commit (or stack of commits). Use this matrix:
+
+   | What you changed | Update these in the same PR |
+   |---|---|
+   | Runtime constant (`AI_THRESHOLD`, `MAX_ITER`, grade tolerance) | `SKILL.md`, `README.md`, `CHANGELOG.md` (Unreleased) |
+   | Interview shape, question count, or order | `SKILL.md`, `README.md`, every `harnesses/*.md`, `CHANGELOG.md` |
+   | Output format (Step 5 structure, fields, ordering) | `SKILL.md`, `README.md`, `CHANGELOG.md` |
+   | Inline-override grammar or saved-profile schema | `SKILL.md`, `README.md`, `CHANGELOG.md` |
+   | New or renamed reference doc under `references/` | `SKILL.md` (links), `AGENTS.md` (Layout table), `scripts/check-links.mjs` if it hardcodes paths |
+   | Harness routing (added, removed, renamed harness) | `SKILL.md` Step 1, `harnesses/<name>.md`, `README.md`, `CHANGELOG.md` |
+   | Lint rules, CI gates, release scripts | `AGENTS.md` (Critical rules § 1), `CONTRIBUTING.md`, `CHANGELOG.md` |
+   | Slop CLI / MCP install steps | `references/slop-cli-setup.md` or `references/slop-mcp-setup.md`, `README.md`, `CHANGELOG.md` |
+
+   If you can't tell whether a doc is affected, grep it for the symbol you changed. Stale runtime docs mislead users and corrupt the changelog.
+
+6. **Every user-visible change appends to `CHANGELOG.md` § `[Unreleased]`** under the matching Keep-a-Changelog heading (`Added`, `Changed`, `Fixed`, `Removed`, `Deprecated`, `Security`). Internal-only changes (`ci`, `build`, `test`, `chore`) skip the changelog. The release script promotes `[Unreleased]` to a versioned section; missing entries can't be recovered after the tag.
+7. **Don't add new per-iteration strategies that replace the 5-iteration schedule.** New strategies must compose with it. Open an issue first.
+8. **Harness-specific instructions stay in `harnesses/<name>.md`.** Don't sprinkle "Claude Code users…" / "Codex users…" through the top-level `SKILL.md`.
 
 ## Smoke test
 
@@ -43,9 +73,3 @@ A community fork of [`blader/humanizer`](https://github.com/blader/humanizer) th
 ```
 
 Expect convergence by iteration 3 or 4 on the sample fixture. Output structure must match `SKILL.md` § Step 5.
-
-## Out of scope
-
-- Adding new detectors. The loop is intentionally Slop or Not Pro only.
-- Cloud-detector benchmarking (GPTZero, Originality, Pangram). README § "Will it bypass…" is the canonical answer.
-- Voice-calibration mode. Tracked under Roadmap; needs design before code.
