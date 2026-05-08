@@ -4,8 +4,13 @@
 exposes `tool/requestUserInput` (experimental) for structured questions.
 
 **Critical constraint:** the tool accepts only 1–3 questions per call. Our
-4-question interview splits into two calls (3 + 1). Other harnesses can
-ask all four in one call.
+4-question interview splits into two calls (3 + 1). When conditional Q5
+fires, split the interview as 3 + 2. Other harnesses can ask all eligible
+questions in one call.
+
+Only ask Q5 when no inline or saved `voice_path` has resolved,
+`~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
+contain `"voice_skip": true`.
 
 ## Call 1 — three questions
 
@@ -31,7 +36,7 @@ ask all four in one call.
 }
 ```
 
-## Call 2 — one question
+## Call 2: one or two questions
 
 ```json
 {
@@ -41,11 +46,17 @@ ask all four in one call.
       {
         "question": "Length policy for the rewrite? (Keep within ±10% / Allow expansion / Allow trimming)",
         "type": "text"
+      },
+      {
+        "question": "Mimic a writing sample of yours? (Yes / No / Never ask again)",
+        "type": "text"
       }
     ]
   }
 }
 ```
+
+Omit the second question in Call 2 when Q5 is not eligible.
 
 ## After the interview
 
@@ -59,9 +70,16 @@ Parse each text answer to map onto the internal variables:
   `academic`.
 - Q4 → `length_policy`: match `±10|10%|keep` → `±10`; `expand|exp` →
   `exp`; `trim` → `trim`.
+- Q5 → voice choice: match `yes` → start Step 3.5 sample capture;
+  `no` → skip voice matching for this call; `never` → persist
+  `voice_skip`.
 
 If parsing is ambiguous, ask one follow-up clarification (still via
 `tool/requestUserInput`) before defaulting.
+
+When Q5 is `yes`, say exactly: *"Paste 200+ words as your next message."*
+Capture the next user turn as the voice sample and return to `SKILL.md`
+Step 3.5 for validation, writing, and fingerprint extraction.
 
 Return to `SKILL.md` § Loop algorithm with these answers.
 

@@ -3,10 +3,13 @@
 `SKILL.md` routes here when running inside Cursor 2.4 or later. Cursor
 exposes `AskQuestion` for multiple-choice prompts in agent sessions.
 
-## The interview — four sequential AskQuestion calls
+## The interview: four or five sequential AskQuestion calls
 
 Cursor's AskQuestion (as of 2.4) takes one question per call. Issue the
-four below in sequence; do not bundle.
+four required questions below in sequence; do not bundle. Add the fifth
+voice question only when no inline or saved `voice_path` has resolved,
+`~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
+contain `"voice_skip": true`.
 
 ```text
 AskQuestion({
@@ -42,7 +45,15 @@ AskQuestion({
     "Allow trimming"
   ]
 })
+
+AskQuestion({
+  title: "Voice",
+  message: "Mimic a writing sample of yours?",
+  options: ["Yes", "No", "Never ask again"]
+})
 ```
+
+Omit the `Voice` call when Q5 is not eligible.
 
 ## After the interview
 
@@ -54,6 +65,12 @@ Map the chosen labels to internal variables (same as Claude Code):
 - Q3 → `tone`: lowercase the label.
 - Q4 → `length_policy`: `Keep within ±10% of original` → `±10`,
   `Allow expansion` → `exp`, `Allow trimming` → `trim`.
+- Q5 → voice choice: `Yes` starts Step 3.5 sample capture, `No` skips
+  voice matching for this call, `Never ask again` persists `voice_skip`.
+
+When Q5 is `Yes`, say exactly: *"Paste 200+ words as your next message."*
+Capture the next user turn as the voice sample and return to `SKILL.md`
+Step 3.5 for validation, writing, and fingerprint extraction.
 
 Return to `SKILL.md` § Loop algorithm with these answers.
 

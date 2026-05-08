@@ -14,6 +14,26 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `/agentic-humanizer reset`, and `/agentic-humanizer set dialect=... grade=... tone=... length=...`.
 - README explanation of what Flesch-Kincaid reading level means, with a link
   to the Wikipedia overview.
+- Optional voice matching. Drop a writing sample at
+  `~/.agentic-humanizer/voice.txt` or pass `voice=/path/to/file.txt` for one
+  call. The skill extracts a cached stylometric fingerprint and applies it
+  inside Iteration 2 (tone) and Iteration 5 (concrete phrasing). The
+  interview offers to capture a sample on first run with a Yes / No /
+  Never-ask-again gate.
+- New inline flags: `voice=/path/to/file.txt`, `voice=off`, and
+  `voice-skip` (alias for `voice=off`).
+- New profile subcommands: `/agentic-humanizer show voice`,
+  `/agentic-humanizer reset voice`, and
+  `/agentic-humanizer set voice=/path/to/file.txt`.
+- New reference doc `references/voice-fingerprint.md` covers the
+  extraction prompt, fingerprint schema, cache invalidation rules,
+  required-field list, privacy posture, and the Iteration 2 and
+  Iteration 5 injection contracts.
+- Profile schema bumped to version 2. Version 1 profiles still load;
+  missing voice fields default to safe values.
+- Output footer adds a `_Voice matched from <path>_` line when voice
+  matching ran successfully, or a `_Voice extraction failed_` line with
+  reset instructions when it did not.
 
 ### Changed
 

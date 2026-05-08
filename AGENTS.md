@@ -14,6 +14,7 @@ A community fork of [`blader/humanizer`](https://github.com/blader/humanizer) th
 | `harnesses/{claude-code,codex,cursor,gemini-cli,opencode,generic}.md` | Per-harness interview protocols. Edit only the file for the harness you're targeting. |
 | `references/patterns.md` | 29-pattern rewrite vocabulary, **synced verbatim from upstream**. Local divergence is out of scope. |
 | `references/per-iteration-strategies.md` | The 5-iteration cookbook + mid-flight Pro-gate fallback. |
+| `references/voice-fingerprint.md` | Voice sample policy, fingerprint schema, extraction prompt, cache rules, and loop injection contracts. |
 | `references/slop-{cli,mcp}-setup.md` | User-facing install guides. |
 | `examples/sample-ai-text.md` | Smoke-test fixture. |
 | `scripts/check-{frontmatter,links}.mjs` | Lint scripts run by CI. |
@@ -54,6 +55,7 @@ A community fork of [`blader/humanizer`](https://github.com/blader/humanizer) th
    | Interview shape, question count, or order | `SKILL.md`, `README.md`, every `harnesses/*.md`, `CHANGELOG.md` |
    | Output format (Step 5 structure, fields, ordering) | `SKILL.md`, `README.md`, `CHANGELOG.md` |
    | Inline-override grammar or saved-profile schema | `SKILL.md`, `README.md`, `CHANGELOG.md` |
+   | Voice fingerprint behavior, schema, or extraction prompt | `SKILL.md`, `README.md`, `references/voice-fingerprint.md`, `references/per-iteration-strategies.md`, `CHANGELOG.md` |
    | New or renamed reference doc under `references/` | `SKILL.md` (links), `AGENTS.md` (Layout table), `scripts/check-links.mjs` if it hardcodes paths |
    | Harness routing (added, removed, renamed harness) | `SKILL.md` Step 1, `harnesses/<name>.md`, `README.md`, `CHANGELOG.md` |
    | Lint rules, CI gates, release scripts | `AGENTS.md` (Critical rules § 1), `CONTRIBUTING.md`, `CHANGELOG.md` |

@@ -77,6 +77,12 @@ Apply the user's tone choice from Q3:
 - **`academic`**: passive voice acceptable, hedged claims, citations
   where appropriate, terminology preferred over plain words.
 
+If a voice fingerprint is cached, append `register`, `contraction_use`,
+`hedge_use`, and `function_word_habits` from
+`references/voice-fingerprint.md` to the tone-alignment instruction. The
+voice fingerprint takes precedence over `tone=` only for register-level
+conflicts. It does not override the user's task intent.
+
 Do not retarget grade level in this iteration.
 
 Log `{iter: 2, score, grade, strategy: "dialect + tone"}`.
@@ -131,6 +137,9 @@ earlier iterations avoided.
 3. If `length_policy` allows expansion: introduce one concrete example
    or anecdote-style sentence per paragraph that the source paragraphs
    support. AI text reads generic; specific examples read human.
+   If a voice fingerprint is cached, draw phrasing cues from
+   `idiom_inventory` and use `signature_openings` and `paragraph_rhythm`
+   instead of generic phrasing. Do not import facts from the sample.
 4. If `length_policy` is `Keep within ±10%`: trim filler from earlier
    iterations to make budget for the example, OR skip the example if
    budget is unavailable.
@@ -147,10 +156,12 @@ remaining iterations:
 2. Apply the iteration's strategy as planned (skip the slop pipes;
    use LLM-only equivalents for `slop cleanup --british` and
    `clean_text`).
-3. The LLM self-assesses whether the patterns it attacked are gone.
-4. Log `{iter: N, score: null, grade: null, strategy: "<name>",
+3. If `voice_active=true`, keep using the cached fingerprint for Iteration
+   2 and Iteration 5. Voice matching is independent of Slop availability.
+4. The LLM self-assesses whether the patterns it attacked are gone.
+5. Log `{iter: N, score: null, grade: null, strategy: "<name>",
    note: "LLM-only fallback"}`.
-5. In the final output's history table, render score and grade columns
+6. In the final output's history table, render score and grade columns
    as `n/a` for fallback iterations and add a footer note:
    *"Iterations N–M ran without on-device scoring. Install Slop or Not
    Pro to measure the loop end-to-end."*

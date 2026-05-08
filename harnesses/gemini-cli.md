@@ -8,7 +8,10 @@ tool mapping) that accepts a `questions` array with `header`, `question`,
 
 ## The interview — one tool call
 
-Bundle all four questions in one call:
+Bundle all four required questions in one call. Add Q5 to the same
+`questions` array only when no inline or saved `voice_path` has resolved,
+`~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
+contain `"voice_skip": true`.
 
 ```json
 {
@@ -54,10 +57,22 @@ Bundle all four questions in one call:
         { "label": "Allow expansion" },
         { "label": "Allow trimming" }
       ]
+    },
+    {
+      "header": "Voice",
+      "question": "Mimic a writing sample of yours?",
+      "type": "choice",
+      "options": [
+        { "label": "Yes" },
+        { "label": "No" },
+        { "label": "Never ask again" }
+      ]
     }
   ]
 }
 ```
+
+Omit the `Voice` object when Q5 is not eligible.
 
 If the runtime exposes the tool under a different name (e.g.,
 `ask_user_question`), swap the tool name. The schema is portable.
@@ -70,6 +85,12 @@ Map the labels to internal variables (same as Claude Code):
 - Q2 → `target_grade` (4, 7, 10, 14, 17)
 - Q3 → `tone`
 - Q4 → `length_policy` (`±10`, `exp`, `trim`)
+- Q5 → voice choice: `Yes` starts Step 3.5 sample capture, `No` skips
+  voice matching for this call, `Never ask again` persists `voice_skip`.
+
+When Q5 is `Yes`, say exactly: *"Paste 200+ words as your next message."*
+Capture the next user turn as the voice sample and return to `SKILL.md`
+Step 3.5 for validation, writing, and fingerprint extraction.
 
 Return to `SKILL.md` § Loop algorithm with these answers.
 

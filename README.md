@@ -40,6 +40,7 @@ You paste text.
 
 Skill probes for Slop or Not Pro (MCP first, CLI second).
 Skill asks 4 questions: dialect, reading level, tone, length.
+Optional: skill asks whether to mimic your writing sample.
 
 Iteration 0   baseline       detect_text + analyze_readability
 Iteration 1   pattern surgery (top-5 of upstream's 29 AI-tells)
@@ -125,7 +126,8 @@ legacy `"premium": true` field). If the value is `false`, finish step 2.
 [paste your AI-generated text here]
 ```
 
-The skill asks four quick questions, then runs the loop and returns:
+The skill asks four quick questions, plus an optional voice question when
+no saved sample exists, then runs the loop and returns:
 
 ```markdown
 ## Humanized text
@@ -144,6 +146,9 @@ The skill asks four quick questions, then runs the loop and returns:
 - ...
 ```
 
+When voice matching is active, the output ends with a footer line like
+`_Voice matched from ~/.agentic-humanizer/voice.txt (fingerprint cached 2026-05-08)._`
+
 ### Inline overrides
 
 Skip the interview by passing flags directly:
@@ -158,6 +163,53 @@ Professional · ±10%):
 ```text
 /agentic-humanizer skip-interview [paste]
 ```
+
+Available override flags:
+
+| Flag | Effect |
+|---|---|
+| `dialect=us` or `dialect=uk` | Set the English variant for this call. |
+| `grade=N` | Set the target Flesch-Kincaid grade for this call. |
+| `tone=casual`, `tone=professional`, or `tone=academic` | Set the tone for this call. |
+| `length=±10`, `length=exp`, or `length=trim` | Keep length close, allow expansion, or allow trimming. |
+| `threshold=N` | Override the AI-score target. |
+| `max=N` | Override the 5-iteration cap. |
+| `voice=/path/to/file.txt` | Use this voice sample for this call only. |
+| `voice=off` | Skip voice matching for this call. |
+| `voice-skip` | Alias for `voice=off`. |
+| `skip-interview` | Use the saved profile if present, otherwise use defaults. |
+
+### Voice matching
+
+Voice matching lets the rewrite mimic a sample of your own writing. It
+extracts a compact fingerprint once, caches it at
+`~/.agentic-humanizer/voice-fingerprint.json`, and uses that fingerprint
+inside Iteration 2 for register and Iteration 5 for concrete phrasing. It
+does not replace the 5-iteration schedule.
+
+To bootstrap it, say yes to the optional interview question and paste
+200+ words when asked. You can also drop a file at
+`~/.agentic-humanizer/voice.txt`, or pass
+`voice=/path/to/file.txt` inline for one run. The minimum sample is 50
+words, 200+ is recommended, and extraction uses the first 3000 words.
+
+Manage the saved voice with:
+
+```text
+/agentic-humanizer show voice
+/agentic-humanizer reset voice
+/agentic-humanizer set voice=/path/to/file.txt
+```
+
+The sample and fingerprint cache live under `~/.agentic-humanizer/`.
+The skill reads the sample from disk on each run. Fingerprint extraction
+runs through your current AI assistant, so privacy follows that assistant's
+local or cloud setup.
+
+This flow is inspired by Grammarly's custom voice interaction, where the
+Humanizer asks for a 200-word sample. Expect register, contractions,
+sentence rhythm, and a few signature phrasing habits to shift. It does not
+fully clone every idiosyncrasy of your style.
 
 ### Save your preferences once
 
@@ -182,7 +234,7 @@ Edit it directly if you prefer.
 The upstream `blader/humanizer` is a one-shot rewriter: it applies the
 29-pattern playbook and returns the result.
 
-Agentic Humanizer adds three things on top:
+Agentic Humanizer adds four things on top:
 
 - **Iterative scoring loop.** Each rewrite is measured by Slop or Not
   Pro's on-device detector and readability analyzer, so you can see the
@@ -192,6 +244,8 @@ Agentic Humanizer adds three things on top:
   [`references/per-iteration-strategies.md`](references/per-iteration-strategies.md).
 - **Pre-loop interview.** Four questions (dialect, reading level, tone,
   length) so the rewrite targets a specific reader, not a generic one.
+- **Optional voice matching.** A cached stylometric fingerprint can steer
+  register and concrete phrasing toward a writing sample you provide.
 
 The 29 patterns themselves are unchanged from upstream. They live in
 [`references/patterns.md`](references/patterns.md) with attribution.
@@ -227,8 +281,7 @@ For the full feature surface, see <https://slopornot.ai>.
 - Additional harnesses (AiderDesk, Continue, Roo Code).
 - Optional second-detector cross-check (when Slop or Not adds an MCP
   client for external detectors).
-- Voice-calibration mode that learns the user's writing style from a
-  pasted sample, like upstream's voice-cal feature.
+- Multi-voice profiles for different writing contexts.
 
 Open an issue if you want a specific harness or feature prioritized.
 

@@ -6,9 +6,13 @@ prompts.
 
 ## The interview — one tool call
 
-Issue exactly one `AskUserQuestion` call with all four questions in the
-same `questions` array. This is faster for the user (one panel, four
-answers) and cleaner for the model context (one tool result instead of four).
+Issue exactly one `AskUserQuestion` call with all eligible questions in the
+same `questions` array. This is faster for the user (one panel) and cleaner
+for the model context (one tool result instead of several).
+
+Only add Q5 when no inline or saved `voice_path` has resolved,
+`~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
+contain `"voice_skip": true`.
 
 ```json
 {
@@ -54,10 +58,22 @@ answers) and cleaner for the model context (one tool result instead of four).
         { "label": "Allow expansion" },
         { "label": "Allow trimming" }
       ]
+    },
+    {
+      "header": "Voice",
+      "question": "Mimic a writing sample of yours?",
+      "multiSelect": false,
+      "options": [
+        { "label": "Yes" },
+        { "label": "No" },
+        { "label": "Never ask again" }
+      ]
     }
   ]
 }
 ```
+
+Omit the `Voice` object when Q5 is not eligible.
 
 ## After the interview
 
@@ -69,6 +85,12 @@ Map the labels to internal variables:
 - Q3 → `tone`: lowercase the label.
 - Q4 → `length_policy`: `Keep within ±10% of original` → `±10`,
   `Allow expansion` → `exp`, `Allow trimming` → `trim`.
+- Q5 → voice choice: `Yes` starts Step 3.5 sample capture, `No` skips
+  voice matching for this call, `Never ask again` persists `voice_skip`.
+
+When Q5 is `Yes`, say exactly: *"Paste 200+ words as your next message."*
+Capture the next user turn as the voice sample and return to `SKILL.md`
+Step 3.5 for validation, writing, and fingerprint extraction.
 
 Return to `SKILL.md` § Loop algorithm with these answers.
 
