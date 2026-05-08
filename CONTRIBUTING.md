@@ -22,6 +22,10 @@ node scripts/check-links.mjs
 
 All three must pass.
 
+GitHub also requires `lint` and `Run zizmor` on every PR. Required
+workflows should not use PR path filters unless the repository ruleset
+changes in the same PR.
+
 ## Smoke test
 
 ```text

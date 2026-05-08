@@ -29,6 +29,10 @@ A community fork of [`blader/humanizer`](https://github.com/blader/humanizer) th
    node scripts/check-links.mjs
    ```
 
+   GitHub also requires `lint` and `Run zizmor` on every PR. Do not add
+   PR path filters to required workflows unless the repository ruleset is
+   updated in the same change.
+
 2. **No em-dashes in `README.md`, `SKILL.md`, `CHANGELOG.md`, `AGENTS.md`, commits, tag annotations, or release notes.** Use commas, colons, or parentheses. The user-facing surface of a humanizer can't credibly ship em-dash-laden copy. (Inherited em-dashes in `references/` and `harnesses/` predate the rule and are getting cleaned up incrementally; do not introduce new ones.)
 3. **Don't edit `references/patterns.md` for local taste.** Only sync from upstream `blader/humanizer`. The 29 patterns are upstream's contribution.
 4. **Conventional Commits are required, not optional.** Format: `type(scope): subject`. Subject is imperative, lowercase, no trailing period. Allowed types and their changelog mapping:
