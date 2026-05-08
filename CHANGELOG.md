@@ -42,6 +42,11 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   was already robust because it calls `detect_text` directly, so neither
   CLI nor MCP behavior changes.
 
+### Fixed
+
+- `Run zizmor` now reports on every PR so the required status check does
+  not remain pending when non-workflow files change.
+
 ## [0.1.0] (2026-05-07)
 
 Initial release. Forked from
