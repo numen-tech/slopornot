@@ -1,10 +1,13 @@
-# Agentic Humanizer: agent guide
+# SlopOrNot: agent guide
 
 Brief for AI coding agents (Claude Code, Codex, Cursor, Gemini CLI, Aider) editing this repo. The runtime skill itself is `SKILL.md`; this file is for agents working *on* the repo, not running the skill.
 
 ## What this repo is
 
-A community fork of [`blader/humanizer`](https://github.com/blader/humanizer) that wraps the upstream 29-pattern rewrite playbook in an iterative AI-detection loop scored by Slop or Not Pro's on-device CLI / MCP. Single skill, no build step, all Markdown.
+SlopOrNot is a plugin bundle for assistant workflows built around Slop or Not.
+Today it ships one skill, `agentic-humanizer`, which wraps a 29-pattern
+rewrite playbook in an iterative AI-detection loop scored by Slop or Not Pro's
+on-device CLI / MCP.
 
 ## Layout
 
@@ -12,21 +15,30 @@ A community fork of [`blader/humanizer`](https://github.com/blader/humanizer) th
 |---|---|
 | `SKILL.md` | Skill orchestrator. Steps 1–5 (harness detect → Pro probe → interview → loop → output). |
 | `harnesses/{claude-code,codex,cursor,gemini-cli,opencode,generic}.md` | Per-harness interview protocols. Edit only the file for the harness you're targeting. |
-| `references/patterns.md` | 29-pattern rewrite vocabulary, **synced verbatim from upstream**. Local divergence is out of scope. |
+| `references/patterns.md` | 29-pattern rewrite vocabulary. Local divergence is out of scope. |
+| `skills/agentic-humanizer/README.md` | Dedicated Agentic Humanizer README for users and search indexing. |
 | `references/per-iteration-strategies.md` | The 5-iteration cookbook + mid-flight Pro-gate fallback. |
 | `references/voice-fingerprint.md` | Voice sample policy, fingerprint schema, extraction prompt, cache rules, and loop injection contracts. |
 | `references/slop-{cli,mcp}-setup.md` | User-facing install guides. |
 | `examples/sample-ai-text.md` | Smoke-test fixture. |
+| `plugins/codex/slopornot/` | Generated Codex plugin payload. Do not edit synced skill files here by hand. |
+| `plugins/claude/slopornot/` | Generated Claude Code plugin payload. Do not edit synced skill files here by hand. |
+| `.agents/plugins/marketplace.json` | Codex repo marketplace for the `slopornot` plugin. |
+| `.claude-plugin/marketplace.json` | Claude Code marketplace for the `slopornot` plugin. |
 | `scripts/check-{frontmatter,links}.mjs` | Lint scripts run by CI. |
+| `scripts/sync-plugins.mjs` | Copies canonical runtime files into plugin payloads, with `--check` drift detection. |
+| `scripts/check-plugin-packaging.mjs` | Validates plugin manifests, marketplaces, required files, and sync state. |
 
 ## Critical rules
 
-1. **Pre-PR gate**, these three must pass:
+1. **Pre-PR gate**, these commands must pass:
 
    ```bash
    npx markdownlint-cli2@0.18.1 "**/*.md" "#node_modules" "#WARP.md"
    node scripts/check-frontmatter.mjs
    node scripts/check-links.mjs
+   node scripts/sync-plugins.mjs --check
+   node scripts/check-plugin-packaging.mjs
    ```
 
    GitHub also requires `lint` and `Run zizmor` on every PR. Do not add
@@ -34,7 +46,7 @@ A community fork of [`blader/humanizer`](https://github.com/blader/humanizer) th
    updated in the same change.
 
 2. **No em-dashes in `README.md`, `SKILL.md`, `CHANGELOG.md`, `AGENTS.md`, commits, tag annotations, or release notes.** Use commas, colons, or parentheses. The user-facing surface of a humanizer can't credibly ship em-dash-laden copy. (Inherited em-dashes in `references/` and `harnesses/` predate the rule and are getting cleaned up incrementally; do not introduce new ones.)
-3. **Don't edit `references/patterns.md` for local taste.** Only sync from upstream `blader/humanizer`. The 29 patterns are upstream's contribution.
+3. **Don't edit `references/patterns.md` for local taste.** The 29-pattern catalogue is licensed source material. Only refresh it intentionally with attribution and license notices checked.
 4. **Conventional Commits are required, not optional.** Format: `type(scope): subject`. Subject is imperative, lowercase, no trailing period. Allowed types and their changelog mapping:
 
    | Type | Changelog section | Use for |
@@ -43,7 +55,7 @@ A community fork of [`blader/humanizer`](https://github.com/blader/humanizer) th
    | `fix` | Fixed | bug fixes in scripts, lint rules, runtime logic |
    | `perf` | Changed | measurable speed or token wins |
    | `refactor` | Changed | restructuring without behavior change |
-   | `docs` | Changed (or omit) | `README`, `AGENTS.md`, `CHANGELOG`, `NOTICE`, `CONTRIBUTING` edits |
+   | `docs` | Changed (or omit) | `README`, `AGENTS.md`, `CHANGELOG`, `CONTRIBUTING` edits |
    | `build` / `ci` | (omit) | workflow, lint config, release tooling |
    | `test` | (omit) | adding or fixing tests and fixtures |
    | `chore` | (omit) | housekeeping, dependency bumps |
@@ -70,6 +82,9 @@ A community fork of [`blader/humanizer`](https://github.com/blader/humanizer) th
 6. **Every user-visible change appends to `CHANGELOG.md` § `[Unreleased]`** under the matching Keep-a-Changelog heading (`Added`, `Changed`, `Fixed`, `Removed`, `Deprecated`, `Security`). Internal-only changes (`ci`, `build`, `test`, `chore`) skip the changelog. The release script promotes `[Unreleased]` to a versioned section; missing entries can't be recovered after the tag.
 7. **Don't add new per-iteration strategies that replace the 5-iteration schedule.** New strategies must compose with it. Open an issue first.
 8. **Harness-specific instructions stay in `harnesses/<name>.md`.** Don't sprinkle "Claude Code users…" / "Codex users…" through the top-level `SKILL.md`.
+9. **Plugin payloads are generated distribution artifacts.** Edit canonical
+   runtime files at the repo root, then run `node scripts/sync-plugins.mjs`.
+   Manifest-only changes may be made directly inside plugin folders.
 
 ## Smoke test
 

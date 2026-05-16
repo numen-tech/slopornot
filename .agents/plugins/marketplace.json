@@ -1,0 +1,21 @@
+{
+  "name": "slopornot",
+  "interface": {
+    "displayName": "SlopOrNot"
+  },
+  "description": "Slop or Not assistant skills for local AI detection and AI humanization on Mac across Codex, Claude, Hermes Agent, OpenClaw, and other agents.",
+  "plugins": [
+    {
+      "name": "slopornot",
+      "source": {
+        "source": "local",
+        "path": "./plugins/codex/slopornot"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
