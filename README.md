@@ -1,18 +1,23 @@
-# Agentic Humanizer: a Claude, Codex, Cursor, and Gemini humanizer skill that loops until your text passes AI detection
+# SlopOrNot: AI humanizer and local AI detector for Claude, Codex, Hermes Agent, and OpenClaw
 
-A community fork of [`blader/humanizer`](https://github.com/blader/humanizer)
-by Siqi Chen. Each iteration scores the rewrite with Slop or Not Pro's
-on-device AI detector and Flesch-Kincaid analyzer. Detection stays local;
-rewriting runs wherever your AI assistant runs.
+SlopOrNot is a plugin bundle for AI agents that need local AI detection and
+humanization on a Mac. Claude, Codex, Hermes Agent, OpenClaw, OpenCode,
+Cursor, Gemini CLI, and other agents can call Slop or Not Pro's local AI text
+detector, AI image detector, readability analyzer, and text cleanup tool
+through the `slop` CLI or `slop mcp`.
+
+Today the bundle ships one skill: `agentic-humanizer`. It rewrites
+AI-generated text in a scored loop. Each iteration uses Slop or Not Pro's
+on-device AI text detector and Flesch-Kincaid readability analyzer. Detection
+stays local; rewriting runs wherever your AI assistant runs.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ## What is this?
 
-Agentic Humanizer is an AI humanizer skill. You paste AI-generated text
-into a slash command in your AI assistant (Claude Code, Codex CLI,
-Cursor, Gemini CLI, or OpenCode), and the skill rewrites it iteratively
-until two targets are met:
+Agentic Humanizer is an AI humanizer skill. You paste AI-generated text into
+your AI assistant, and the skill rewrites it iteratively until two targets are
+met:
 
 1. The output's AI-generation probability falls below 40% per Slop or
    Not's on-device detector.
@@ -30,8 +35,8 @@ pass (pattern surgery, dialect + tone, grade gap, clean + targeted,
 emergency surgery).
 
 If you do not have Slop or Not Pro installed, the skill still humanizes
-in a single pass using upstream's 29-pattern rewrite playbook and points
-you to the download.
+in a single pass using the 29-pattern rewrite playbook and points you to the
+download.
 
 ## How the detection loop works
 
@@ -43,7 +48,7 @@ Skill asks 4 questions: dialect, reading level, tone, length.
 Optional: skill asks whether to mimic your writing sample.
 
 Iteration 0   baseline       detect_text + analyze_readability
-Iteration 1   pattern surgery (top-5 of upstream's 29 AI-tells)
+Iteration 1   pattern surgery (top-5 of the 29 AI-tells)
 Iteration 2   dialect + tone (US/UK spellings, casual/pro/academic)
 Iteration 3   grade gap      (close the Flesch-Kincaid distance)
 Iteration 4   clean + targeted (clean_text + residual signal)
@@ -59,34 +64,71 @@ on-device on Apple silicon. Your text is not uploaded to any server for
 the *detection* step. Rewriting still runs in your AI assistant, which
 may be cloud or local depending on which one you use.
 
+Slop or Not Pro also exposes local AI image detection through the same Mac app,
+CLI, and MCP server. The current `agentic-humanizer` skill focuses on text, but
+the `slopornot` plugin bundle is structured so future skills can use the image
+detector and other local analysis tools from the same install.
+
 ## Install
 
-### Recommended (Claude Code, Cursor, Windsurf)
+### Recommended: plugins
+
+Codex:
 
 ```bash
-npx skills add thilak-rao/agentic-humanizer
+codex plugin marketplace add numen-tech/slopornot
 ```
 
-The [skills.sh](https://skills.sh) CLI downloads the skill and configures
-it for your harness automatically. No manual path wrangling.
+Then run `codex`, open `/plugins`, switch to the `slopornot` marketplace, and
+choose `Install plugin`. Current OpenAI Codex docs install marketplace plugins
+through the plugin browser; `codex-cli 0.130.0` does not expose a separate
+`codex plugin install` command.
 
-### Manual install (Codex CLI, Gemini CLI, OpenCode)
+Claude Code:
 
-skills.sh does not yet ship native support for these harnesses. Clone
-into the harness's skill directory directly:
+```text
+/plugin marketplace add numen-tech/slopornot
+/plugin install slopornot@slopornot
+```
+
+For a non-interactive setup (CI, dotfiles), the install step also has a CLI
+form (the marketplace must still be added from an interactive session first):
+
+```bash
+claude plugin install slopornot@slopornot
+```
+
+Claude Code namespaces plugin skills by plugin name, so use
+`/slopornot:agentic-humanizer` there. Direct skill installs and other harnesses
+still use `/agentic-humanizer`.
+
+### Fallback: direct skill install
+
+Use this path for clients that do not support plugins yet, including current
+Hermes Agent and OpenClaw setups that load skills from a configured local
+skills directory.
+
+For Claude Code, Cursor, or Windsurf:
+
+```bash
+npx skills add numen-tech/slopornot
+```
+
+For Codex CLI, Gemini CLI, or OpenCode, clone into the harness's skill
+directory directly:
 
 ```bash
 # Codex CLI
 mkdir -p ~/.codex/skills && \
-  git clone https://github.com/thilak-rao/agentic-humanizer ~/.codex/skills/agentic-humanizer
+  git clone https://github.com/numen-tech/slopornot ~/.codex/skills/agentic-humanizer
 
 # Gemini CLI
 mkdir -p ~/.gemini/skills && \
-  git clone https://github.com/thilak-rao/agentic-humanizer ~/.gemini/skills/agentic-humanizer
+  git clone https://github.com/numen-tech/slopornot ~/.gemini/skills/agentic-humanizer
 
 # OpenCode (if not running via skills.sh)
 mkdir -p ~/.config/opencode/skills && \
-  git clone https://github.com/thilak-rao/agentic-humanizer ~/.config/opencode/skills/agentic-humanizer
+  git clone https://github.com/numen-tech/slopornot ~/.config/opencode/skills/agentic-humanizer
 ```
 
 After cloning, restart your harness so the skill is discovered.
@@ -121,8 +163,18 @@ legacy `"premium": true` field). If the value is `false`, finish step 2.
 
 ## Usage
 
+For the full Agentic Humanizer guide, see
+[`skills/agentic-humanizer/README.md`](skills/agentic-humanizer/README.md).
+
 ```text
 /agentic-humanizer
+[paste your AI-generated text here]
+```
+
+For Claude Code plugin installs, use:
+
+```text
+/slopornot:agentic-humanizer
 [paste your AI-generated text here]
 ```
 
@@ -215,9 +267,10 @@ fully clone every idiosyncrasy of your style.
 
 After the first interview, the skill offers to save your four answers
 (dialect, reading level, tone, length) to `~/.agentic-humanizer/profile.json`.
-Say yes and you will never be interviewed again on the same machine. Inline
-overrides still work for one-off changes without touching the saved
-profile.
+Say yes and the four rewrite-preference questions will be skipped on that
+machine. The optional voice question can still appear later unless you save a
+voice sample or choose `Never ask again`. Inline overrides still work for
+one-off changes without touching the saved profile.
 
 ```text
 /agentic-humanizer show profile     # print the saved profile
@@ -229,10 +282,7 @@ profile.
 The profile lives at `~/.agentic-humanizer/profile.json` as plain JSON.
 Edit it directly if you prefer.
 
-## How is this different from `blader/humanizer`?
-
-The upstream `blader/humanizer` is a one-shot rewriter: it applies the
-29-pattern playbook and returns the result.
+## What Agentic Humanizer adds
 
 Agentic Humanizer adds four things on top:
 
@@ -247,16 +297,16 @@ Agentic Humanizer adds four things on top:
 - **Optional voice matching.** A cached stylometric fingerprint can steer
   register and concrete phrasing toward a writing sample you provide.
 
-The 29 patterns themselves are unchanged from upstream. They live in
-[`references/patterns.md`](references/patterns.md) with attribution.
+The 29-pattern catalogue lives in
+[`references/patterns.md`](references/patterns.md).
 
-## Will it bypass GPTZero / ZeroGPT / Pangram / Originality.ai?
+## Does it work against GPTZero / ZeroGPT / Pangram / Originality.ai?
 
 The loop is designed against Slop or Not's on-device detector. Slop or
-Not reports 95% accuracy on AI text and 90% on AI images per their
-internal tests, with the caveat that *"results can vary with new AI
-models and advanced methods designed to trick detectors"* (per the
-slopornot.ai disclaimer).
+Not reports 95% accuracy on AI text, 100% detection for watermarked
+C2PA/IPTC images, and 90% accuracy on other AI-generated images in internal
+tests, with the caveat that results can vary as models and evasion methods
+change.
 
 We do not benchmark against external detectors. Cross-detector
 generalization is real but not guaranteed. If your goal is bypassing a
@@ -278,6 +328,10 @@ For the full feature surface, see <https://slopornot.ai>.
 
 ## Roadmap
 
+- `readability-review`, a readability review skill that can work beyond
+  English-only Flesch-Kincaid scoring.
+- `agentic-imagegen`, an agentic image generation skill based on OpenAI's
+  imagegen workflow.
 - Additional harnesses (AiderDesk, Continue, Roo Code).
 - Optional second-detector cross-check (when Slop or Not adds an MCP
   client for external detectors).
@@ -287,21 +341,18 @@ Open an issue if you want a specific harness or feature prioritized.
 
 ## Credits & License
 
-This is a community fork of [`blader/humanizer`](https://github.com/blader/humanizer)
-by Siqi Chen. The 29-pattern rewrite playbook in
-[`references/patterns.md`](references/patterns.md) is reproduced verbatim
-from upstream under the MIT License. See [`NOTICE`](NOTICE) for full
-attribution.
+The 29-pattern rewrite playbook is from
+[blader/humanizer](https://github.com/blader/humanizer). It is used under the
+MIT License.
 
-This fork is licensed under the [MIT License](LICENSE), with upstream's
-copyright preserved alongside the fork's.
+SlopOrNot is licensed under the [MIT License](LICENSE).
 
 The agentic detection loop, harness routing, interview, and per-iteration
-strategy schedule are new in this fork. Slop or Not is a separate
-product by the author of this fork; see <https://slopornot.ai>.
+strategy schedule are part of this repository. Slop or Not is a separate Mac
+app from Numen Technologies; see <https://slopornot.ai>.
 
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md). New harness routing files
 welcome. PRs that change the 29-pattern catalogue should sync from
-upstream rather than diverging.
+the licensed source material rather than diverging.

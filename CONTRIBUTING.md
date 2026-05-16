@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in Agentic Humanizer.
+Thanks for your interest in SlopOrNot.
 
 ## Scope of contributions
 
@@ -8,9 +8,12 @@ Thanks for your interest in Agentic Humanizer.
 - New per-iteration strategies are welcome, but they should compose with
   the existing 5-iteration schedule, not replace it. Open an issue first
   to discuss.
-- Edits to `references/patterns.md` only if syncing from upstream
-  `blader/humanizer`. Local divergence on the 29 patterns is out of
-  scope; the substantive playbook is upstream's.
+- Edits to `references/patterns.md` only when intentionally refreshing the
+  licensed source material. Local divergence on the 29 patterns is out of
+  scope.
+- Plugin payload files under `plugins/codex/slopornot/skills/` and
+  `plugins/claude/slopornot/skills/` are generated from the root skill files.
+  Edit the root files, then run `node scripts/sync-plugins.mjs`.
 
 ## Pre-PR checklist
 
@@ -18,9 +21,11 @@ Thanks for your interest in Agentic Humanizer.
 npx markdownlint-cli2@0.18.1 "**/*.md" "#node_modules" "#WARP.md"
 node scripts/check-frontmatter.mjs
 node scripts/check-links.mjs
+node scripts/sync-plugins.mjs --check
+node scripts/check-plugin-packaging.mjs
 ```
 
-All three must pass.
+All five must pass.
 
 GitHub also requires `lint` and `Run zizmor` on every PR. Required
 workflows should not use PR path filters unless the repository ruleset
@@ -42,7 +47,7 @@ Conventional Commits: `type(scope): subject`. Common types:
 
 - `feat(harnesses)`: new harness routing
 - `feat(references)`: new or updated reference doc
-- `docs`: README, NOTICE, CHANGELOG edits
+- `docs`: README, CHANGELOG edits
 - `ci`: workflow and lint config changes
 - `chore`: housekeeping
 
