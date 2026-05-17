@@ -6,10 +6,13 @@ Cursor, Gemini CLI, and other agents can call Slop or Not Pro's local AI text
 detector, AI image detector, readability analyzer, and text cleanup tool
 through the `slop` CLI or `slop mcp`.
 
-Today the bundle ships one skill: `agentic-humanizer`. It rewrites
-AI-generated text in a scored loop. Each iteration uses Slop or Not Pro's
-on-device AI text detector and Flesch-Kincaid readability analyzer. Detection
-stays local; rewriting runs wherever your AI assistant runs.
+The bundle ships two skills. `agentic-humanizer` rewrites AI-generated text
+in a scored loop; each iteration uses Slop or Not Pro's on-device AI text
+detector and Flesch-Kincaid readability analyzer. `slop-check` is a
+one-shot router for the same on-device tools: ask whether text or an image
+is AI-generated, score readability, or clean AI artifacts, and get a clear
+verdict back with no interview and no loop. Detection stays local; only the
+`agentic-humanizer` rewrite runs wherever your AI assistant runs.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -65,9 +68,36 @@ the *detection* step. Rewriting still runs in your AI assistant, which
 may be cloud or local depending on which one you use.
 
 Slop or Not Pro also exposes local AI image detection through the same Mac app,
-CLI, and MCP server. The current `agentic-humanizer` skill focuses on text, but
-the `slopornot` plugin bundle is structured so future skills can use the image
-detector and other local analysis tools from the same install.
+CLI, and MCP server. The `agentic-humanizer` skill focuses on text rewrites;
+the `slop-check` skill uses the same install for local AI text detection, AI
+image detection, readability scoring, text cleanup, raw image scores, and Pro
+status checks.
+
+## Slop Check
+
+`slop-check` is the fast path when you do not want a rewrite. It routes one
+request to the right Slop or Not Pro tool and reports a verdict:
+
+- AI text detection (verdict, probability, readability)
+- AI image detection plus the raw OmniAID image score
+- Flesch-Kincaid readability scoring
+- Text cleanup (zero-width characters, homoglyphs, fancy punctuation)
+- Setup and Pro status check, verified with a Pro-gated probe
+
+It tries the SlopOrNot MCP server first, falls back to the `slop` CLI, and
+if `slop` is not on PATH it uses the app-bundle binary directly when Slop
+or Not is installed. It never blocks on a question: if you do not name an
+operation it assumes AI-detection and says so.
+
+```text
+/slop-check is this AI? <paste text>
+/slop-check what reading grade is draft.md
+/slop-check is this image AI? ~/Desktop/art.png
+/slop-check clean the invisible characters out of this: <paste text>
+```
+
+Under the Claude Code plugin, use `/slopornot:slop-check`. Full guide:
+[`skills/slop-check/README.md`](skills/slop-check/README.md).
 
 ## Install
 
@@ -140,12 +170,11 @@ the `slop` CLI and `slop mcp` MCP server.
 
 1. Install Slop or Not for Mac: <https://slopornot.ai/download>
 2. Open the app and unlock Pro from Settings → Subscription.
-3. Symlink the binary onto your PATH:
+3. Open Settings, then Command Line in Slop or Not for the current CLI
+   setup command. You can also call the bundled binary directly:
 
    ```bash
-   mkdir -p ~/.local/bin
-   ln -sf "/Applications/Slop Or Not - AI Fake Detector.app/Contents/MacOS/slop" \
-     ~/.local/bin/slop
+   "/Applications/Slop Or Not.app/Contents/MacOS/slop" status --json
    ```
 
 4. Optionally register `slop mcp` with your AI client. See
@@ -328,8 +357,9 @@ For the full feature surface, see <https://slopornot.ai>.
 
 ## Roadmap
 
-- `readability-review`, a readability review skill that can work beyond
-  English-only Flesch-Kincaid scoring.
+- Multi-language readability in `slop-check`, extending its current
+  Flesch-Kincaid scoring beyond English to the other languages Slop or Not
+  supports.
 - `agentic-imagegen`, an agentic image generation skill based on OpenAI's
   imagegen workflow.
 - Additional harnesses (AiderDesk, Continue, Roo Code).

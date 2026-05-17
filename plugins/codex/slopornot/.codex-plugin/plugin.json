@@ -26,7 +26,7 @@
   "interface": {
     "displayName": "SlopOrNot",
     "shortDescription": "Local AI detection, readability, cleanup, and humanization.",
-    "longDescription": "Bundle Slop or Not assistant skills for local AI text detection, AI image detection, readability analysis, text cleanup, and AI humanization workflows on Mac across Codex, Claude, Hermes Agent, OpenClaw, and other agents. This release includes Agentic Humanizer.",
+    "longDescription": "Bundle Slop or Not assistant skills for local AI text detection, AI image detection, readability analysis, text cleanup, and AI humanization workflows on Mac across Codex, Claude, Hermes Agent, OpenClaw, and other agents. This release includes Agentic Humanizer and Slop Check.",
     "developerName": "Numen Technologies",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
@@ -34,7 +34,9 @@
     "defaultPrompt": [
       "Humanize this draft with Slop or Not scoring.",
       "Rewrite this text for a high school reading level.",
-      "Check this text with a local AI detector."
+      "Check this text with a local AI detector.",
+      "Is this image AI generated? Check it on-device.",
+      "What is the reading grade of this text?"
     ],
     "brandColor": "#111827"
   }

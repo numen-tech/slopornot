@@ -7,6 +7,23 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- New `slop-check` skill: a self-contained, one-shot router for Slop or Not
+  Pro's on-device tools. Detects AI text or images, scores readability
+  (Flesch-Kincaid), cleans AI artifacts, returns raw image scores, and
+  reports Pro status with a Pro-gated proof probe. Tries the MCP backend
+  first, falls back to the `slop` CLI, and uses the app-bundle binary when
+  `slop` is missing from PATH. No interview and no harness routing files;
+  works uniformly across Claude Code, Codex, Cursor, Gemini CLI, and
+  OpenCode. Invoke as `/slop-check` (or
+  `/slopornot:slop-check` under the Claude Code plugin). Bundled
+  references `skills/slop-check/references/slop-tools.md` and
+  `skills/slop-check/references/slop-setup.md` pack the full CLI and MCP
+  surface.
+- Dedicated `skills/slop-check/README.md` for local AI detector, AI image
+  detector, readability, cleanup, and Pro status usage and search indexing.
+- Plugin packaging now syncs self-contained skills wholesale into both
+  plugin payloads via `scripts/sync-plugins.mjs`, validated by
+  `scripts/check-plugin-packaging.mjs`.
 - `AGENTS.md` agent guide for contributors, with `CLAUDE.md` symlinked to it.
 - Saved-preferences profile at `~/.agentic-humanizer/profile.json`. After
   the first interview the skill offers to remember your answers; subsequent
