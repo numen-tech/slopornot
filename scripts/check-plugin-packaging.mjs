@@ -24,6 +24,15 @@ const runtimeFiles = [
   'examples/sample-ai-text.md',
 ];
 
+// Self-contained skills are synced verbatim into each plugin payload at
+// the same skills/<name>/ relative path.
+const selfContainedSkillFiles = [
+  'skills/slop-check/SKILL.md',
+  'skills/slop-check/README.md',
+  'skills/slop-check/references/slop-tools.md',
+  'skills/slop-check/references/slop-setup.md',
+];
+
 function readJson(relativePath) {
   const fullPath = path.join(root, relativePath);
   if (!fs.existsSync(fullPath)) {
@@ -146,6 +155,10 @@ for (const host of ['codex', 'claude']) {
         ? `${pluginRoot}/${destinationFile}`
         : `${skillRoot}/${destinationFile}`;
     requireSyncedFile(sourceFile, destination);
+  }
+
+  for (const sourceFile of selfContainedSkillFiles) {
+    requireSyncedFile(sourceFile, `${pluginRoot}/${sourceFile}`);
   }
 }
 

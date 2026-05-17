@@ -10,14 +10,14 @@ or another MCP client).
 
 - Slop or Not for Mac installed (see `slop-cli-setup.md` step 1).
 - Slop or Not Pro active (see `slop-cli-setup.md` step 2).
-- The `slop` binary on PATH (see `slop-cli-setup.md` step 3) — required so
-  client config snippets can use bare `slop mcp`.
+- Command-line access configured from Slop or Not Settings, then Command
+  Line, or use the absolute app-bundle binary path in the snippets below.
 
 ## Tools the server exposes
 
 | Tool | Purpose |
 |---|---|
-| `mcp__SlopOrNot__slop_status` | Probe presence + Pro tier |
+| `mcp__SlopOrNot__slop_status` | Probe server health and cached Pro status |
 | `mcp__SlopOrNot__detect_text` | Detect AI probability for text |
 | `mcp__SlopOrNot__analyze_readability` | Compute Flesch-Kincaid grade |
 | `mcp__SlopOrNot__clean_text` | Strip zero-width chars, homoglyphs |
@@ -40,6 +40,13 @@ Flesch-Kincaid grade from `readability.scores[]` where `kind` is
 Run:
 
 ```bash
+claude mcp add --transport stdio --scope user SlopOrNot -- "/Applications/Slop Or Not.app/Contents/MacOS/slop" mcp
+```
+
+If Slop or Not's Command Line setup has put `slop` on PATH for your
+client, this shorter form is also fine:
+
+```bash
 claude mcp add --transport stdio --scope user SlopOrNot -- slop mcp
 ```
 
@@ -49,14 +56,14 @@ Or add to `~/.claude/mcp.json` (create if missing):
 {
   "mcpServers": {
     "SlopOrNot": {
-      "command": "slop",
+      "command": "/Applications/Slop Or Not.app/Contents/MacOS/slop",
       "args": ["mcp"]
     }
   }
 }
 ```
 
-Restart Claude Code. Verify with `/mcp` — `SlopOrNot` should appear with six
+Restart Claude Code. Verify with `/mcp`; `SlopOrNot` should appear with six
 tools.
 
 ### Claude Desktop
@@ -67,7 +74,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 {
   "mcpServers": {
     "SlopOrNot": {
-      "command": "slop",
+      "command": "/Applications/Slop Or Not.app/Contents/MacOS/slop",
       "args": ["mcp"]
     }
   }
@@ -81,6 +88,13 @@ Restart Claude Desktop.
 Run:
 
 ```bash
+codex mcp add SlopOrNot -- "/Applications/Slop Or Not.app/Contents/MacOS/slop" mcp
+```
+
+If Slop or Not's Command Line setup has put `slop` on PATH for your
+client, this shorter form is also fine:
+
+```bash
 codex mcp add SlopOrNot -- slop mcp
 ```
 
@@ -88,7 +102,7 @@ Or add to `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.SlopOrNot]
-command = "slop"
+command = "/Applications/Slop Or Not.app/Contents/MacOS/slop"
 args = ["mcp"]
 ```
 
@@ -99,7 +113,7 @@ Restart Codex.
 Open Cursor → Settings → MCP. Add a server:
 
 - **Name:** SlopOrNot
-- **Command:** `slop`
+- **Command:** `/Applications/Slop Or Not.app/Contents/MacOS/slop`
 - **Args:** `mcp`
 
 Save and restart Cursor.
@@ -110,7 +124,7 @@ The server is `stdio`-based. Any MCP client that supports a custom
 stdio command can register it via:
 
 ```yaml
-command: slop
+command: /Applications/Slop Or Not.app/Contents/MacOS/slop
 args: ["mcp"]
 ```
 
@@ -121,17 +135,17 @@ After registering with any client, ask the LLM:
 > "Run slop_status."
 
 Expected: a tool call to `mcp__SlopOrNot__slop_status` that returns
-presence + Pro state without error.
+server health and cached Pro status without error. Pro-gated tools still
+need an actual Pro call, such as `detect_text`, to confirm access.
 
 ## Troubleshooting
 
-- **Client cannot find `slop`.** The symlink in `~/.local/bin/slop` is
-  required; if your client launches with a non-login shell, it may not
-  pick up `~/.zshrc` PATH edits. Use the absolute binary path in the
-  config instead:
+- **Client cannot find `slop`.** Use the absolute binary path in the config,
+  or open Slop or Not Settings, then Command Line and follow the app's
+  current setup command:
 
   ```json
-  "command": "/Applications/Slop Or Not - AI Fake Detector.app/Contents/MacOS/slop"
+  "command": "/Applications/Slop Or Not.app/Contents/MacOS/slop"
   ```
 
 - **Tool calls return `isError: true`.** Sign in to Pro inside the app.

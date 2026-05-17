@@ -13,10 +13,10 @@ setup.
 The binary lives at:
 
 ```text
-/Applications/Slop Or Not - AI Fake Detector.app/Contents/MacOS/slop
+/Applications/Slop Or Not.app/Contents/MacOS/slop
 ```
 
-The path contains spaces — quote it in shell commands.
+The path contains spaces, so quote it in shell commands.
 
 ## 2. Unlock Pro from inside the app
 
@@ -26,31 +26,22 @@ or Lifetime (one-time). Sign in with the Apple ID that holds the purchase.
 The CLI's Pro-gated subcommands return non-zero exit codes with a
 Pro-required message until Pro is active.
 
-## 3. Symlink the binary onto your PATH
+## 3. Set up command-line access
+
+Open Slop or Not. Go to Settings, then Command Line, and follow the current
+in-app setup command. The skill should not create symlinks or edit shell rc
+files itself.
+
+You can also call the bundled binary directly:
 
 ```bash
-mkdir -p ~/.local/bin
-ln -sf "/Applications/Slop Or Not - AI Fake Detector.app/Contents/MacOS/slop" \
-  ~/.local/bin/slop
-```
-
-Make sure `~/.local/bin` is on your `PATH`. Add this to `~/.zshrc` if not:
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-Re-source your shell:
-
-```bash
-source ~/.zshrc
+"/Applications/Slop Or Not.app/Contents/MacOS/slop" status --json
 ```
 
 ## 4. Verify
 
-```bash
-slop status --json
-```
+Use `slop status --json` if `slop` is on PATH, or call the absolute binary
+path from step 3.
 
 Expected: a JSON object with `pro: true` and the CLI version. Recent builds
 may also include `localCachePro: true`; older builds may use the legacy
@@ -65,22 +56,22 @@ return to step 2.
 
 | Subcommand | Purpose | Pro-gated? |
 |---|---|---|
-| `slop status --json` | Probe presence + Pro tier | No |
+| `slop status --json` | Probe presence and cached Pro status | No |
 | `slop text --json` | Detect AI probability for text on stdin | Yes |
 | `slop readability --json` | Compute Flesch-Kincaid grade for text on stdin | Yes |
 | `slop cleanup` | Strip zero-width chars, fancy punctuation, homoglyphs from text on stdin | Yes |
 
 Common flags across all subcommands:
 
-- `--json` — emit JSON.
-- `-l, --language <code>` — override language (e.g., `en`, `de`).
+- `--json`: emit JSON.
+- `-l, --language <code>`: override language (e.g., `en`, `de`).
 
 `slop cleanup`-specific flags:
 
 - `--invisibles` / `--no-invisibles` (default: on)
 - `--punctuation` / `--no-punctuation` (default: on)
 - `--homoglyphs` / `--no-homoglyphs` (default: on)
-- `--british` — convert American spellings to British (English only)
+- `--british`: convert American spellings to British (English only)
 
 Examples:
 
@@ -129,10 +120,11 @@ where `kind` is `fleschKincaidGradeLevel`.
 
 ## Troubleshooting
 
-- **`slop: command not found`** — the symlink didn't land or `~/.local/bin`
-  isn't on PATH. Re-run step 3.
-- **`Pro required`** — sign in to Pro inside the app (step 2).
-- **macOS Gatekeeper blocks first run** — open the app via right-click
-  → Open the first time, then macOS remembers the trust decision.
-- **Apple silicon vs Intel** — Slop or Not requires Apple silicon for
+- **`slop: command not found`**: open Slop or Not Settings, then Command
+  Line and follow the app's current setup command, or call the absolute
+  binary path from step 1.
+- **`Pro required`**: sign in to Pro inside the app (step 2).
+- **macOS Gatekeeper blocks first run**: open the app via right-click,
+  then Open the first time. macOS remembers the trust decision.
+- **Apple silicon vs Intel**: Slop or Not requires Apple silicon for
   on-device inference. Intel Macs are not supported.

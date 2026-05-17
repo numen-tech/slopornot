@@ -19,6 +19,10 @@ const skillFiles = [
 const rootFiles = ['LICENSE'];
 const skillDirs = ['harnesses', 'references', 'examples'];
 
+// Self-contained skills live entirely under skills/<name>/ and are copied
+// wholesale into each plugin payload at skills/<name>/.
+const selfContainedSkills = ['slop-check'];
+
 function relative(filePath) {
   return path.relative(root, filePath);
 }
@@ -108,6 +112,13 @@ for (const pluginRoot of pluginRoots) {
 
   for (const dir of skillDirs) {
     syncDirectory(path.join(root, dir), path.join(skillRoot, dir));
+  }
+
+  for (const skill of selfContainedSkills) {
+    syncDirectory(
+      path.join(root, 'skills', skill),
+      path.join(pluginRoot, 'skills', skill)
+    );
   }
 }
 
