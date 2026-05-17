@@ -5,9 +5,11 @@ Brief for AI coding agents (Claude Code, Codex, Cursor, Gemini CLI, Aider) editi
 ## What this repo is
 
 SlopOrNot is a plugin bundle for assistant workflows built around Slop or Not.
-Today it ships one skill, `agentic-humanizer`, which wraps a 29-pattern
-rewrite playbook in an iterative AI-detection loop scored by Slop or Not Pro's
-on-device CLI / MCP.
+It ships two skills. `agentic-humanizer` wraps a 29-pattern rewrite playbook
+in an iterative AI-detection loop scored by Slop or Not Pro's on-device CLI /
+MCP. `slop-check` is a self-contained one-shot router for the same on-device
+tools (text and image detection, readability, cleanup, status) with no
+interview and no harness routing files.
 
 ## Layout
 
@@ -17,6 +19,10 @@ on-device CLI / MCP.
 | `harnesses/{claude-code,codex,cursor,gemini-cli,opencode,generic}.md` | Per-harness interview protocols. Edit only the file for the harness you're targeting. |
 | `references/patterns.md` | 29-pattern rewrite vocabulary. Local divergence is out of scope. |
 | `skills/agentic-humanizer/README.md` | Dedicated Agentic Humanizer README for users and search indexing. |
+| `skills/slop-check/SKILL.md` | Self-contained `slop-check` orchestrator. Steps 1-5 (identify op, resolve backend MCP/CLI/app-bundle fallback, run, format, fallback). No frontmatter validation by CI (only root `SKILL.md` is checked); follow convention anyway. |
+| `skills/slop-check/references/slop-tools.md` | Full CLI + MCP tool surface for `slop-check`: params, flags, JSON field paths, score normalization, Pro-gating. |
+| `skills/slop-check/references/slop-setup.md` | `slop-check` install, Pro unlock, app-bundle fallback, MCP/CLI registration. |
+| `skills/slop-check/README.md` | Dedicated Slop Check README for users and search indexing. |
 | `references/per-iteration-strategies.md` | The 5-iteration cookbook + mid-flight Pro-gate fallback. |
 | `references/voice-fingerprint.md` | Voice sample policy, fingerprint schema, extraction prompt, cache rules, and loop injection contracts. |
 | `references/slop-{cli,mcp}-setup.md` | User-facing install guides. |
@@ -83,8 +89,11 @@ on-device CLI / MCP.
 7. **Don't add new per-iteration strategies that replace the 5-iteration schedule.** New strategies must compose with it. Open an issue first.
 8. **Harness-specific instructions stay in `harnesses/<name>.md`.** Don't sprinkle "Claude Code users…" / "Codex users…" through the top-level `SKILL.md`.
 9. **Plugin payloads are generated distribution artifacts.** Edit canonical
-   runtime files at the repo root, then run `node scripts/sync-plugins.mjs`.
-   Manifest-only changes may be made directly inside plugin folders.
+   runtime files at the repo root (or under `skills/<self-contained-skill>/`
+   for self-contained skills like `slop-check`), then run
+   `node scripts/sync-plugins.mjs`. Never hand-edit files under
+   `plugins/*/slopornot/skills/`. Manifest-only changes may be made directly
+   inside plugin folders.
 
 ## Smoke test
 
