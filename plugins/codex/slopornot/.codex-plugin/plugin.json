@@ -1,7 +1,7 @@
 {
   "name": "slopornot",
   "version": "0.1.0",
-  "description": "Local Slop or Not tools for AI text detection, AI image detection, readability analysis, text cleanup, and humanization on Mac for Codex, Claude, Hermes Agent, and OpenClaw.",
+  "description": "Slop or Not tools for AI humanization, voice matching, local AI text detection, AI image detection, readability analysis, and Text Cleanup for Codex, Claude, Hermes Agent, and OpenClaw.",
   "author": {
     "name": "Numen Technologies",
     "url": "https://github.com/numen-tech"
@@ -25,14 +25,15 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "SlopOrNot",
-    "shortDescription": "Local AI detection, readability, cleanup, and humanization.",
-    "longDescription": "Bundle Slop or Not assistant skills for local AI text detection, AI image detection, readability analysis, text cleanup, and AI humanization workflows on Mac across Codex, Claude, Hermes Agent, OpenClaw, and other agents. This release includes Agentic Humanizer and Slop Check.",
+    "shortDescription": "AI humanization plus optional local Slop checks.",
+    "longDescription": "Bundle Slop or Not assistant skills for AI humanization, voice matching, local AI text detection, AI image detection, readability analysis, and Text Cleanup across Codex, Claude, Hermes Agent, OpenClaw, and other agents. Agentic Humanizer works without Slop or Not for core rewriting; Slop or Not Pro adds local scoring and cleanup stats. Slop Check uses the local Pro tools directly.",
     "developerName": "Numen Technologies",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
     "websiteURL": "https://slopornot.ai",
     "defaultPrompt": [
-      "Humanize this draft with Slop or Not scoring.",
+      "Humanize this draft with Agentic Humanizer.",
+      "Humanize this draft with local Slop or Not scoring.",
       "Rewrite this text for a high school reading level.",
       "Check this text with a local AI detector.",
       "Is this image AI generated? Check it on-device.",

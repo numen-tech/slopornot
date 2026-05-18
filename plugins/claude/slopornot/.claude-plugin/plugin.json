@@ -1,6 +1,6 @@
 {
   "name": "slopornot",
-  "description": "Local Slop or Not tools for AI text detection, AI image detection, readability analysis, text cleanup, and humanization on Mac for Claude, Codex, Hermes Agent, and OpenClaw.",
+  "description": "Slop or Not tools for AI humanization, voice matching, local AI text detection, AI image detection, readability analysis, and Text Cleanup for Claude, Codex, Hermes Agent, and OpenClaw.",
   "version": "0.1.0",
   "author": {
     "name": "Numen Technologies",

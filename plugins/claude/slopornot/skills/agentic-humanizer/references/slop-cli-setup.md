@@ -40,8 +40,7 @@ You can also call the bundled binary directly:
 
 ## 4. Verify
 
-Use `slop status --json` if `slop` is on PATH, or call the absolute binary
-path from step 3.
+Use the absolute binary path from step 3.
 
 Expected: a JSON object with `pro: true` and the CLI version. Recent builds
 may also include `localCachePro: true`; older builds may use the legacy
@@ -52,7 +51,7 @@ return to step 2.
 > name. The skill probes Pro tier by attempting a real `detect_text`
 > call, not by reading this field, so both old and new builds work.
 
-## 5. Subcommands the loop uses
+## 5. Subcommands
 
 | Subcommand | Purpose | Pro-gated? |
 |---|---|---|
@@ -60,6 +59,9 @@ return to step 2.
 | `slop text --json` | Detect AI probability for text on stdin | Yes |
 | `slop readability --json` | Compute Flesch-Kincaid grade for text on stdin | Yes |
 | `slop cleanup` | Strip zero-width chars, fancy punctuation, homoglyphs from text on stdin | Yes |
+| `slop image --json` | Detect AI probability for image bytes on stdin | Yes |
+| `slop score-image --json` | Return the raw OmniAID image score for image bytes on stdin | Yes |
+| `slop mcp` | Run the SlopOrNot MCP stdio server | n/a |
 
 Common flags across all subcommands:
 
@@ -76,9 +78,11 @@ Common flags across all subcommands:
 Examples:
 
 ```bash
-echo "The quick brown fox jumps over the lazy dog." | slop text --json
-cat draft.md | slop readability --json
-pbpaste | slop cleanup --british | pbcopy
+echo "The quick brown fox jumps over the lazy dog." | "/Applications/Slop Or Not.app/Contents/MacOS/slop" text --json
+cat draft.md | "/Applications/Slop Or Not.app/Contents/MacOS/slop" readability --json
+pbpaste | "/Applications/Slop Or Not.app/Contents/MacOS/slop" cleanup --british | pbcopy
+"/Applications/Slop Or Not.app/Contents/MacOS/slop" image --json < photo.png
+"/Applications/Slop Or Not.app/Contents/MacOS/slop" score-image --json < generated.png
 ```
 
 Current output shape for `slop text --json`:
@@ -117,6 +121,10 @@ instead of `detection.result._0`. Treat `_0` as a 0-1 decimal and multiply by
 
 For `slop readability --json`, read the grade from `readability.scores[]`
 where `kind` is `fleschKincaidGradeLevel`.
+
+For `slop score-image --json`, read the raw OmniAID score from
+`rawSlopScore`. It is a 0-1 decimal and is not a provenance-aware detection
+verdict.
 
 ## Troubleshooting
 

@@ -8,25 +8,37 @@ an Apple silicon Mac. No text or image is uploaded for the analysis step.
 
 1. Backend selection
 2. Score normalization (read this before formatting any result)
-3. MCP tools (preferred backend)
-4. CLI subcommands (fallback backend)
+3. MCP tools
+4. CLI subcommands
 5. Operation-to-tool map
 
 ## 1. Backend selection
 
-Two backends expose the same six capabilities:
+Two backends expose the same local capabilities:
 
-- **MCP server** (preferred): the SlopOrNot MCP server. Claude Code surfaces
-  its tools as `mcp__SlopOrNot__<tool>`. Other harnesses expose the same
-  server under the registered name `SlopOrNot`; the tool short names
-  (`detect_text`, etc.) are identical.
-- **CLI** (fallback): the `slop` binary, used when MCP is unavailable,
-  erroring, or the harness has no MCP wiring.
+- **CLI**: use the signed app-bundle binary at
+  `/Applications/Slop Or Not.app/Contents/MacOS/slop`. It is preferred for
+  `image-detect` and `image-score` when the client can run shell commands,
+  because local image paths can be passed with shell redirection instead of
+  base64 conversion.
+- **MCP server**: the SlopOrNot MCP server. Claude Code surfaces its tools as
+  `mcp__SlopOrNot__<tool>`. Other harnesses expose the same server under the
+  registered name `SlopOrNot`; the tool short names (`detect_text`, etc.) are
+  identical. Use MCP for image operations when CLI execution is unsupported,
+  and try MCP first for text, readability, cleanup, and status.
 
 Pro gating: `detect_text`, `analyze_readability`, `clean_text`,
-`detect_image`, `score_image` require Slop or Not Pro. `slop_status` /
-`slop status` does NOT, so it can never prove Pro. Verify Pro only by a
-real Pro-gated call.
+`detect_image`, `score_image`, and CLI `score-image` require Slop or Not
+Pro. `slop_status` / `slop status` does NOT, so it can never prove Pro.
+Verify Pro only by a real Pro-gated call.
+
+For image requests, image detection is the default. It matches the Slop or
+Not app's image check because it returns provenance-aware verdict metadata
+plus the detection probability. Prefer the CLI `image` subcommand for local
+paths when shell commands are available; use MCP `detect_image` when CLI
+execution is unsupported. Use CLI `score-image` or MCP `score_image` only
+when the user explicitly asks for a raw or absolute OmniAID score. Do not
+treat generic "score this image" wording as an OmniAID request.
 
 ## 2. Score normalization
 
@@ -61,7 +73,7 @@ field. `scores[]` can be **empty** for short input; the response then
 carries a `warnings` entry such as `insufficient_text:NN`. When the grade
 entry is absent, report the warning instead of a grade, do not invent one.
 
-## 3. MCP tools (preferred backend)
+## 3. MCP tools
 
 Transport: stdio. Six tools. Pro-gated tools return an error (Claude Code:
 `isError: true`; other clients: a Pro-required message) when Pro is
@@ -131,7 +143,7 @@ Some builds return the score at `score`; older or normalized clients use
 - Output: `raw_slop_score` (number 0-1). Raw OmniAID model score only, no
   verdict metadata. Requires Pro and OmniAID installed.
 
-## 4. CLI subcommands (fallback backend)
+## 4. CLI subcommands
 
 Binary path inside the signed app bundle:
 
@@ -139,8 +151,8 @@ Binary path inside the signed app bundle:
 /Applications/Slop Or Not.app/Contents/MacOS/slop
 ```
 
-The path contains spaces; always quote it. On PATH it is just `slop`. See
-`slop-setup.md` for the app-bundle fallback and client registration.
+The path contains spaces; always quote it. Prefer this absolute path over
+`slop` from PATH. See `slop-setup.md` for setup and client registration.
 
 Common flags: `--json` (emit JSON), `-l, --language <code>` (override
 language, e.g. `en`, `de`).
@@ -152,6 +164,7 @@ language, e.g. `en`, `de`).
 | `slop readability --json` | text | readability only | yes |
 | `slop cleanup --json` | text | strip AI artifacts | yes |
 | `slop image --json` | raw image bytes | AI image detection | yes |
+| `slop score-image --json` | raw image bytes | raw OmniAID image score | yes |
 | `slop mcp` | stdio | start the MCP server | n/a |
 
 `slop cleanup` flags: `--invisibles` / `--no-invisibles` (default on),
@@ -221,6 +234,12 @@ Normalize CLI cleanup output before formatting:
 { "detection": { "result": { "_0": 0.80, "_1": { "most_likely_ai_slop": {} } } } }
 ```
 
+`slop score-image --json`:
+
+```json
+{ "rawSlopScore": 0.62939453125 }
+```
+
 `slop status --json`:
 
 ```json
@@ -240,7 +259,7 @@ for server health and version. Then run a real Pro-gated probe:
 - CLI: pipe the same text into `slop text --json`.
 
 ```text
-This is a local Slop or Not Pro status probe. It has enough sentences to
+This is an on-device Slop or Not Pro status probe. It has enough sentences to
 exercise the Pro-gated detector. The result is used only to confirm access.
 ```
 
@@ -254,13 +273,13 @@ the probe returns a Pro-required error or exits non-zero, report
 
 | Operation | MCP tool | CLI command | Read from |
 |---|---|---|---|
-| text-detect | `detect_text` (`include_readability: true`) | `slop text --json` (stdin) | MCP `score` / `verdict`; CLI `detection.result._0` / `._1` |
-| image-detect | `detect_image` (base64) | `slop image --json < file` | `verdict`, `score` / `detection.result` |
-| image-score | `score_image` (base64) | n/a (use `slop image --json`) | MCP `raw_slop_score`; CLI `detection.result._0` |
-| readability | `analyze_readability` | `slop readability --json` (stdin) | `scores[]` where `kind == fleschKincaidGradeLevel` |
-| cleanup | `clean_text` | `slop cleanup --json` (stdin) | MCP `cleaned_text` + counts; CLI `cleanedText` + count arrays |
-| status | `slop_status` + `detect_text` proof probe | `slop status --json` + `slop text --json` proof probe | health/version plus Pro-gated probe success |
+| text-detect | `detect_text` (`include_readability: true`) | `"/Applications/Slop Or Not.app/Contents/MacOS/slop" text --json` (stdin) | MCP `score` / `verdict`; CLI `detection.result._0` / `._1` |
+| image-detect | `detect_image` (base64) | `"/Applications/Slop Or Not.app/Contents/MacOS/slop" image --json < file` | `verdict`, `score` / `detection.result` |
+| image-score (explicit OmniAID only) | `score_image` (base64) | `"/Applications/Slop Or Not.app/Contents/MacOS/slop" score-image --json < file` | MCP `raw_slop_score`; CLI `rawSlopScore` |
+| readability | `analyze_readability` | `"/Applications/Slop Or Not.app/Contents/MacOS/slop" readability --json` (stdin) | `scores[]` where `kind == fleschKincaidGradeLevel` |
+| cleanup | `clean_text` | `"/Applications/Slop Or Not.app/Contents/MacOS/slop" cleanup --json` (stdin) | MCP `cleaned_text` + counts; CLI `cleanedText` + count arrays |
+| status | `slop_status` + `detect_text` proof probe | `"/Applications/Slop Or Not.app/Contents/MacOS/slop" status --json` + text proof probe | health/version plus Pro-gated probe success |
 
-Image input: MCP needs base64 (`base64 -i <path>`); the CLI reads raw
-bytes (`slop image --json < <path>`). `score_image` is MCP-only; with the
-CLI, run `slop image --json` and report `detection.result._0` as the score.
+Image input: MCP needs base64 (`base64 -i <path>`); the CLI reads raw bytes
+from the path through shell redirection. For local image paths, prefer CLI
+when shell commands are available.

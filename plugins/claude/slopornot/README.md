@@ -21,14 +21,15 @@ Claude Code namespaces plugin skills by plugin name. Run:
 /slopornot:slop-check
 ```
 
-Use `agentic-humanizer` to rewrite AI-generated text in a scored loop. Use
-`slop-check` to run one-shot local AI text detection, AI image detection,
-Flesch-Kincaid readability scoring, text cleanup, raw image scoring, or a
-Pro status check.
+Use `agentic-humanizer` to rewrite AI-generated text with a full 5-pass
+workflow, saved preferences, and optional voice matching. It does not need
+Slop or Not for core humanization. Slop or Not Pro adds on-device AI detector scoring,
+Flesch-Kincaid readability, Text Cleanup before and after humanization, and a
+cleanup summary. Use `slop-check` to run one-shot on-device AI text detection, AI
+image detection, Flesch-Kincaid readability scoring, text cleanup, raw image
+scoring, or a Pro status check.
 
-`agentic-humanizer` needs Slop or Not Pro for the full on-device detection
-loop. Without Pro, it falls back to a single-pass rewrite. `slop-check`
-needs Pro for detection, readability, cleanup, and image scoring.
+`slop-check` needs Pro for detection, readability, cleanup, and image scoring.
 
 See [skills/agentic-humanizer/SKILL.md](skills/agentic-humanizer/SKILL.md)
 and [skills/slop-check/SKILL.md](skills/slop-check/SKILL.md).

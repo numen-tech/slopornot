@@ -17,7 +17,8 @@ current `agentic-humanizer` skill.
   - Starts with YAML frontmatter containing `name`, `version`, `description`,
     and `allowed-tools`.
   - After the frontmatter is the editor prompt that orchestrates harness
-    detection, Slop or Not probing, the interview, and the rewrite loop.
+    detection, profile commands, rewrite preferences, optional voice matching,
+    optional Slop or Not probing, and the rewrite loop.
 - `references/patterns.md`
   - The canonical 29-pattern rewrite catalogue.
 - `skills/agentic-humanizer/README.md`
@@ -29,7 +30,8 @@ current `agentic-humanizer` skill.
   - Installation and usage instructions.
   - Contains the project overview and install paths.
 
-When changing behavior/content, treat `SKILL.md` as the source of truth, and update `README.md` to stay consistent.
+When changing behavior/content, treat `SKILL.md` as the source of truth, and
+update `README.md` to stay consistent.
 
 ## Common commands
 ### Validate plugin packaging
@@ -60,4 +62,5 @@ Invoke the skill:
   `references/patterns.md`.
 
 ### Documenting non-obvious fixes
-If you change the prompt to handle a tricky failure mode (e.g., a repeated mis-edit or an unexpected tone shift), add a short note to `README.md`’s version history describing what was fixed and why.
+If you change the prompt to handle a tricky failure mode, add a short note to
+`CHANGELOG.md` describing what was fixed and why.

@@ -5,17 +5,20 @@ Brief for AI coding agents (Claude Code, Codex, Cursor, Gemini CLI, Aider) editi
 ## What this repo is
 
 SlopOrNot is a plugin bundle for assistant workflows built around Slop or Not.
-It ships two skills. `agentic-humanizer` wraps a 29-pattern rewrite playbook
-in an iterative AI-detection loop scored by Slop or Not Pro's on-device CLI /
-MCP. `slop-check` is a self-contained one-shot router for the same on-device
-tools (text and image detection, readability, cleanup, status) with no
-interview and no harness routing files.
+It ships two skills. `agentic-humanizer` runs a full 5-pass humanization
+workflow with saved preferences and optional voice matching. It works without
+Slop or Not; Slop or Not Pro only adds on-device AI detector scoring,
+readability checks, Text Cleanup before and after humanization, and cleanup
+stats. `slop-check` is a
+self-contained one-shot router for the same on-device tools (text and image
+detection, readability, cleanup, status) with no interview and no harness
+routing files.
 
 ## Layout
 
 | Path | Role |
 |---|---|
-| `SKILL.md` | Skill orchestrator. Steps 1–5 (harness detect → Pro probe → interview → loop → output). |
+| `SKILL.md` | Skill orchestrator. Steps 1-7 (harness detect, profile commands, preferences, voice, optional Slop probe, loop, output). |
 | `harnesses/{claude-code,codex,cursor,gemini-cli,opencode,generic}.md` | Per-harness interview protocols. Edit only the file for the harness you're targeting. |
 | `references/patterns.md` | 29-pattern rewrite vocabulary. Local divergence is out of scope. |
 | `skills/agentic-humanizer/README.md` | Dedicated Agentic Humanizer README for users and search indexing. |
@@ -23,7 +26,7 @@ interview and no harness routing files.
 | `skills/slop-check/references/slop-tools.md` | Full CLI + MCP tool surface for `slop-check`: params, flags, JSON field paths, score normalization, Pro-gating. |
 | `skills/slop-check/references/slop-setup.md` | `slop-check` install, Pro unlock, app-bundle fallback, MCP/CLI registration. |
 | `skills/slop-check/README.md` | Dedicated Slop Check README for users and search indexing. |
-| `references/per-iteration-strategies.md` | The 5-iteration cookbook + mid-flight Pro-gate fallback. |
+| `references/per-iteration-strategies.md` | The 5-iteration cookbook for Core mode and Slop or Not Pro, plus mid-flight Pro-gate fallback. |
 | `references/voice-fingerprint.md` | Voice sample policy, fingerprint schema, extraction prompt, cache rules, and loop injection contracts. |
 | `references/slop-{cli,mcp}-setup.md` | User-facing install guides. |
 | `examples/sample-ai-text.md` | Smoke-test fixture. |
@@ -102,4 +105,8 @@ interview and no harness routing files.
 <paste contents of examples/sample-ai-text.md>
 ```
 
-Expect convergence by iteration 3 or 4 on the sample fixture. Output structure must match `SKILL.md` § Step 5.
+Expect convergence by iteration 3 or 4 on the sample fixture. Output
+structure must match `SKILL.md` Step 7.
+With Slop or Not unavailable, expect the same five rewrite passes with `n/a`
+score and grade values, no detector-convergence claim, and no Text Cleanup
+summary.

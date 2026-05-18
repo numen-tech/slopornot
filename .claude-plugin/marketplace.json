@@ -3,7 +3,7 @@
   "owner": {
     "name": "Numen Technologies"
   },
-  "description": "Slop or Not assistant skills for local AI text detection, AI image detection, readability analysis, text cleanup, and AI humanization workflows on Mac for Claude, Codex, Hermes Agent, and OpenClaw.",
+  "description": "Slop or Not assistant skills for AI humanization, voice matching, local AI text detection, AI image detection, readability analysis, and Text Cleanup for Claude, Codex, Hermes Agent, and OpenClaw.",
   "plugins": [
     {
       "name": "slopornot",

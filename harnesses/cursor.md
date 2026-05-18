@@ -65,12 +65,12 @@ Map the chosen labels to internal variables (same as Claude Code):
 - Q3 → `tone`: lowercase the label.
 - Q4 → `length_policy`: `Keep within ±10% of original` → `±10`,
   `Allow expansion` → `exp`, `Allow trimming` → `trim`.
-- Q5 → voice choice: `Yes` starts Step 3.5 sample capture, `No` skips
+- Q5 → voice choice: `Yes` starts Step 4 sample capture, `No` skips
   voice matching for this call, `Never ask again` persists `voice_skip`.
 
 When Q5 is `Yes`, say exactly: *"Paste 200+ words as your next message."*
 Capture the next user turn as the voice sample and return to `SKILL.md`
-Step 3.5 for validation, writing, and fingerprint extraction.
+Step 4 for validation, writing, and fingerprint extraction.
 
 Return to `SKILL.md` § Loop algorithm with these answers.
 

@@ -1,31 +1,29 @@
 # Agentic Humanizer for Claude, Codex, Hermes Agent, and OpenClaw
 
-Agentic Humanizer is an AI humanizer skill that rewrites AI-generated text in
-a scored loop. It is built for Claude, Codex, Hermes Agent, OpenClaw,
-OpenCode, Cursor, Gemini CLI, and other AI coding or writing agents that can
-call local tools on your Mac.
+Agentic Humanizer rewrites AI-generated text with a full 5-pass workflow,
+saved preferences, and optional stylometric voice matching. It is built for
+Claude, Codex, Hermes Agent, OpenClaw, OpenCode, Cursor, Gemini CLI, and other
+AI coding or writing agents.
 
-The broader SlopOrNot plugin bundle lets agents call a local AI text detector,
-AI image detector, readability analyzer, and text cleanup tool on your Mac.
-With Slop or Not Pro installed, the skill can call a local AI text detector,
-readability analyzer, and text cleanup tool through the `slop` CLI or
-`slop mcp`. Detection and readability scoring run on your Mac. The rewrite
-itself runs in whichever assistant you use.
+**Core functionality does not require Slop or Not.** Without Slop or Not, the
+skill still interviews for preferences, can match a writing sample, runs all
+five rewrite passes, and returns the final draft. Slop or Not Pro only adds the
+measured local layer: AI score, Flesch-Kincaid readability, Text Cleanup before
+and after humanization, and cleanup stats.
 
 ## What It Does
 
-Agentic Humanizer is not a one-shot paraphraser. It loops through a measured
-rewrite process:
+1. Resolves dialect, reading level, tone, and length preferences.
+2. Optionally extracts a stylometric voice fingerprint from your sample.
+3. Runs five rewrite strategies against common AI-writing tells.
+4. Uses Slop or Not Pro for on-device AI detector scoring and Text Cleanup when available.
+5. Returns humanized text, loop history, highest-impact edits, and, when
+   Slop or Not Pro cleanup ran, a Text Cleanup summary.
 
-1. Score the source text with Slop or Not Pro's local AI text detector.
-2. Analyze readability with Flesch-Kincaid grade level.
-3. Ask for dialect, target reading level, tone, and length preference.
-4. Rewrite with a different strategy on each pass.
-5. Stop when the AI score and readability target converge, or return the best
-   iteration after the cap.
-
-The skill still runs without Slop or Not Pro, but it falls back to one unscored
-rewrite pass.
+Without Slop or Not, score and grade show as `n/a` and the skill does not
+claim detector convergence. Slop or Not Pro stops when the on-device AI detector score and
+readability target converge, or returns the best measured iteration after the
+cap.
 
 ## Install
 
@@ -53,10 +51,29 @@ Claude Code namespaces plugin skills by plugin name:
 /slopornot:agentic-humanizer
 ```
 
-Direct skill installs and non-plugin clients can invoke:
+Direct skill installs and non-plugin clients invoke:
 
 ```text
 /agentic-humanizer
+```
+
+## Usage
+
+```text
+/agentic-humanizer
+[paste your AI-generated text here]
+```
+
+Use a voice sample for one call:
+
+```text
+/agentic-humanizer voice=/path/to/sample.txt [paste]
+```
+
+Use saved preferences without another interview:
+
+```text
+/agentic-humanizer skip-interview [paste]
 ```
 
 ## Inline Overrides
@@ -73,8 +90,8 @@ Available flags:
 | `grade=N` | Set the target Flesch-Kincaid grade. |
 | `tone=casual`, `tone=professional`, or `tone=academic` | Set the rewrite tone. |
 | `length=±10`, `length=exp`, or `length=trim` | Keep length close, allow expansion, or allow trimming. |
-| `threshold=N` | Override the AI-score target. |
-| `max=N` | Override the 5-iteration cap. |
+| `threshold=N` | Override the Slop or Not Pro AI-score target. |
+| `max=N` | Override the Slop or Not Pro measured-iteration cap. |
 | `voice=/path/to/file.txt` | Use a writing sample for this run. |
 | `voice=off` or `voice-skip` | Skip voice matching. |
 | `skip-interview` | Use saved preferences or defaults. |
@@ -93,16 +110,27 @@ That directory can contain:
 - `voice.txt`
 - `voice-fingerprint.json`
 
+Manage them with:
+
+```text
+/agentic-humanizer show profile
+/agentic-humanizer reset
+/agentic-humanizer show voice
+/agentic-humanizer reset voice
+/agentic-humanizer set voice=/path/to/file.txt
+```
+
 ## Related Slop Or Not Tools
 
-The broader `slopornot` plugin bundle is designed around local Mac analysis
-tools:
+The broader `slopornot` plugin bundle includes local Mac tools for:
 
-- AI text detector
-- AI image detector
-- readability analyzer
-- text cleanup tool
+- AI text detection
+- AI image detection
+- readability analysis
+- Text Cleanup
+- raw image scoring
+- Pro status checks
 
-The current `agentic-humanizer` skill uses the text detector, readability
-analyzer, and cleanup tool. Future skills can use the image detector and other
-local Slop or Not capabilities.
+Use `slop-check` for one-shot local analysis. Use `agentic-humanizer` for
+rewriting. Slop or Not makes the rewrite measurable, but it is not required
+for the rewrite workflow or voice matching.
