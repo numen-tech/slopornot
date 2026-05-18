@@ -70,7 +70,7 @@ Parse each text answer to map onto the internal variables:
   `academic`.
 - Q4 → `length_policy`: match `±10|10%|keep` → `±10`; `expand|exp` →
   `exp`; `trim` → `trim`.
-- Q5 → voice choice: match `yes` → start Step 3.5 sample capture;
+- Q5 → voice choice: match `yes` → start Step 4 sample capture;
   `no` → skip voice matching for this call; `never` → persist
   `voice_skip`.
 
@@ -79,7 +79,7 @@ If parsing is ambiguous, ask one follow-up clarification (still via
 
 When Q5 is `yes`, say exactly: *"Paste 200+ words as your next message."*
 Capture the next user turn as the voice sample and return to `SKILL.md`
-Step 3.5 for validation, writing, and fingerprint extraction.
+Step 4 for validation, writing, and fingerprint extraction.
 
 Return to `SKILL.md` § Loop algorithm with these answers.
 

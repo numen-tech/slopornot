@@ -21,11 +21,12 @@ or another MCP client).
 | `mcp__SlopOrNot__detect_text` | Detect AI probability for text |
 | `mcp__SlopOrNot__analyze_readability` | Compute Flesch-Kincaid grade |
 | `mcp__SlopOrNot__clean_text` | Strip zero-width chars, homoglyphs |
-| `mcp__SlopOrNot__detect_image` | Detect AI-generated images (not used by this skill) |
-| `mcp__SlopOrNot__score_image` | Return the raw OmniAID image score (not used by this skill) |
+| `mcp__SlopOrNot__detect_image` | Detect AI-generated images |
+| `mcp__SlopOrNot__score_image` | Return the raw OmniAID image score |
 
 The agentic-humanizer loop uses `detect_text`, `analyze_readability`, and
-`clean_text`.
+`clean_text`. The bundled `slop-check` skill also uses the image tools when
+CLI execution is unavailable.
 
 Current `detect_text` responses include a numeric `score` field, `verdict`,
 `language`, `sentence_count`, and optional `readability`. Treat `score` as a
@@ -41,13 +42,6 @@ Run:
 
 ```bash
 claude mcp add --transport stdio --scope user SlopOrNot -- "/Applications/Slop Or Not.app/Contents/MacOS/slop" mcp
-```
-
-If Slop or Not's Command Line setup has put `slop` on PATH for your
-client, this shorter form is also fine:
-
-```bash
-claude mcp add --transport stdio --scope user SlopOrNot -- slop mcp
 ```
 
 Or add to `~/.claude/mcp.json` (create if missing):
@@ -89,13 +83,6 @@ Run:
 
 ```bash
 codex mcp add SlopOrNot -- "/Applications/Slop Or Not.app/Contents/MacOS/slop" mcp
-```
-
-If Slop or Not's Command Line setup has put `slop` on PATH for your
-client, this shorter form is also fine:
-
-```bash
-codex mcp add SlopOrNot -- slop mcp
 ```
 
 Or add to `~/.codex/config.toml`:

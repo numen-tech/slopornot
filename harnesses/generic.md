@@ -107,16 +107,16 @@ Capture the four answers as variables:
 
 When Q5 is `y`, say exactly: *"Paste 200+ words as your next message."*
 Capture the next user turn as the voice sample and return to `SKILL.md`
-Step 3.5 for validation, writing, and fingerprint extraction. When Q5 is
+Step 4 for validation, writing, and fingerprint extraction. When Q5 is
 `never`, persist `voice_skip`.
 
 Return to `SKILL.md` § Loop algorithm with these answers.
 
 ## Fingerprint approval (no gate)
 
-The Yes / Edit / Re-extract approval gate from `SKILL.md` Step 3.5 needs
+The Yes / Edit / Re-extract approval gate from `SKILL.md` Step 4 needs
 a structured-question tool that the generic harness does not have. When
-Step 3.5 reaches that gate, degrade to print-and-continue:
+Step 4 reaches that gate, degrade to print-and-continue:
 
 1. Print the extracted fingerprint JSON to the user, fenced as a code
    block so the structure is readable.
@@ -125,10 +125,10 @@ Step 3.5 reaches that gate, degrade to print-and-continue:
 3. Validate the fingerprint against
    `references/voice-fingerprint.md` § Required fields. If any required
    field is missing, set `voice_active=false`, add the
-   extraction-failure footer flag for Step 5, and skip writing the
+   extraction-failure footer flag for Step 7, and skip writing the
    cache. Do not try to ask the user to edit.
 4. If validation passes, save the fingerprint to
    `~/.agentic-humanizer/voice-fingerprint.json`, update `profile.json`
-   per `SKILL.md` Step 3.5's `Yes` branch, and proceed.
+   per `SKILL.md` Step 4's `Yes` branch, and proceed.
 
 Do not block the loop on a question the harness cannot render cleanly.

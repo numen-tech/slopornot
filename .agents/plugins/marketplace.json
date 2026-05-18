@@ -3,7 +3,7 @@
   "interface": {
     "displayName": "SlopOrNot"
   },
-  "description": "Slop or Not assistant skills for local AI detection and AI humanization on Mac across Codex, Claude, Hermes Agent, OpenClaw, and other agents.",
+  "description": "Slop or Not assistant skills for AI humanization, voice matching, local AI detection, readability, and Text Cleanup across Codex, Claude, Hermes Agent, OpenClaw, and other agents.",
   "plugins": [
     {
       "name": "slopornot",

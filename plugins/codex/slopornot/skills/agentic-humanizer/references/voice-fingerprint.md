@@ -1,14 +1,16 @@
 # Voice Fingerprint Reference
 
-`SKILL.md` reads this file from Step 3.5 when voice matching is enabled.
+`SKILL.md` reads this file from Step 4 when voice matching is enabled.
 `references/per-iteration-strategies.md` also points here from Iteration 2
 and Iteration 5. The goal is a compact stylometric fingerprint, not a raw
 sample pasted into every rewrite prompt.
 
 ## When this file applies
 
-Use this reference only after the main Slop or Not Pro probe succeeds and
-the user has not disabled voice matching with `voice=off` or `voice-skip`.
+Use this reference when the user has not disabled voice matching with
+`voice=off` or `voice-skip`. Voice matching does not require Slop or Not;
+it runs through the host LLM and can guide both Core-mode rewrites and rewrites
+that use Slop or Not Pro.
 The fingerprint can be created from either:
 
 - `~/.agentic-humanizer/voice.txt`
@@ -16,7 +18,7 @@ The fingerprint can be created from either:
 - the sample captured after conditional interview Q5
 
 The cached fingerprint is advisory. If extraction fails, the normal
-5-iteration loop still runs without voice matching.
+5-iteration workflow still runs without voice matching.
 
 ## Privacy
 

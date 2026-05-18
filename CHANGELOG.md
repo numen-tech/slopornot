@@ -9,8 +9,9 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - New `slop-check` skill: a self-contained, one-shot router for Slop or Not
   Pro's on-device tools. Detects AI text or images, scores readability
-  (Flesch-Kincaid), cleans AI artifacts, returns raw image scores, and
-  reports Pro status with a Pro-gated proof probe. Tries the MCP backend
+  (Flesch-Kincaid), cleans AI artifacts, returns raw OmniAID scores when
+  explicitly requested, and reports Pro status with a Pro-gated proof probe.
+  Tries the MCP backend
   first, falls back to the `slop` CLI, and uses the app-bundle binary when
   `slop` is missing from PATH. No interview and no harness routing files;
   works uniformly across Claude Code, Codex, Cursor, Gemini CLI, and
@@ -19,7 +20,7 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   references `skills/slop-check/references/slop-tools.md` and
   `skills/slop-check/references/slop-setup.md` pack the full CLI and MCP
   surface.
-- Dedicated `skills/slop-check/README.md` for local AI detector, AI image
+- Dedicated `skills/slop-check/README.md` for on-device AI detector, AI image
   detector, readability, cleanup, and Pro status usage and search indexing.
 - Plugin packaging now syncs self-contained skills wholesale into both
   plugin payloads via `scripts/sync-plugins.mjs`, validated by
@@ -60,6 +61,22 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- `agentic-humanizer` now runs the full 5-pass humanization workflow without
+  Slop or Not installed. Slop or Not Pro is now an enhancement for local AI
+  scoring, Flesch-Kincaid readability, Text Cleanup, and cleanup stats instead
+  of a prerequisite for the main workflow.
+- Voice matching now explicitly works both without Slop and with Slop or Not
+  Pro.
+- Slop or Not Pro humanization now runs Text Cleanup before the baseline and
+  after the selected final draft, then surfaces the cleanup counts in the
+  final output without exposing MCP or CLI backend labels.
+- `slop-check` user-facing result blocks no longer include MCP or CLI backend
+  labels.
+- Output wording for runs without Slop or Not Pro now avoids mode-like labels
+  and keeps the upsell focused on on-device AI detector scoring, readability,
+  Text Cleanup, and cleanup stats.
+- README, plugin README, and contributor docs now highlight that Agentic
+  Humanizer does not need Slop or Not for core rewriting or voice matching.
 - README and `references/slop-cli-setup.md` now document the `slop status`
   field as `pro` (renamed from the legacy `premium`). The runtime probe
   was already robust because it calls `detect_text` directly, so neither
@@ -89,6 +106,21 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Generic harness voice-fingerprint validation now points malformed
+  fingerprints to the Step 7 output footer instead of the obsolete Step 5
+  probe section.
+- `slop-check` README now documents the CLI-first backend order for local
+  image checks and the app-bundle CLI fallback for non-image operations.
+- `slop-check` now defaults image requests to `detect_image` so skill output
+  matches the app's image check. It uses `score_image` only for explicit raw
+  OmniAID score requests.
+- `slop-check` now prefers the app-bundle CLI for local image detection and
+  raw OmniAID image scoring, using MCP image tools only when CLI execution is
+  unavailable.
+- CLI docs now include `slop score-image --json` and its `rawSlopScore`
+  output.
+- Harness voice-sample prompts now point to `SKILL.md` Step 4 instead of the
+  obsolete voice-step reference.
 - `Run zizmor` now reports on every PR so the required status check does
   not remain pending when non-workflow files change.
 - Codex plugin install docs now use the current flow: add the marketplace,

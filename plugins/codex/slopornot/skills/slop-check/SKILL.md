@@ -27,21 +27,27 @@ verdict. No interview, no loop.
 
 ## Critical rules
 
-1. MUST try the MCP backend before the CLI backend.
+1. For `image-detect` and explicit `image-score`, MUST prefer the
+   app-bundle CLI when the current client can run local shell commands. Use
+   MCP for image operations only when CLI execution is unsupported or fails.
+   For text, readability, cleanup, and status, try MCP before CLI.
 2. MUST verify Pro with a real Pro-gated call. NEVER infer Pro from
    `slop_status` or `slop status`; both succeed for non-Pro users.
 3. NEVER block on a structured-question tool. Resolve ambiguity with the
    Step 1 precedence rule and state the assumption, or emit the single
    plain-text input request. Plain text renders on every harness.
 4. NEVER create symlinks, edit shell rc files, or otherwise modify PATH.
-   If `slop` is not on PATH, use the absolute app-bundle binary when
-   present; otherwise send the setup fallback. Detection, readability,
-   cleanup, score, and status are output-only: run them immediately, no
-   permission needed.
+   Prefer the absolute app-bundle binary at
+   `/Applications/Slop Or Not.app/Contents/MacOS/slop` whenever using the
+   CLI. Detection, readability, cleanup, score, and status are output-only:
+   run them immediately, no permission needed.
 5. Detection scores are 0-1 decimals; MUST multiply them by 100 for
    display. Readability values are grade/ease numbers and MUST NOT be
    converted to percentages. NEVER guess a flag or JSON field path; look it
    up in `references/slop-tools.md`.
+6. Image checks MUST default to `detect_image`. Use `score_image` only when
+   the user explicitly asks for a raw or absolute OmniAID score. A request to
+   "score this image" without OmniAID still maps to `image-detect`.
 
 ## Step 1: Identify the operation and input
 
@@ -51,7 +57,7 @@ Pick one operation from the request. Do not ask a question to disambiguate.
 |---|---|
 | `text-detect` | "is this AI", "did a bot write this", "AI written" |
 | `image-detect` | "is this image AI", "AI generated picture", "real photo" |
-| `image-score` | "raw AI score for this image", "image model score" |
+| `image-score` | "raw OmniAID score", "absolute OmniAID model score" |
 | `readability` | "reading level", "what grade", "Flesch", "how readable" |
 | `cleanup` | "clean this", "strip invisible/zero-width", "remove homoglyphs" |
 | `status` | "is slop set up", "is Slop or Not working", "check Pro" |
@@ -78,21 +84,28 @@ Paste the text, or give a file or image path, and say detect / clean / readabili
 
 ## Step 2: Resolve a working backend
 
-Try in strict order. Stop at the first that works.
+Use this backend order. Stop at the first that works.
 
-1. **MCP first.** Call the operation's SlopOrNot MCP tool (Claude Code
+1. **Image operations with shell support: CLI first.** For `image-detect`
+   and `image-score`, first check the app-bundle binary:
+
+   ```bash
+   ls "/Applications/Slop Or Not.app/Contents/MacOS/slop"
+   ```
+
+   If it exists and the client can run shell commands, use that quoted
+   binary path. This avoids converting local image files to base64. If the
+   client has no shell or CLI execution, for example MCP-only clients such
+   as Claude Desktop or ChatGPT connectors, skip to MCP.
+2. **MCP for non-image operations, or image fallback.** Call the operation's SlopOrNot MCP tool (Claude Code
    surfaces these as `mcp__SlopOrNot__<tool>`; other harnesses expose the
    same `SlopOrNot` server tools). If it returns a result and is not a
    Pro-required error (`isError: true` or a Pro-required message), use it.
    For `status`, `slop_status` is only a health/version call: also run the
    Pro proof probe in `references/slop-tools.md` section 5 before reporting
    active Pro. Done.
-2. **CLI fallback.** If MCP is absent or errored, check `command -v slop`.
-   If `slop` resolves, use the CLI command for the operation. For `status`,
-   run `slop status --json` plus the Pro proof probe before reporting
-   active Pro.
-3. **App bundle fallback.** If `slop` does not resolve, check whether the
-   bundled binary exists:
+3. **CLI fallback for non-image operations.** If MCP is absent or errored,
+   check whether the app-bundle binary exists:
 
    ```bash
    ls "/Applications/Slop Or Not.app/Contents/MacOS/slop"
@@ -102,6 +115,8 @@ Try in strict order. Stop at the first that works.
      its absolute quoted path. Do not modify PATH.
    - If it does not exist: this is genuinely not installed. Go to the
      Step 5 "Not installed" fallback.
+   For `status`, run the absolute binary's `status --json` plus the Pro proof
+   probe before reporting active Pro.
 4. **Pro-gated failure.** If the CLI runs but a Pro-gated call exits
    non-zero or returns Pro-required, the app is installed and Pro is not
    active: go to the Step 5 "Installed but Pro is not active" fallback. For
@@ -118,9 +133,14 @@ Key points:
 
 - `text-detect`: request readability alongside detection
   (`include_readability: true` on MCP; `slop text --json` returns both).
-- Images: MCP needs base64 (`base64 -i <path>`); the CLI reads raw bytes
-  (`slop image --json < "<path>"`). `score_image` is MCP-only; with the
-  CLI, report the image `detection.result._0` as the score.
+- Images: default to `image-detect`. When shell commands are available, use
+  the absolute CLI path with shell redirection from the image path:
+  `"/Applications/Slop Or Not.app/Contents/MacOS/slop" image --json < "<path>"`.
+  MCP uses `detect_image` with base64 (`base64 -i <path>`) only when CLI is
+  unsupported or fails. Use `score-image` / `score_image` only for
+  `image-score`, and only when the user explicitly asks for a raw or absolute
+  OmniAID score. If the user asks for a generic image score without OmniAID,
+  keep `image-detect` and format the detection probability.
 - `cleanup`: keep the default removals on unless the user asked to limit
   them. Normalize MCP and CLI cleanup fields before formatting: MCP returns
   `cleaned_text` and integer counts; CLI returns `cleanedText` plus count
@@ -141,7 +161,7 @@ Render the matching block.
 
 ```markdown
 **Likely AI** (most_likely_ai_slop) · 87% AI probability
-Language: en · Sentences: 6 · Backend: MCP
+Language: en · Sentences: 6
 ```
 
 Map the verdict by rule (verdicts have gradations like `probably_ai_slop`):
@@ -153,7 +173,7 @@ percentage.
 
 ```markdown
 **Flesch-Kincaid grade: 9.7** (Reading Ease 62.4)
-Words: 210 · Sentences: 14 · Backend: CLI
+Words: 210 · Sentences: 14
 ```
 
 If `scores[]` is empty (short input), the response carries a `warnings`
@@ -170,10 +190,10 @@ not invent a grade.
 `**Cleaned.** Invisibles: 3 · Punctuation: 5 · Homoglyphs: 1 · British: 0`,
 followed by a fenced `text` block containing only `cleaned_text`.
 
-**Image score:**
+**Image score (only for explicit OmniAID requests):**
 
 ```markdown
-**Raw image score: 0.80** (OmniAID) · Backend: MCP
+**Raw image score: 0.80** (OmniAID)
 ```
 
 **Status:**
@@ -227,21 +247,21 @@ Output:
 Assumed AI-detection. Ask for readability or cleanup to switch.
 
 **Likely AI** (most_likely_ai_slop) · 91% AI probability
-Language: en · Sentences: 1 · Backend: MCP
+Language: en · Sentences: 1
 ```
 
 **Example B, image detection from a path:**
 
 User: `is this AI? ~/Desktop/art.png`
 
-Action: path ends `.png`, so `image-detect`. MCP unavailable, `slop` on
-PATH, so use the CLI: `slop image --json < "$HOME/Desktop/art.png"`.
+Action: path ends `.png`, so `image-detect`. Shell commands are available,
+so use the app-bundle CLI:
+`"/Applications/Slop Or Not.app/Contents/MacOS/slop" image --json < "$HOME/Desktop/art.png"`.
 
 Output:
 
 ```markdown
 **Likely AI** (most_likely_ai_slop) · 80% AI probability
-Backend: CLI
 ```
 
 **Example C, readability of a file:**
@@ -255,7 +275,7 @@ Output:
 
 ```markdown
 **Flesch-Kincaid grade: 7.2** (Reading Ease 71.8)
-Words: 148 · Sentences: 11 · Backend: MCP
+Words: 148 · Sentences: 11
 ```
 
 **Example D, cleanup with a zero-width character:**
@@ -267,6 +287,22 @@ Action: `cleanup`. MCP `clean_text` (defaults on).
 Output: the counts line `**Cleaned.** Invisibles: 1 · Punctuation: 0 ·
 Homoglyphs: 0 · British: 0`, then a fenced `text` block whose only content
 is `Helloworld` (the zero-width character removed).
+
+**Example E, explicit OmniAID score:**
+
+User: `give me the raw OmniAID score for ~/Desktop/art.png`
+
+Action: explicit OmniAID request, so `image-score`. Shell commands are
+available, so use the app-bundle CLI:
+`"/Applications/Slop Or Not.app/Contents/MacOS/slop" score-image --json < "$HOME/Desktop/art.png"`.
+If CLI execution is unsupported, use MCP `score_image` with base64 image
+input.
+
+Output:
+
+```markdown
+**Raw image score: 0.80** (OmniAID)
+```
 
 ## Pointer files
 

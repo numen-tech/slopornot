@@ -1,6 +1,6 @@
-# Slop Check: local AI detector for Claude, Codex, Hermes Agent, and OpenClaw
+# Slop Check: on-device AI detector for Claude, Codex, Hermes Agent, and OpenClaw
 
-Slop Check is a one-shot local AI detector skill for AI coding and writing
+Slop Check is a one-shot on-device AI detector skill for AI coding and writing
 agents. Use it to check whether text or an image is AI-generated, score a
 draft with Flesch-Kincaid readability, or clean invisible characters and
 AI-looking punctuation from text. It is built for Claude, Codex, Hermes
@@ -19,14 +19,17 @@ Six operations, all callable in one shot:
 
 - Local AI text detection (verdict plus probability and readability)
 - Local AI image detection (JPEG, PNG, HEIC, WebP)
-- Raw image model score (OmniAID)
+- Raw OmniAID image score, only when explicitly requested
 - Readability scoring (Flesch-Kincaid grade and Reading Ease)
 - Text cleanup (zero-width characters, homoglyphs, fancy punctuation)
 - Setup and Pro status check, verified with a Pro-gated probe
 
-It tries the SlopOrNot MCP server first, falls back to the `slop` CLI, and
-if `slop` is missing from PATH it uses the app-bundle binary directly when
-Slop or Not is installed.
+Backend order depends on the operation. Image detection and explicit raw
+OmniAID image scoring use the app-bundle CLI first when shell commands are
+available, so local image paths can be piped directly. Text detection,
+readability, cleanup, and status try MCP first, then fall back to the
+app-bundle CLI. MCP remains the fallback for image checks in clients without
+shell access.
 
 ## Install
 
@@ -89,7 +92,14 @@ Text and image detection return a label, raw verdict, and AI probability:
 
 ```markdown
 **Likely AI** (most_likely_ai_slop) · 87% AI probability
-Language: en · Sentences: 6 · Backend: MCP
+Language: en · Sentences: 6
+```
+
+Raw OmniAID image scores are separate from image detection and run only when
+you explicitly ask for OmniAID:
+
+```text
+/slop-check raw OmniAID score for ~/Desktop/art.png
 ```
 
 Readability returns Flesch-Kincaid grade and Reading Ease as readability
@@ -97,7 +107,7 @@ values, not percentages:
 
 ```markdown
 **Flesch-Kincaid grade: 9.7** (Reading Ease 62.4)
-Words: 210 · Sentences: 14 · Backend: CLI
+Words: 210 · Sentences: 14
 ```
 
 Cleanup prints the changed text in a fenced block:
@@ -129,6 +139,8 @@ Slop Check needs Slop or Not Pro for Mac (Apple silicon), which ships the
 
 ## Related Slop or Not skills
 
-The `slopornot` plugin bundle also ships `agentic-humanizer`, which
-rewrites AI-generated text in a scored detection loop. Use `slop-check`
-to measure or clean; use `agentic-humanizer` to rewrite.
+The `slopornot` plugin bundle also ships `agentic-humanizer`, which rewrites
+AI-generated text with a 5-pass workflow and optional voice matching. It can
+run without Slop or Not. When Slop or Not Pro is available, the humanizer adds
+on-device AI detector scoring, readability checks, Text Cleanup, and cleanup stats. Use
+`slop-check` to measure or clean; use `agentic-humanizer` to rewrite.
