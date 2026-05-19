@@ -136,19 +136,22 @@ self-contained skill directories into the harness skill directory:
 git clone https://github.com/numen-tech/slopornot /tmp/slopornot
 
 # Codex CLI
-mkdir -p ~/.codex/skills && \
-  cp -R /tmp/slopornot/skills/agentic-humanizer ~/.codex/skills/agentic-humanizer && \
-  cp -R /tmp/slopornot/skills/slop-check ~/.codex/skills/slop-check
+rm -rf ~/.codex/skills/agentic-humanizer ~/.codex/skills/slop-check && \
+  mkdir -p ~/.codex/skills && \
+  cp -R /tmp/slopornot/skills/agentic-humanizer ~/.codex/skills/ && \
+  cp -R /tmp/slopornot/skills/slop-check ~/.codex/skills/
 
 # Gemini CLI
-mkdir -p ~/.gemini/skills && \
-  cp -R /tmp/slopornot/skills/agentic-humanizer ~/.gemini/skills/agentic-humanizer && \
-  cp -R /tmp/slopornot/skills/slop-check ~/.gemini/skills/slop-check
+rm -rf ~/.gemini/skills/agentic-humanizer ~/.gemini/skills/slop-check && \
+  mkdir -p ~/.gemini/skills && \
+  cp -R /tmp/slopornot/skills/agentic-humanizer ~/.gemini/skills/ && \
+  cp -R /tmp/slopornot/skills/slop-check ~/.gemini/skills/
 
 # OpenCode
-mkdir -p ~/.config/opencode/skills && \
-  cp -R /tmp/slopornot/skills/agentic-humanizer ~/.config/opencode/skills/agentic-humanizer && \
-  cp -R /tmp/slopornot/skills/slop-check ~/.config/opencode/skills/slop-check
+rm -rf ~/.config/opencode/skills/agentic-humanizer ~/.config/opencode/skills/slop-check && \
+  mkdir -p ~/.config/opencode/skills && \
+  cp -R /tmp/slopornot/skills/agentic-humanizer ~/.config/opencode/skills/ && \
+  cp -R /tmp/slopornot/skills/slop-check ~/.config/opencode/skills/
 ```
 
 After copying, restart your harness so the skills are discovered.
