@@ -16,6 +16,11 @@ Thanks for your interest in SlopOrNot.
   `plugins/claude/slopornot/skills/` are generated from the canonical skill
   files under `skills/agentic-humanizer/` and `skills/slop-check/`. Edit the
   canonical files, then run `node scripts/sync-plugins.mjs`.
+- The Claude Desktop bundle under `claude-skills/` is a separate generated
+  artifact. Its `SKILL.md` and `README.md` are hand-authored and
+  intentionally diverge (no harness routing); its `references/` and
+  `examples/` are copied verbatim by `make -C claude-skills build` and must
+  not be hand-edited. Rebuild the zip with `make -C claude-skills`.
 
 ## Pre-PR checklist
 
@@ -25,9 +30,10 @@ node scripts/check-frontmatter.mjs
 node scripts/check-links.mjs
 node scripts/sync-plugins.mjs --check
 node scripts/check-plugin-packaging.mjs
+make -C claude-skills check
 ```
 
-All five must pass.
+All six must pass.
 
 GitHub also requires `lint` and `Run zizmor` on every PR. Required
 workflows should not use PR path filters unless the repository ruleset

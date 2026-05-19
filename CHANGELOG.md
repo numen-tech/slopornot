@@ -7,6 +7,13 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Claude Desktop bundle under `claude-skills/`. A stripped, Desktop-only
+  build of `agentic-humanizer` with no harness routing: it runs a built-in
+  interview using Claude Desktop's `ask_user_input_v0` prompt, one question
+  at a time, and uses a Slop or Not MCP connector when one is attached
+  (otherwise the unscored core workflow). `make -C claude-skills` builds a
+  shippable `agentic-humanizer-desktop.zip` a non-technical user can upload
+  via Settings, Capabilities, Skills.
 - New `slop-check` skill: a self-contained, one-shot router for Slop or Not
   Pro's on-device tools. Detects AI text or images, scores readability
   (Flesch-Kincaid), cleans AI artifacts, returns raw OmniAID scores when
