@@ -4,16 +4,18 @@ Thanks for your interest in SlopOrNot.
 
 ## Scope of contributions
 
-- New harness routing files (`harnesses/<name>.md`) are welcome.
+- New harness routing files (`skills/agentic-humanizer/harnesses/<name>.md`)
+  are welcome.
 - New per-iteration strategies are welcome, but they should compose with
   the existing 5-iteration schedule, not replace it. Open an issue first
   to discuss.
-- Edits to `references/patterns.md` only when intentionally refreshing the
-  licensed source material. Local divergence on the 29 patterns is out of
-  scope.
+- Edits to `skills/agentic-humanizer/references/patterns.md` only when
+  intentionally refreshing the licensed source material. Local divergence on
+  the 29 patterns is out of scope.
 - Plugin payload files under `plugins/codex/slopornot/skills/` and
-  `plugins/claude/slopornot/skills/` are generated from the root skill files.
-  Edit the root files, then run `node scripts/sync-plugins.mjs`.
+  `plugins/claude/slopornot/skills/` are generated from the canonical skill
+  files under `skills/agentic-humanizer/` and `skills/slop-check/`. Edit the
+  canonical files, then run `node scripts/sync-plugins.mjs`.
 
 ## Pre-PR checklist
 
@@ -35,10 +37,11 @@ changes in the same PR.
 
 ```text
 /agentic-humanizer
-<paste contents of examples/sample-ai-text.md>
+<paste contents of skills/agentic-humanizer/examples/sample-ai-text.md>
 ```
 
-Verify the output structure matches `SKILL.md` § Step 5. Expect the loop
+Verify the output structure matches `skills/agentic-humanizer/SKILL.md`
+§ Step 5. Expect the loop
 to reach iteration 3 or 4 before converging on the sample fixture.
 
 ## Commit conventions

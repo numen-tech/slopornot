@@ -129,23 +129,29 @@ For Claude Code, Cursor, or Windsurf:
 npx skills add numen-tech/slopornot
 ```
 
-For Codex CLI, Gemini CLI, or OpenCode, clone into the harness skill directory:
+For Codex CLI, Gemini CLI, or OpenCode, clone the repo once and copy both
+self-contained skill directories into the harness skill directory:
 
 ```bash
+git clone https://github.com/numen-tech/slopornot /tmp/slopornot
+
 # Codex CLI
 mkdir -p ~/.codex/skills && \
-  git clone https://github.com/numen-tech/slopornot ~/.codex/skills/agentic-humanizer
+  cp -R /tmp/slopornot/skills/agentic-humanizer ~/.codex/skills/agentic-humanizer && \
+  cp -R /tmp/slopornot/skills/slop-check ~/.codex/skills/slop-check
 
 # Gemini CLI
 mkdir -p ~/.gemini/skills && \
-  git clone https://github.com/numen-tech/slopornot ~/.gemini/skills/agentic-humanizer
+  cp -R /tmp/slopornot/skills/agentic-humanizer ~/.gemini/skills/agentic-humanizer && \
+  cp -R /tmp/slopornot/skills/slop-check ~/.gemini/skills/slop-check
 
 # OpenCode
 mkdir -p ~/.config/opencode/skills && \
-  git clone https://github.com/numen-tech/slopornot ~/.config/opencode/skills/agentic-humanizer
+  cp -R /tmp/slopornot/skills/agentic-humanizer ~/.config/opencode/skills/agentic-humanizer && \
+  cp -R /tmp/slopornot/skills/slop-check ~/.config/opencode/skills/slop-check
 ```
 
-After cloning, restart your harness so the skill is discovered.
+After copying, restart your harness so the skills are discovered.
 
 ## Optional: Set Up Slop or Not Pro
 
@@ -163,8 +169,8 @@ Text Cleanup, cleanup stats, or the `slop-check` skill.
    ```
 
 4. Optionally register `slop mcp` with your AI client. See
-   [`references/slop-mcp-setup.md`](references/slop-mcp-setup.md) for
-   per-harness configuration snippets.
+   [`skills/agentic-humanizer/references/slop-mcp-setup.md`](skills/agentic-humanizer/references/slop-mcp-setup.md)
+   for per-harness configuration snippets.
 
 Verify:
 

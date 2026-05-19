@@ -1,6 +1,6 @@
 # SlopOrNot: agent guide
 
-Brief for AI coding agents (Claude Code, Codex, Cursor, Gemini CLI, Aider) editing this repo. The runtime skill itself is `SKILL.md`; this file is for agents working *on* the repo, not running the skill.
+Brief for AI coding agents (Claude Code, Codex, Cursor, Gemini CLI, Aider) editing this repo. The runtime skill itself is `skills/agentic-humanizer/SKILL.md`; this file is for agents working *on* the repo, not running the skill.
 
 ## What this repo is
 
@@ -18,18 +18,18 @@ routing files.
 
 | Path | Role |
 |---|---|
-| `SKILL.md` | Skill orchestrator. Steps 1-7 (harness detect, profile commands, preferences, voice, optional Slop probe, loop, output). |
-| `harnesses/{claude-code,codex,cursor,gemini-cli,opencode,generic}.md` | Per-harness interview protocols. Edit only the file for the harness you're targeting. |
-| `references/patterns.md` | 29-pattern rewrite vocabulary. Local divergence is out of scope. |
+| `skills/agentic-humanizer/SKILL.md` | Self-contained `agentic-humanizer` orchestrator. Steps 1-7 (harness detect, profile commands, preferences, voice, optional Slop probe, loop, output). |
+| `skills/agentic-humanizer/harnesses/{claude-code,codex,cursor,gemini-cli,opencode,generic}.md` | Per-harness interview protocols. Edit only the file for the harness you're targeting. |
+| `skills/agentic-humanizer/references/patterns.md` | 29-pattern rewrite vocabulary. Local divergence is out of scope. |
+| `skills/agentic-humanizer/references/per-iteration-strategies.md` | The 5-iteration cookbook for Core mode and Slop or Not Pro, plus mid-flight Pro-gate fallback. |
+| `skills/agentic-humanizer/references/voice-fingerprint.md` | Voice sample policy, fingerprint schema, extraction prompt, cache rules, and loop injection contracts. |
+| `skills/agentic-humanizer/references/slop-{cli,mcp}-setup.md` | User-facing install guides. |
+| `skills/agentic-humanizer/examples/sample-ai-text.md` | Smoke-test fixture. |
 | `skills/agentic-humanizer/README.md` | Dedicated Agentic Humanizer README for users and search indexing. |
-| `skills/slop-check/SKILL.md` | Self-contained `slop-check` orchestrator. Steps 1-5 (identify op, resolve backend MCP/CLI/app-bundle fallback, run, format, fallback). No frontmatter validation by CI (only root `SKILL.md` is checked); follow convention anyway. |
+| `skills/slop-check/SKILL.md` | Self-contained `slop-check` orchestrator. Steps 1-5 (identify op, resolve backend MCP/CLI/app-bundle fallback, run, format, fallback). |
 | `skills/slop-check/references/slop-tools.md` | Full CLI + MCP tool surface for `slop-check`: params, flags, JSON field paths, score normalization, Pro-gating. |
 | `skills/slop-check/references/slop-setup.md` | `slop-check` install, Pro unlock, app-bundle fallback, MCP/CLI registration. |
 | `skills/slop-check/README.md` | Dedicated Slop Check README for users and search indexing. |
-| `references/per-iteration-strategies.md` | The 5-iteration cookbook for Core mode and Slop or Not Pro, plus mid-flight Pro-gate fallback. |
-| `references/voice-fingerprint.md` | Voice sample policy, fingerprint schema, extraction prompt, cache rules, and loop injection contracts. |
-| `references/slop-{cli,mcp}-setup.md` | User-facing install guides. |
-| `examples/sample-ai-text.md` | Smoke-test fixture. |
 | `plugins/codex/slopornot/` | Generated Codex plugin payload. Do not edit synced skill files here by hand. |
 | `plugins/claude/slopornot/` | Generated Claude Code plugin payload. Do not edit synced skill files here by hand. |
 | `.agents/plugins/marketplace.json` | Codex repo marketplace for the `slopornot` plugin. |
@@ -54,8 +54,8 @@ routing files.
    PR path filters to required workflows unless the repository ruleset is
    updated in the same change.
 
-2. **No em-dashes in `README.md`, `SKILL.md`, `CHANGELOG.md`, `AGENTS.md`, commits, tag annotations, or release notes.** Use commas, colons, or parentheses. The user-facing surface of a humanizer can't credibly ship em-dash-laden copy. (Inherited em-dashes in `references/` and `harnesses/` predate the rule and are getting cleaned up incrementally; do not introduce new ones.)
-3. **Don't edit `references/patterns.md` for local taste.** The 29-pattern catalogue is licensed source material. Only refresh it intentionally with attribution and license notices checked.
+2. **No em-dashes in `README.md`, `SKILL.md`, `CHANGELOG.md`, `AGENTS.md`, commits, tag annotations, or release notes.** Use commas, colons, or parentheses. The user-facing surface of a humanizer can't credibly ship em-dash-laden copy. (Inherited em-dashes in `skills/agentic-humanizer/references/` and `skills/agentic-humanizer/harnesses/` predate the rule and are getting cleaned up incrementally; do not introduce new ones.)
+3. **Don't edit `skills/agentic-humanizer/references/patterns.md` for local taste.** The 29-pattern catalogue is licensed source material. Only refresh it intentionally with attribution and license notices checked.
 4. **Conventional Commits are required, not optional.** Format: `type(scope): subject`. Subject is imperative, lowercase, no trailing period. Allowed types and their changelog mapping:
 
    | Type | Changelog section | Use for |
@@ -76,24 +76,24 @@ routing files.
 
    | What you changed | Update these in the same PR |
    |---|---|
-   | Runtime constant (`AI_THRESHOLD`, `MAX_ITER`, grade tolerance) | `SKILL.md`, `README.md`, `CHANGELOG.md` (Unreleased) |
-   | Interview shape, question count, or order | `SKILL.md`, `README.md`, every `harnesses/*.md`, `CHANGELOG.md` |
-   | Output format (Step 5 structure, fields, ordering) | `SKILL.md`, `README.md`, `CHANGELOG.md` |
-   | Inline-override grammar or saved-profile schema | `SKILL.md`, `README.md`, `CHANGELOG.md` |
-   | Voice fingerprint behavior, schema, or extraction prompt | `SKILL.md`, `README.md`, `references/voice-fingerprint.md`, `references/per-iteration-strategies.md`, `CHANGELOG.md` |
-   | New or renamed reference doc under `references/` | `SKILL.md` (links), `AGENTS.md` (Layout table), `scripts/check-links.mjs` if it hardcodes paths |
-   | Harness routing (added, removed, renamed harness) | `SKILL.md` Step 1, `harnesses/<name>.md`, `README.md`, `CHANGELOG.md` |
+   | Runtime constant (`AI_THRESHOLD`, `MAX_ITER`, grade tolerance) | `skills/agentic-humanizer/SKILL.md`, `README.md`, `CHANGELOG.md` (Unreleased) |
+   | Interview shape, question count, or order | `skills/agentic-humanizer/SKILL.md`, `README.md`, every `skills/agentic-humanizer/harnesses/*.md`, `CHANGELOG.md` |
+   | Output format (Step 5 structure, fields, ordering) | `skills/agentic-humanizer/SKILL.md`, `README.md`, `CHANGELOG.md` |
+   | Inline-override grammar or saved-profile schema | `skills/agentic-humanizer/SKILL.md`, `README.md`, `CHANGELOG.md` |
+   | Voice fingerprint behavior, schema, or extraction prompt | `skills/agentic-humanizer/SKILL.md`, `README.md`, `skills/agentic-humanizer/references/voice-fingerprint.md`, `skills/agentic-humanizer/references/per-iteration-strategies.md`, `CHANGELOG.md` |
+   | New or renamed reference doc under `skills/agentic-humanizer/references/` | `skills/agentic-humanizer/SKILL.md` (links), `AGENTS.md` (Layout table), `scripts/check-links.mjs` if it hardcodes paths |
+   | Harness routing (added, removed, renamed harness) | `skills/agentic-humanizer/SKILL.md` Step 1, `skills/agentic-humanizer/harnesses/<name>.md`, `README.md`, `CHANGELOG.md` |
    | Lint rules, CI gates, release scripts | `AGENTS.md` (Critical rules § 1), `CONTRIBUTING.md`, `CHANGELOG.md` |
-   | Slop CLI / MCP install steps | `references/slop-cli-setup.md` or `references/slop-mcp-setup.md`, `README.md`, `CHANGELOG.md` |
+   | Slop CLI / MCP install steps | `skills/agentic-humanizer/references/slop-cli-setup.md` or `skills/agentic-humanizer/references/slop-mcp-setup.md`, `README.md`, `CHANGELOG.md` |
 
    If you can't tell whether a doc is affected, grep it for the symbol you changed. Stale runtime docs mislead users and corrupt the changelog.
 
 6. **Every user-visible change appends to `CHANGELOG.md` § `[Unreleased]`** under the matching Keep-a-Changelog heading (`Added`, `Changed`, `Fixed`, `Removed`, `Deprecated`, `Security`). Internal-only changes (`ci`, `build`, `test`, `chore`) skip the changelog. The release script promotes `[Unreleased]` to a versioned section; missing entries can't be recovered after the tag.
 7. **Don't add new per-iteration strategies that replace the 5-iteration schedule.** New strategies must compose with it. Open an issue first.
-8. **Harness-specific instructions stay in `harnesses/<name>.md`.** Don't sprinkle "Claude Code users…" / "Codex users…" through the top-level `SKILL.md`.
-9. **Plugin payloads are generated distribution artifacts.** Edit canonical
-   runtime files at the repo root (or under `skills/<self-contained-skill>/`
-   for self-contained skills like `slop-check`), then run
+8. **Harness-specific instructions stay in `skills/agentic-humanizer/harnesses/<name>.md`.** Don't sprinkle "Claude Code users…" / "Codex users…" through `skills/agentic-humanizer/SKILL.md`.
+9. **Plugin payloads are generated distribution artifacts.** Both skills are
+   self-contained: edit canonical runtime files under
+   `skills/agentic-humanizer/` or `skills/slop-check/`, then run
    `node scripts/sync-plugins.mjs`. Never hand-edit files under
    `plugins/*/slopornot/skills/`. Manifest-only changes may be made directly
    inside plugin folders.
@@ -102,11 +102,11 @@ routing files.
 
 ```text
 /agentic-humanizer
-<paste contents of examples/sample-ai-text.md>
+<paste contents of skills/agentic-humanizer/examples/sample-ai-text.md>
 ```
 
 Expect convergence by iteration 3 or 4 on the sample fixture. Output
-structure must match `SKILL.md` Step 7.
+structure must match `skills/agentic-humanizer/SKILL.md` Step 7.
 With Slop or Not unavailable, expect the same five rewrite passes with `n/a`
 score and grade values, no detector-convergence claim, and no Text Cleanup
 summary.

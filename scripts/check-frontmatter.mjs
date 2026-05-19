@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const files = ['SKILL.md'];
+const files = ['skills/agentic-humanizer/SKILL.md', 'skills/slop-check/SKILL.md'];
 let errors = 0;
 
 for (const f of files) {

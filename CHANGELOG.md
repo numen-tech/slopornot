@@ -43,7 +43,7 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - New profile subcommands: `/agentic-humanizer show voice`,
   `/agentic-humanizer reset voice`, and
   `/agentic-humanizer set voice=/path/to/file.txt`.
-- New reference doc `references/voice-fingerprint.md` covers the
+- New reference doc `skills/agentic-humanizer/references/voice-fingerprint.md` covers the
   extraction prompt, fingerprint schema, cache invalidation rules,
   required-field list, privacy posture, and the Iteration 2 and
   Iteration 5 injection contracts.
@@ -61,6 +61,13 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- The `agentic-humanizer` runtime moved from the repo root into
+  `skills/agentic-humanizer/` (`SKILL.md`, `harnesses/`, `references/`,
+  `examples/`), so both shipped skills are now uniformly self-contained under
+  `skills/`. Direct-install instructions changed accordingly: clone the repo
+  and copy the `skills/<name>/` directories into your harness skill folder.
+  Existing bare-clone installs (repo cloned directly onto the skill directory)
+  must re-install.
 - `agentic-humanizer` now runs the full 5-pass humanization workflow without
   Slop or Not installed. Slop or Not Pro is now an enhancement for local AI
   scoring, Flesch-Kincaid readability, Text Cleanup, and cleanup stats instead
