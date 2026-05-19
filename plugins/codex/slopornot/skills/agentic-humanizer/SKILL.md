@@ -337,8 +337,15 @@ For MCP `clean_text`, decode `content[0].text` as JSON before reading:
 - `homoglyphs_replaced`
 - `british_substitutions`
 
-For CLI cleanup, run
-`"/Applications/Slop Or Not.app/Contents/MacOS/slop" cleanup --json` and read:
+For CLI cleanup, pipe the selected text into the app-bundle binary:
+
+```bash
+cat <<'TEXT_TO_CLEAN' | "/Applications/Slop Or Not.app/Contents/MacOS/slop" cleanup --json
+<selected source or final text>
+TEXT_TO_CLEAN
+```
+
+Then read:
 
 - `cleanedText`
 - Sum `invisibleCounts[].count`

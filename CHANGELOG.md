@@ -113,6 +113,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Agentic Humanizer's CLI Text Cleanup instructions now pipe the selected
+  source or final text into `slop cleanup --json`, so CLI-only Pro runs do
+  not receive an empty `cleanedText` result.
+- Direct skill reinstall commands now remove the old `agentic-humanizer` and
+  `slop-check` directories before copying, which prevents nested
+  `agentic-humanizer/agentic-humanizer` installs.
 - Generic harness voice-fingerprint validation now points malformed
   fingerprints to the Step 7 output footer instead of the obsolete Step 5
   probe section.

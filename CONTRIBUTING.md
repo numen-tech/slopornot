@@ -41,7 +41,7 @@ changes in the same PR.
 ```
 
 Verify the output structure matches `skills/agentic-humanizer/SKILL.md`
-§ Step 5. Expect the loop
+§ Step 7. Expect the loop
 to reach iteration 3 or 4 before converging on the sample fixture.
 
 ## Commit conventions

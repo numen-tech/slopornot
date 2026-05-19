@@ -78,7 +78,7 @@ routing files.
    |---|---|
    | Runtime constant (`AI_THRESHOLD`, `MAX_ITER`, grade tolerance) | `skills/agentic-humanizer/SKILL.md`, `README.md`, `CHANGELOG.md` (Unreleased) |
    | Interview shape, question count, or order | `skills/agentic-humanizer/SKILL.md`, `README.md`, every `skills/agentic-humanizer/harnesses/*.md`, `CHANGELOG.md` |
-   | Output format (Step 5 structure, fields, ordering) | `skills/agentic-humanizer/SKILL.md`, `README.md`, `CHANGELOG.md` |
+   | Output format (Step 7 structure, fields, ordering) | `skills/agentic-humanizer/SKILL.md`, `README.md`, `CHANGELOG.md` |
    | Inline-override grammar or saved-profile schema | `skills/agentic-humanizer/SKILL.md`, `README.md`, `CHANGELOG.md` |
    | Voice fingerprint behavior, schema, or extraction prompt | `skills/agentic-humanizer/SKILL.md`, `README.md`, `skills/agentic-humanizer/references/voice-fingerprint.md`, `skills/agentic-humanizer/references/per-iteration-strategies.md`, `CHANGELOG.md` |
    | New or renamed reference doc under `skills/agentic-humanizer/references/` | `skills/agentic-humanizer/SKILL.md` (links), `AGENTS.md` (Layout table), `scripts/check-links.mjs` if it hardcodes paths |
