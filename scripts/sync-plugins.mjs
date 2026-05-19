@@ -12,16 +12,11 @@ const pluginRoots = [
   path.join(root, 'plugins/claude/slopornot'),
 ];
 
-const skillFiles = [
-  ['SKILL.md', 'SKILL.md'],
-  ['skills/agentic-humanizer/README.md', 'README.md'],
-];
 const rootFiles = ['LICENSE'];
-const skillDirs = ['harnesses', 'references', 'examples'];
 
 // Self-contained skills live entirely under skills/<name>/ and are copied
 // wholesale into each plugin payload at skills/<name>/.
-const selfContainedSkills = ['slop-check'];
+const selfContainedSkills = ['agentic-humanizer', 'slop-check'];
 
 function relative(filePath) {
   return path.relative(root, filePath);
@@ -100,18 +95,8 @@ function syncDirectory(source, destination) {
 }
 
 for (const pluginRoot of pluginRoots) {
-  const skillRoot = path.join(pluginRoot, 'skills/agentic-humanizer');
-
   for (const file of rootFiles) {
     syncFile(path.join(root, file), path.join(pluginRoot, file));
-  }
-
-  for (const [sourceFile, destinationFile] of skillFiles) {
-    syncFile(path.join(root, sourceFile), path.join(skillRoot, destinationFile));
-  }
-
-  for (const dir of skillDirs) {
-    syncDirectory(path.join(root, dir), path.join(skillRoot, dir));
   }
 
   for (const skill of selfContainedSkills) {

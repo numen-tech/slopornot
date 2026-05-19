@@ -5,24 +5,28 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 ## What this repo is
 This repository is a **SlopOrNot plugin bundle** implemented mostly as Markdown.
 
-The legacy direct-install runtime artifact is `SKILL.md`. Plugin payloads live
-under `plugins/codex/slopornot/` and `plugins/claude/slopornot/`.
+It ships two self-contained skills under `skills/`: `agentic-humanizer`
+(`skills/agentic-humanizer/SKILL.md`) and `slop-check`
+(`skills/slop-check/SKILL.md`). Plugin payloads live under
+`plugins/codex/slopornot/` and `plugins/claude/slopornot/`.
 
 `README.md` is for humans: installation, usage, and a compact overview of the
 current `agentic-humanizer` skill.
 
 ## Key files (and how they relate)
-- `SKILL.md`
+- `skills/agentic-humanizer/SKILL.md`
   - The actual skill definition.
   - Starts with YAML frontmatter containing `name`, `version`, `description`,
     and `allowed-tools`.
   - After the frontmatter is the editor prompt that orchestrates harness
     detection, profile commands, rewrite preferences, optional voice matching,
     optional Slop or Not probing, and the rewrite loop.
-- `references/patterns.md`
+- `skills/agentic-humanizer/references/patterns.md`
   - The canonical 29-pattern rewrite catalogue.
 - `skills/agentic-humanizer/README.md`
   - Dedicated Agentic Humanizer README for users and search indexing.
+- `skills/slop-check/SKILL.md`
+  - Self-contained one-shot router for the on-device Slop or Not tools.
 - `plugins/codex/slopornot/` and `plugins/claude/slopornot/`
   - Generated plugin payloads. Run `node scripts/sync-plugins.mjs` after
     editing canonical runtime files.
@@ -30,8 +34,8 @@ current `agentic-humanizer` skill.
   - Installation and usage instructions.
   - Contains the project overview and install paths.
 
-When changing behavior/content, treat `SKILL.md` as the source of truth, and
-update `README.md` to stay consistent.
+When changing behavior/content, treat `skills/agentic-humanizer/SKILL.md` as
+the source of truth, and update `README.md` to stay consistent.
 
 ## Common commands
 ### Validate plugin packaging
@@ -56,10 +60,10 @@ Invoke the skill:
 - `/slopornot:agentic-humanizer` for Claude Code plugin installs
 
 ## Making changes safely
-### Editing `SKILL.md`
+### Editing `skills/agentic-humanizer/SKILL.md`
 - Preserve valid YAML frontmatter formatting and indentation.
 - Keep the pattern numbering stable unless you’re intentionally re-numbering
-  `references/patterns.md`.
+  `skills/agentic-humanizer/references/patterns.md`.
 
 ### Documenting non-obvious fixes
 If you change the prompt to handle a tricky failure mode, add a short note to

@@ -6,27 +6,23 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
 
-const runtimeFiles = [
-  'SKILL.md',
-  ['skills/agentic-humanizer/README.md', 'README.md'],
-  'LICENSE',
-  'harnesses/claude-code.md',
-  'harnesses/codex.md',
-  'harnesses/cursor.md',
-  'harnesses/gemini-cli.md',
-  'harnesses/generic.md',
-  'harnesses/opencode.md',
-  'references/patterns.md',
-  'references/per-iteration-strategies.md',
-  'references/slop-cli-setup.md',
-  'references/slop-mcp-setup.md',
-  'references/voice-fingerprint.md',
-  'examples/sample-ai-text.md',
-];
-
 // Self-contained skills are synced verbatim into each plugin payload at
 // the same skills/<name>/ relative path.
 const selfContainedSkillFiles = [
+  'skills/agentic-humanizer/SKILL.md',
+  'skills/agentic-humanizer/README.md',
+  'skills/agentic-humanizer/harnesses/claude-code.md',
+  'skills/agentic-humanizer/harnesses/codex.md',
+  'skills/agentic-humanizer/harnesses/cursor.md',
+  'skills/agentic-humanizer/harnesses/gemini-cli.md',
+  'skills/agentic-humanizer/harnesses/generic.md',
+  'skills/agentic-humanizer/harnesses/opencode.md',
+  'skills/agentic-humanizer/references/patterns.md',
+  'skills/agentic-humanizer/references/per-iteration-strategies.md',
+  'skills/agentic-humanizer/references/slop-cli-setup.md',
+  'skills/agentic-humanizer/references/slop-mcp-setup.md',
+  'skills/agentic-humanizer/references/voice-fingerprint.md',
+  'skills/agentic-humanizer/examples/sample-ai-text.md',
   'skills/slop-check/SKILL.md',
   'skills/slop-check/README.md',
   'skills/slop-check/references/slop-tools.md',
@@ -142,20 +138,9 @@ if (claudeMarketplace) {
 
 for (const host of ['codex', 'claude']) {
   const pluginRoot = `plugins/${host}/slopornot`;
-  const skillRoot = `${pluginRoot}/skills/agentic-humanizer`;
 
   requireFile(`${pluginRoot}/README.md`);
-  requireFile(`${pluginRoot}/LICENSE`);
-
-  for (const runtimeFile of runtimeFiles) {
-    const sourceFile = Array.isArray(runtimeFile) ? runtimeFile[0] : runtimeFile;
-    const destinationFile = Array.isArray(runtimeFile) ? runtimeFile[1] : runtimeFile;
-    const destination =
-      destinationFile === 'LICENSE'
-        ? `${pluginRoot}/${destinationFile}`
-        : `${skillRoot}/${destinationFile}`;
-    requireSyncedFile(sourceFile, destination);
-  }
+  requireSyncedFile('LICENSE', `${pluginRoot}/LICENSE`);
 
   for (const sourceFile of selfContainedSkillFiles) {
     requireSyncedFile(sourceFile, `${pluginRoot}/${sourceFile}`);
