@@ -308,15 +308,15 @@ Set `slop_mode="llm-only"` and `slop_backend=null` by default. Probing Slop
 selects the enhancement path only; it never decides whether the humanizer runs.
 
 Run a real `detect_text` fixture call to verify both presence AND Pro tier.
-`slop status` succeeds for non-Pro; only `detect_text` Pro-gates.
+Only `detect_text` Pro-gates, so a successful numeric result confirms Pro.
 
-Use this fixture for both paths:
+Use this fixture for the probe:
 
 ```text
 In today's digital environment, organizations often adopt new software because it promises efficiency, but the real value depends on whether people can trust it. A useful tool should explain what it does, respect the user's context, and avoid turning simple decisions into complicated workflows. Clear documentation helps teams evaluate those tradeoffs before they commit time or money.
 ```
 
-**MCP path (try first):**
+**MCP path:**
 
 Call `mcp__SlopOrNot__detect_text` with the fixture and
 `include_readability: true`. If the tool call succeeds and the parsed response
@@ -326,29 +326,11 @@ has a numeric `score` or `ai_probability` field, set
 greater than 1. For readability, read the Flesch-Kincaid grade from
 `readability.scores[]` where `kind` is `fleschKincaidGradeLevel`.
 
-**CLI path (try second):**
-
-Run via Bash with the app-bundle binary:
-
-```bash
-cat <<'EOF' | "/Applications/Slop Or Not.app/Contents/MacOS/slop" text --json
-In today's digital environment, organizations often adopt new software because it promises efficiency, but the real value depends on whether people can trust it. A useful tool should explain what it does, respect the user's context, and avoid turning simple decisions into complicated workflows. Clear documentation helps teams evaluate those tradeoffs before they commit time or money.
-EOF
-```
-
-If exit code is 0 AND stdout parses as JSON with one of these numeric score
-paths, set `slop_mode="slop-or-not-pro"` and `slop_backend="cli"`:
-
-- `detection.result._0`
-- `detection.resultFewSentences._0`
-- `ai_probability`
-
-For CLI readability, read the grade from `readability.scores[]` where `kind`
-is `fleschKincaidGradeLevel`. Treat the score as a 0-1 decimal unless the
-value is already greater than 1.
-
-If neither path is live, keep `slop_mode="llm-only"` and continue to Step 6.
-Do not skip the interview, voice matching, or rewrite loop.
+Claude Desktop runs skills in a sandbox that cannot reach the user's machine,
+so there is no Slop or Not CLI fallback here: the MCP connector is the only
+Pro backend. If the MCP probe is unavailable or does not return a numeric
+score, keep `slop_mode="llm-only"` and continue to Step 6. Do not skip the
+interview, voice matching, or rewrite loop.
 
 ## Step 6: Run the loop
 
@@ -392,15 +374,6 @@ For MCP `clean_text`, decode `content[0].text` as JSON before reading:
 - `homoglyphs_replaced`
 - `british_substitutions`
 
-For CLI cleanup, run
-`"/Applications/Slop Or Not.app/Contents/MacOS/slop" cleanup --json` and read:
-
-- `cleanedText`
-- Sum `invisibleCounts[].count`
-- Sum `punctuationCounts[].count`
-- Sum `homoglyphCounts[].count`
-- Count `britishMappings.length`
-
 Normalize those into this internal shape:
 
 ```json
@@ -433,7 +406,7 @@ and remove the most visible AI tells from `references/patterns.md`.
 ### Mid-flight Pro-gate
 
 If any `detect_text`, `analyze_readability`, or `clean_text` call returns
-`isError: true` (MCP) or non-zero exit (CLI) on iteration >= 1, fall through
+`isError: true` on iteration >= 1, fall through
 to Core mode for the remaining iterations. See
 `references/per-iteration-strategies.md` Mid-flight Pro-gate fallback.
 
@@ -516,6 +489,6 @@ If voice extraction failed in Step 4, add this footer note instead:
 - `references/per-iteration-strategies.md` (the loop cookbook)
 - `references/voice-fingerprint.md` (voice sample extraction and loop
   injection contracts)
-- `references/slop-cli-setup.md` · `references/slop-mcp-setup.md`
-  (install guides; surface to user when they ask for on-device AI detector
+- `references/slop-mcp-setup.md`
+  (install guide; surface to user when they ask for on-device AI detector
   scoring setup)

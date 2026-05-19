@@ -11,7 +11,9 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   build of `agentic-humanizer` with no harness routing: it runs a built-in
   interview using Claude Desktop's `ask_user_input_v0` prompt, one question
   at a time, and uses a Slop or Not MCP connector when one is attached
-  (otherwise the unscored core workflow). `make -C claude-skills` builds a
+  (otherwise the unscored core workflow). It never invokes a local Slop CLI:
+  the Desktop sandbox cannot reach the user's machine, so MCP is the only
+  Pro backend. `make -C claude-skills` builds a
   shippable `agentic-humanizer-desktop.zip` a non-technical user can upload
   via Settings, Capabilities, Skills.
 - New `slop-check` skill: a self-contained, one-shot router for Slop or Not
