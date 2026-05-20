@@ -81,5 +81,6 @@ that run only; nothing is written to disk.
 
 Claude Desktop runs skills in a sandbox, so this bundle intentionally omits
 the saved-profile and on-disk voice features of the multi-agent build. There
-is no `~/.agentic-humanizer/` directory and no `voice=/path/to/file.txt`
-flag: voice samples are captured by pasting them into the chat each run.
+is no `~/.agentic-humanizer/` directory, and the `voice=/path/to/file.txt`
+flag is not honored: pass it and Agentic Humanizer will ask you to paste the
+sample into the chat instead.

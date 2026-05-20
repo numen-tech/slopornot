@@ -105,8 +105,6 @@ ask_user_input_v0({
 })
 ```
 
-Omit the `Voice` call when Q5 is not eligible.
-
 ### After the interview
 
 Map the chosen labels to internal variables:
@@ -145,9 +143,6 @@ limitation and stop. Do not probe Slop or run the loop.
    Professional, ±10%).
 3. **No complete inline overrides** -> run the interview below.
 
-Claude Desktop cannot rely on a local `~/.agentic-humanizer/profile.json`.
-Do not read or write a saved profile in this bundle.
-
 **Run the interview** using the protocol in Step 1. Capture these rewrite
 settings here:
 
@@ -157,8 +152,7 @@ settings here:
 - `tone` in {`casual`, `professional`, `academic`}
 - `length_policy` in {`±10`, `exp`, `trim`}
 
-After the rewrite answers, continue to Step 4. Do not ask to save Desktop
-defaults, because local filesystem persistence is not reliable across chats.
+After the rewrite answers, continue to Step 4.
 
 ## Step 4: Resolve voice sample
 
@@ -191,16 +185,16 @@ Capture the next user turn as the sample. Validate it before using it:
   `voice_active=false`, and continue without changing any profile.
 - 50-199 words: warn that 200+ words works better, then ask whether to
   continue with the shorter sample or paste a longer one.
-- 200+ words: use the pasted text in memory for this run. Do not write it to
-  `~/.agentic-humanizer/voice.txt`.
+- 200+ words: use the pasted text in memory for this run. Do not persist it
+  to disk.
 
 For every accepted sample, use only the first 3000 words for fingerprint
 extraction.
 
 **Fingerprint cache:**
 
-Do not use `~/.agentic-humanizer/voice-fingerprint.json` in Claude Desktop.
-Keep any approved fingerprint in memory for this run only.
+Keep any approved fingerprint in memory for this run only. Do not cache it
+to disk.
 
 Run the extraction prompt from `references/voice-fingerprint.md` against the
 host LLM. Render the JSON fingerprint and ask:
@@ -216,9 +210,7 @@ Options: `Yes`, `Edit`, `Re-extract`.
   offer Re-extract.
 - `Re-extract`: ask what to change, then re-run extraction with that hint.
 
-Run the Yes/Edit/Re-extract approval gate via `ask_user_input_v0` (Claude
-Desktop has a structured input tool, so the gate does not degrade to
-print-and-continue).
+Run the Yes/Edit/Re-extract approval gate via `ask_user_input_v0`.
 
 If extraction fails, if the sample is binary or unreadable, or if no host LLM
 is available for the extraction prompt, set `voice_active=false`, add the
