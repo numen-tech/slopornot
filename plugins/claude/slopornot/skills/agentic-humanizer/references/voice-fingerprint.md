@@ -11,17 +11,16 @@ Use this reference when the user has not disabled voice matching with
 `voice=off` or `voice-skip`. Voice matching does not require Slop or Not;
 it runs through the host LLM and can guide both Core-mode rewrites and rewrites
 that use Slop or Not Pro.
-For Claude Code, Codex, Cursor, Gemini CLI, OpenCode, and generic harnesses,
-the fingerprint can be created from either:
+For harnesses with filesystem access, the fingerprint can be created from
+either:
 
 - `~/.agentic-humanizer/voice.txt`
 - an inline `voice=/path/to/file.txt` override
 - the sample captured after conditional interview Q5
 
-For the Claude Desktop bundle, the fingerprint is created only from the
-sample pasted during the current run. Desktop does not read arbitrary local
-voice files, write `~/.agentic-humanizer/voice.txt`, or persist a fingerprint
-cache between chats.
+The Claude Desktop bundle has no filesystem access: it builds the
+fingerprint from the sample pasted during the current run and keeps both
+the sample and the fingerprint in memory only.
 
 The cached fingerprint is advisory. If extraction fails, the normal
 5-iteration workflow still runs without voice matching.
@@ -31,9 +30,7 @@ The cached fingerprint is advisory. If extraction fails, the normal
 The voice sample lives at `~/.agentic-humanizer/voice.txt` (or whichever
 path the user passes inline) and is read fresh from disk on each run.
 The fingerprint cache lives at `~/.agentic-humanizer/voice-fingerprint.json`.
-In the Claude Desktop bundle, the accepted sample and extracted fingerprint
-stay in memory for the current run only; no voice sample or fingerprint cache
-is written to disk.
+(Claude Desktop is in-memory only; see When this file applies.)
 Neither file is uploaded by the skill. Fingerprint extraction runs through
 whatever LLM the host harness provides, so the *sample text* travels with
 that LLM's normal request path: local-only if the harness is local, cloud
