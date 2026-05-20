@@ -47,18 +47,21 @@ Slop or Not Pro:
 Core mode:
 
 1. Read the original source text.
-2. List the most visible AI tells from `references/patterns.md`.
+2. List the most visible AI tells from `references/patterns.md` and
+   `references/supplemental-ai-tells.md`.
 3. Log `{iter: 0, score: null, grade: null, strategy: "baseline"}`.
 
 ## Iteration 1: pattern surgery
 
 Goal: attack the most obvious AI tells in the source.
 
-1. Read `references/patterns.md`.
-2. Identify which of the 29 patterns the source trips. List them in order of
-   frequency, with the most common first.
+1. Read `references/patterns.md` and `references/supplemental-ai-tells.md`.
+2. Identify which canonical patterns and supplemental tells the source trips.
+   List them in order of frequency, with the most common first.
 3. Attack the **top 5** by frequency. Rewrite each instance in place. Do not
-   invent new patterns to attack; the catalogue is the rule.
+   invent new patterns to attack; the catalogues are the rule. For
+   supplemental source-integrity tells, remove obvious wrapper artifacts but
+   do not invent missing facts, citations, or verification.
 4. Leave dialect, tone, and grade level untouched in this iteration.
 5. Slop or Not Pro: call `detect_text` and `analyze_readability`.
 6. Core mode: self-check that the top-5 pattern hits were removed.
@@ -145,8 +148,9 @@ Goal: address residual AI signal and mechanical text artifacts.
    British cleanup pass on the same text. Core mode: normalize obvious
    invisible-character descriptions, odd punctuation, spacing artifacts, and
    copied chatbot wrappers by instruction.
-2. Re-read `references/patterns.md`. Identify the 1-2 patterns that still
-   appear most strongly.
+2. Re-read `references/patterns.md` and
+   `references/supplemental-ai-tells.md`. Identify the 1-2 patterns or tells
+   that still appear most strongly.
 3. Make targeted, small edits; do not retarget large sections of text in this
    iteration. The goal is residual signal, not bulk rewrite.
 4. Slop or Not Pro: score and analyze the result. Core mode: self-check

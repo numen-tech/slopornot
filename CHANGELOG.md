@@ -73,6 +73,10 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `scripts/check-plugin-packaging.mjs`.
 - Dedicated `skills/agentic-humanizer/README.md` for Agentic Humanizer usage
   and search indexing.
+- Supplemental AI-tell checks for `agentic-humanizer`, inspired by
+  Wikipedia's AI-writing field guide, covering broadly reusable artifacts such
+  as placeholders, markup leakage, citation leakage, correspondence wrappers,
+  abrupt generation remnants, compliance claims, and style discontinuities.
 
 ### Changed
 

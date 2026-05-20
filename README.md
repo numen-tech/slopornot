@@ -330,6 +330,11 @@ The 29-pattern rewrite playbook is from
 [blader/humanizer](https://github.com/blader/humanizer). It is used under the
 MIT License.
 
+The supplemental AI-tell checks are SlopOrNot-authored and inspired by
+[Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
+They are a broad field-guide supplement, not a replacement for the licensed
+29-pattern playbook.
+
 SlopOrNot is licensed under the [MIT License](LICENSE).
 
 Slop or Not is a separate Mac app from Numen Technologies. See

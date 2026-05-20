@@ -15,7 +15,8 @@ and after humanization, and cleanup stats.
 
 1. Resolves dialect, reading level, tone, and length preferences.
 2. Optionally extracts a stylometric voice fingerprint from your sample.
-3. Runs five rewrite strategies against common AI-writing tells.
+3. Runs five rewrite strategies against common AI-writing tells and
+   supplemental artifact checks.
 4. Uses Slop or Not Pro for on-device AI detector scoring and Text Cleanup when available.
 5. Returns humanized text, loop history, highest-impact edits, and, when
    Slop or Not Pro cleanup ran, a Text Cleanup summary.

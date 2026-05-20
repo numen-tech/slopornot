@@ -21,6 +21,7 @@ routing files.
 | `skills/agentic-humanizer/SKILL.md` | Self-contained `agentic-humanizer` orchestrator. Steps 1-7 (harness detect, profile commands, preferences, voice, optional Slop probe, loop, output). |
 | `skills/agentic-humanizer/harnesses/{claude-code,codex,cursor,gemini-cli,opencode,generic}.md` | Per-harness interview protocols. Edit only the file for the harness you're targeting. |
 | `skills/agentic-humanizer/references/patterns.md` | 29-pattern rewrite vocabulary. Local divergence is out of scope. |
+| `skills/agentic-humanizer/references/supplemental-ai-tells.md` | SlopOrNot-authored supplemental AI-tell checks inspired by Wikipedia's field guide. |
 | `skills/agentic-humanizer/references/per-iteration-strategies.md` | The 5-iteration cookbook for Core mode and Slop or Not Pro, plus mid-flight Pro-gate fallback. |
 | `skills/agentic-humanizer/references/voice-fingerprint.md` | Voice sample policy, fingerprint schema, extraction prompt, cache rules, and loop injection contracts. |
 | `skills/agentic-humanizer/references/slop-{cli,mcp}-setup.md` | User-facing install guides. |
