@@ -30,6 +30,10 @@ routing files.
 | `skills/slop-check/references/slop-tools.md` | Full CLI + MCP tool surface for `slop-check`: params, flags, JSON field paths, score normalization, Pro-gating. |
 | `skills/slop-check/references/slop-setup.md` | `slop-check` install, Pro unlock, app-bundle fallback, MCP/CLI registration. |
 | `skills/slop-check/README.md` | Dedicated Slop Check README for users and search indexing. |
+| `claude-skills/agentic-humanizer/SKILL.md` | Hand-authored Claude Desktop variant (no harness routing; built-in `ask_user_input_v0` interview). Canonical source for the Desktop build. |
+| `claude-skills/agentic-humanizer/README.md` | Hand-authored Claude Desktop install/use guide. |
+| `claude-skills/agentic-humanizer/{references,examples}/` | Copied verbatim from `skills/agentic-humanizer/` by `make -C claude-skills build`. Do not hand-edit. |
+| `claude-skills/Makefile` | Builds and zips the Claude Desktop bundle (`build`, `zip`, `check`, `clean`). |
 | `plugins/codex/slopornot/` | Generated Codex plugin payload. Do not edit synced skill files here by hand. |
 | `plugins/claude/slopornot/` | Generated Claude Code plugin payload. Do not edit synced skill files here by hand. |
 | `.agents/plugins/marketplace.json` | Codex repo marketplace for the `slopornot` plugin. |
@@ -48,6 +52,7 @@ routing files.
    node scripts/check-links.mjs
    node scripts/sync-plugins.mjs --check
    node scripts/check-plugin-packaging.mjs
+   make -C claude-skills check
    ```
 
    GitHub also requires `lint` and `Run zizmor` on every PR. Do not add
@@ -85,6 +90,7 @@ routing files.
    | Harness routing (added, removed, renamed harness) | `skills/agentic-humanizer/SKILL.md` Step 1, `skills/agentic-humanizer/harnesses/<name>.md`, `README.md`, `CHANGELOG.md` |
    | Lint rules, CI gates, release scripts | `AGENTS.md` (Critical rules § 1), `CONTRIBUTING.md`, `CHANGELOG.md` |
    | Slop CLI / MCP install steps | `skills/agentic-humanizer/references/slop-cli-setup.md` or `skills/agentic-humanizer/references/slop-mcp-setup.md`, `README.md`, `CHANGELOG.md` |
+   | Anything the Desktop fork mirrors (interview shape, output format, runtime constants, inline-override grammar, voice behavior) | `claude-skills/agentic-humanizer/SKILL.md` and `claude-skills/agentic-humanizer/README.md` (hand-authored; port the change, keep harness routing out), then `make -C claude-skills` |
 
    If you can't tell whether a doc is affected, grep it for the symbol you changed. Stale runtime docs mislead users and corrupt the changelog.
 
@@ -97,6 +103,14 @@ routing files.
    `node scripts/sync-plugins.mjs`. Never hand-edit files under
    `plugins/*/slopornot/skills/`. Manifest-only changes may be made directly
    inside plugin folders.
+
+   The Claude Desktop bundle is a separate generated artifact. Its `SKILL.md`
+   and `README.md` under `claude-skills/agentic-humanizer/` are hand-authored
+   and intentionally diverge from canonical (no harness routing). Its
+   `references/` and `examples/` are copied verbatim by
+   `make -C claude-skills build`; never hand-edit those copies. Run
+   `make -C claude-skills check` before a PR to catch drift, and `make -C
+   claude-skills` to rebuild the shippable zip.
 
 ## Smoke test
 

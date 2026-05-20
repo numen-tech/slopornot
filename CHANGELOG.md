@@ -7,6 +7,21 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Claude Desktop bundle under `claude-skills/`. A stripped, Desktop-only
+  build of `agentic-humanizer` with no harness routing: it runs a built-in
+  interview using Claude Desktop's `ask_user_input_v0` prompt, one question
+  at a time, and uses a Slop or Not MCP connector when one is attached
+  (otherwise the unscored core workflow). It never invokes a local Slop CLI:
+  the Desktop sandbox cannot reach the user's machine, so MCP is the only
+  Pro backend. The bundle is sandbox-aware: it does not read or write
+  `~/.agentic-humanizer/`, captures voice samples by paste rather than file
+  path, and keeps any approved fingerprint in memory for one run only.
+  `ask_user_input_v0` is declared in `allowed-tools` and called with the
+  proper `questions:` array shape, with reading-level bands collapsed to
+  four contiguous options so each question stays within the option cap.
+  `make -C claude-skills` builds a shippable
+  `agentic-humanizer-desktop.zip` a non-technical user can upload via
+  Settings, Capabilities, Skills.
 - New `slop-check` skill: a self-contained, one-shot router for Slop or Not
   Pro's on-device tools. Detects AI text or images, scores readability
   (Flesch-Kincaid), cleans AI artifacts, returns raw OmniAID scores when
@@ -113,6 +128,18 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Interview no longer drops the custom dialect string when both Q1 is
+  `Other` and Q5 is `Yes`. The Other-dialect turn is now collected before
+  the voice-sample prompt across the structured-input harnesses
+  (claude-code, codex, cursor, gemini-cli, opencode) and the Claude
+  Desktop bundle, so the resolved `dialect` is never empty for that user
+  segment. The generic plain-text harness already serializes the
+  Other-dialect prompt at parse time and was not changed.
+- Claude Desktop Agentic Humanizer now allowlists the Slop or Not MCP tools
+  it calls for Pro scoring, readability, and Text Cleanup.
+- The shared voice-fingerprint reference now states that the Claude Desktop
+  bundle keeps pasted voice samples and fingerprints in memory only, with no
+  `~/.agentic-humanizer/` disk cache.
 - Agentic Humanizer's CLI Text Cleanup instructions now pipe the selected
   source or final text into `slop cleanup --json`, so CLI-only Pro runs do
   not receive an empty `cleanedText` result.

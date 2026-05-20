@@ -68,9 +68,14 @@ Map the chosen labels to internal variables (same as Claude Code):
 - Q5 → voice choice: `Yes` starts Step 4 sample capture, `No` skips
   voice matching for this call, `Never ask again` persists `voice_skip`.
 
-When Q5 is `Yes`, say exactly: *"Paste 200+ words as your next message."*
-Capture the next user turn as the voice sample and return to `SKILL.md`
-Step 4 for validation, writing, and fingerprint extraction.
+When Q5 is `Yes`:
+
+1. If Q1 was `Other`, first capture the custom dialect string from the
+   user's next turn and finalize `dialect`. Only continue to step 2 after
+   the dialect is resolved.
+2. Say exactly: *"Paste 200+ words as your next message."*
+3. Capture the next user turn as the voice sample and return to
+   `SKILL.md` Step 4 for validation, writing, and fingerprint extraction.
 
 Return to `SKILL.md` § Loop algorithm with these answers.
 

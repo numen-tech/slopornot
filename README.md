@@ -156,6 +156,22 @@ rm -rf ~/.config/opencode/skills/agentic-humanizer ~/.config/opencode/skills/slo
 
 After copying, restart your harness so the skills are discovered.
 
+### Claude Desktop
+
+Claude Desktop has no plugin marketplace, so it gets a dedicated bundle.
+Build the zip from a clone:
+
+```bash
+git clone https://github.com/numen-tech/slopornot /tmp/slopornot
+make -C /tmp/slopornot/claude-skills
+```
+
+This writes `claude-skills/agentic-humanizer-desktop.zip`. In Claude Desktop,
+open `Settings`, then `Capabilities`, then `Skills`, choose `Upload skill`,
+and select that zip. This build has no harness routing: it runs a built-in
+interview using Claude Desktop's `ask_user_input_v0` prompt, one question at
+a time, and uses a Slop or Not MCP connector when one is attached.
+
 ## Optional: Set Up Slop or Not Pro
 
 This section is optional for Agentic Humanizer's core rewrite and voice

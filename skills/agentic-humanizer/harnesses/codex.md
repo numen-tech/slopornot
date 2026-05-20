@@ -77,9 +77,14 @@ Parse each text answer to map onto the internal variables:
 If parsing is ambiguous, ask one follow-up clarification (still via
 `tool/requestUserInput`) before defaulting.
 
-When Q5 is `yes`, say exactly: *"Paste 200+ words as your next message."*
-Capture the next user turn as the voice sample and return to `SKILL.md`
-Step 4 for validation, writing, and fingerprint extraction.
+When Q5 is `yes`:
+
+1. If Q1 was `Other`, first capture the custom dialect string from the
+   user's next turn and finalize `dialect`. Only continue to step 2 after
+   the dialect is resolved.
+2. Say exactly: *"Paste 200+ words as your next message."*
+3. Capture the next user turn as the voice sample and return to
+   `SKILL.md` Step 4 for validation, writing, and fingerprint extraction.
 
 Return to `SKILL.md` § Loop algorithm with these answers.
 

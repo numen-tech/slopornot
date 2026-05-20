@@ -107,8 +107,11 @@ Capture the four answers as variables:
 
 When Q5 is `y`, say exactly: *"Paste 200+ words as your next message."*
 Capture the next user turn as the voice sample and return to `SKILL.md`
-Step 4 for validation, writing, and fingerprint extraction. When Q5 is
-`never`, persist `voice_skip`.
+Step 4 for validation, writing, and fingerprint extraction. The parser at
+the top of this section already collected any `Other`-dialect string
+before reaching this point, so the voice prompt cannot collide with it.
+
+When Q5 is `never`, persist `voice_skip`.
 
 Return to `SKILL.md` § Loop algorithm with these answers.
 
