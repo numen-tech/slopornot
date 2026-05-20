@@ -130,8 +130,11 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Interview no longer drops the custom dialect string when both Q1 is
   `Other` and Q5 is `Yes`. The Other-dialect turn is now collected before
-  the voice-sample prompt across every harness and the Claude Desktop
-  bundle, so the resolved `dialect` is never empty for that user segment.
+  the voice-sample prompt across the structured-input harnesses
+  (claude-code, codex, cursor, gemini-cli, opencode) and the Claude
+  Desktop bundle, so the resolved `dialect` is never empty for that user
+  segment. The generic plain-text harness already serializes the
+  Other-dialect prompt at parse time and was not changed.
 - Claude Desktop Agentic Humanizer now allowlists the Slop or Not MCP tools
   it calls for Pro scoring, readability, and Text Cleanup.
 - The shared voice-fingerprint reference now states that the Claude Desktop
