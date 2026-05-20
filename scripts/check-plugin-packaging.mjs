@@ -21,6 +21,7 @@ const selfContainedSkillFiles = [
   'skills/agentic-humanizer/references/per-iteration-strategies.md',
   'skills/agentic-humanizer/references/slop-cli-setup.md',
   'skills/agentic-humanizer/references/slop-mcp-setup.md',
+  'skills/agentic-humanizer/references/supplemental-ai-tells.md',
   'skills/agentic-humanizer/references/voice-fingerprint.md',
   'skills/agentic-humanizer/examples/sample-ai-text.md',
   'skills/slop-check/SKILL.md',
