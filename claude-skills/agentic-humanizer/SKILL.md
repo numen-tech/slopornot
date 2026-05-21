@@ -258,6 +258,7 @@ interview, voice matching, or rewrite loop.
 ## Step 6: Run the loop
 
 Read `references/patterns.md` (the 29-pattern rewrite vocabulary).
+Read `references/supplemental-ai-tells.md` (the supplemental AI-tell checks).
 Read `references/per-iteration-strategies.md` (the per-iteration cookbook).
 Apply the loop as specified there.
 
@@ -324,7 +325,8 @@ run final `detect_text` and `analyze_readability` on the cleaned final text.
 Run all five rewrite strategies once unless the source is empty or unusable.
 Log score and grade as `null` for every iteration. Select the final iteration
 by rewrite quality: preserve meaning, honor the requested grade/tone/length,
-and remove the most visible AI tells from `references/patterns.md`.
+and remove the most visible AI tells from `references/patterns.md` and
+`references/supplemental-ai-tells.md`.
 
 ### Mid-flight Pro-gate
 
@@ -409,6 +411,7 @@ If voice extraction failed in Step 4, add this footer note instead:
 ## Pointer files
 
 - `references/patterns.md` (the 29 AI-tells)
+- `references/supplemental-ai-tells.md` (supplemental AI tells)
 - `references/per-iteration-strategies.md` (the loop cookbook)
 - `references/voice-fingerprint.md` (voice sample extraction and loop
   injection contracts)
