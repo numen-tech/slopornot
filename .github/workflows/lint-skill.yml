@@ -28,7 +28,7 @@ jobs:
           node-version: '24'
 
       - name: Markdownlint
-        run: npx -y markdownlint-cli2@0.18.1 "**/*.md" "#node_modules" "#WARP.md"
+        run: npx -y markdownlint-cli2@0.18.1 "**/*.md" "#node_modules"
 
       - name: Frontmatter check
         run: node scripts/check-frontmatter.mjs

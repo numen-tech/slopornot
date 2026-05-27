@@ -48,7 +48,7 @@ routing files.
 1. **Pre-PR gate**, these commands must pass:
 
    ```bash
-   npx markdownlint-cli2@0.18.1 "**/*.md" "#node_modules" "#WARP.md"
+   npx markdownlint-cli2@0.18.1 "**/*.md" "#node_modules"
    node scripts/check-frontmatter.mjs
    node scripts/check-links.mjs
    node scripts/sync-plugins.mjs --check

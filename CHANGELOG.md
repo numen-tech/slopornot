@@ -31,6 +31,13 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `AGENTS.md`, `CONTRIBUTING.md`, and both `SKILL.md` files (canonical
   and Claude Desktop).
 
+### Removed
+
+- `WARP.md`. The fork's `AGENTS.md` is the tool-neutral agent guide for
+  all assistants (Claude Code, Codex, Warp, Cursor, Gemini CLI,
+  OpenCode); the standalone Warp file was redundant. Markdownlint
+  ignore entries cleaned up in `AGENTS.md` and `lint-skill.yml`.
+
 ## [0.2.0] (2026-05-21)
 
 ### Added
