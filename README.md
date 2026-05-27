@@ -326,14 +326,14 @@ assistant, which may be cloud or local depending on the assistant you use.
 
 ## Credits And License
 
-The 29-pattern rewrite playbook is from
-[blader/humanizer](https://github.com/blader/humanizer). It is used under the
-MIT License.
+The 30-pattern rewrite playbook is from
+[blader/humanizer](https://github.com/blader/humanizer) (refreshed against
+upstream `SKILL.md` v2.7.0). It is used under the MIT License.
 
 The supplemental AI-tell checks are SlopOrNot-authored and inspired by
 [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
 They are a broad field-guide supplement, not a replacement for the licensed
-29-pattern playbook.
+30-pattern playbook.
 
 SlopOrNot is licensed under the [MIT License](LICENSE).
 
@@ -343,5 +343,5 @@ Slop or Not is a separate Mac app from Numen Technologies. See
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md). New harness routing files are
-welcome. PRs that change the 29-pattern catalogue should sync from the
+welcome. PRs that change the 30-pattern catalogue should sync from the
 licensed source material rather than diverging.

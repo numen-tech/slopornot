@@ -297,7 +297,7 @@ Do not skip the interview, voice matching, or rewrite loop.
 
 ## Step 6: Run the loop
 
-Read `references/patterns.md` (the canonical 29-pattern rewrite vocabulary).
+Read `references/patterns.md` (the canonical 30-pattern rewrite vocabulary).
 Read `references/supplemental-ai-tells.md` (the supplemental AI-tell checks).
 Read `references/per-iteration-strategies.md` (the per-iteration cookbook).
 Apply the loop as specified there.
@@ -468,7 +468,7 @@ If voice extraction failed in Step 4, add this footer note instead:
 
 - `harnesses/claude-code.md` · `harnesses/codex.md` · `harnesses/cursor.md`
   · `harnesses/gemini-cli.md` · `harnesses/opencode.md` · `harnesses/generic.md`
-- `references/patterns.md` (the canonical 29 AI tells)
+- `references/patterns.md` (the canonical 30 AI tells)
 - `references/supplemental-ai-tells.md` (supplemental AI tells)
 - `references/per-iteration-strategies.md` (the loop cookbook)
 - `references/voice-fingerprint.md` (voice sample extraction and loop

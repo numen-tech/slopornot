@@ -5,6 +5,32 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Pattern #30 "Diff-Anchored Writing" in `references/patterns.md`, ported
+  from upstream `blader/humanizer` `SKILL.md` v2.7.0.
+- "Detection Guidance" section in `references/patterns.md` with two
+  subsections: "What NOT to flag (false positives)" and "Signs of human
+  writing (preserve these)", ported from upstream v2.7.0.
+
+### Changed
+
+- Rebased the fork onto upstream `blader/humanizer` `main` (tip `a2ace14`)
+  to keep history linear above the upstream source-of-truth.
+- Refreshed `references/patterns.md` against upstream v2.7.0. Pattern #14
+  ("Em Dash Overuse") is now "Em Dashes (and En Dashes): Cut Them" with a
+  hard zero-dash rule, en dash and double-hyphen coverage, an extra
+  before/after pair, and a final scan check. Pattern #21
+  ("Knowledge-Cutoff Disclaimers") is now
+  "Knowledge-Cutoff Disclaimers and Speculative Gap-Filling" and covers
+  the "maintains a low profile / likely grew up" gap-fill failure mode
+  with a new example. Pattern #26 ("Hyphenated Word Pair Overuse")
+  narrows the rule to drop only predicate-position hyphens; attributive
+  hyphens stay.
+- Pattern catalogue count bumped from 29 to 30 across `README.md`,
+  `AGENTS.md`, `CONTRIBUTING.md`, and both `SKILL.md` files (canonical
+  and Claude Desktop).
+
 ## [0.2.0] (2026-05-21)
 
 ### Added

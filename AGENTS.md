@@ -20,7 +20,7 @@ routing files.
 |---|---|
 | `skills/agentic-humanizer/SKILL.md` | Self-contained `agentic-humanizer` orchestrator. Steps 1-7 (harness detect, profile commands, preferences, voice, optional Slop probe, loop, output). |
 | `skills/agentic-humanizer/harnesses/{claude-code,codex,cursor,gemini-cli,opencode,generic}.md` | Per-harness interview protocols. Edit only the file for the harness you're targeting. |
-| `skills/agentic-humanizer/references/patterns.md` | 29-pattern rewrite vocabulary. Local divergence is out of scope. |
+| `skills/agentic-humanizer/references/patterns.md` | 30-pattern rewrite vocabulary. Local divergence is out of scope. |
 | `skills/agentic-humanizer/references/supplemental-ai-tells.md` | SlopOrNot-authored supplemental AI-tell checks inspired by Wikipedia's field guide. |
 | `skills/agentic-humanizer/references/per-iteration-strategies.md` | The 5-iteration cookbook for Core mode and Slop or Not Pro, plus mid-flight Pro-gate fallback. |
 | `skills/agentic-humanizer/references/voice-fingerprint.md` | Voice sample policy, fingerprint schema, extraction prompt, cache rules, and loop injection contracts. |
@@ -61,7 +61,7 @@ routing files.
    updated in the same change.
 
 2. **No em-dashes in `README.md`, `SKILL.md`, `CHANGELOG.md`, `AGENTS.md`, commits, tag annotations, or release notes.** Use commas, colons, or parentheses. The user-facing surface of a humanizer can't credibly ship em-dash-laden copy. (Inherited em-dashes in `skills/agentic-humanizer/references/` and `skills/agentic-humanizer/harnesses/` predate the rule and are getting cleaned up incrementally; do not introduce new ones.)
-3. **Don't edit `skills/agentic-humanizer/references/patterns.md` for local taste.** The 29-pattern catalogue is licensed source material. Only refresh it intentionally with attribution and license notices checked.
+3. **Don't edit `skills/agentic-humanizer/references/patterns.md` for local taste.** The 30-pattern catalogue is licensed source material. Only refresh it intentionally with attribution and license notices checked.
 4. **Conventional Commits are required, not optional.** Format: `type(scope): subject`. Subject is imperative, lowercase, no trailing period. Allowed types and their changelog mapping:
 
    | Type | Changelog section | Use for |

@@ -11,7 +11,7 @@ Thanks for your interest in SlopOrNot.
   to discuss.
 - Edits to `skills/agentic-humanizer/references/patterns.md` only when
   intentionally refreshing the licensed source material. Local divergence on
-  the 29 patterns is out of scope.
+  the 30 patterns is out of scope.
 - Plugin payload files under `plugins/codex/slopornot/skills/` and
   `plugins/claude/slopornot/skills/` are generated from the canonical skill
   files under `skills/agentic-humanizer/` and `skills/slop-check/`. Edit the
