@@ -13,17 +13,22 @@ Bundle all four required questions in one call. Add Q5 to the same
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
 contain `"voice_skip": true`.
 
+Before issuing the call, detect the source language (see `SKILL.md` Step 3) and
+build Q1's options from `references/multilingual.md` for the detected language;
+populate each Q2 option's `description` with that language's metric. The JSON
+below shows the English default.
+
 ```json
 {
   "questions": [
     {
-      "header": "Dialect",
-      "question": "Which English variant should the rewrite target?",
+      "header": "Language",
+      "question": "Detected English. Confirm the language and variant:",
       "type": "choice",
       "options": [
-        { "label": "American English", "description": "Default for US audiences." },
-        { "label": "British English", "description": "Use UK spellings and idioms." },
-        { "label": "Other", "description": "I'll specify a variant in my next message." }
+        { "label": "American English (en-US)", "description": "Default for US audiences." },
+        { "label": "British English (en-GB)", "description": "Use UK spellings and idioms." },
+        { "label": "Other (different language)", "description": "I'll specify the language in my next message." }
       ]
     },
     {
@@ -31,11 +36,11 @@ contain `"voice_skip": true`.
       "question": "What reading level should the output target?",
       "type": "choice",
       "options": [
-        { "label": "Elementary (Grade 3–5)" },
-        { "label": "Middle school (Grade 6–8)" },
-        { "label": "High school (Grade 9–11)" },
-        { "label": "College (Grade 12–15)" },
-        { "label": "Graduate or professional (Grade 16+)" }
+        { "label": "Elementary", "description": "English Grade 3-5; substitute the detected language's metric." },
+        { "label": "Middle school", "description": "English Grade 6-8." },
+        { "label": "High school", "description": "English Grade 9-11; e.g. Swedish LIX about 40 to 50." },
+        { "label": "College", "description": "English Grade 12-15." },
+        { "label": "Graduate or professional", "description": "English Grade 16+." }
       ]
     },
     {
@@ -81,8 +86,12 @@ If the runtime exposes the tool under a different name (e.g.,
 
 Map the labels to internal variables (same as Claude Code):
 
-- Q1 → `dialect`
-- Q2 → `target_grade` (4, 7, 10, 13, 17)
+- Q1 → `language` and `variant` (read the chosen variant; `Other (different
+  language)` is captured next turn and resolved against
+  `references/multilingual.md`)
+- Q2 → `reading_level`
+  (`elementary`/`middle`/`high_school`/`college`/`graduate`; for English also
+  set `target_grade` 4, 7, 10, 13, 17)
 - Q3 → `tone`
 - Q4 → `length_policy` (`±10`, `exp`, `trim`)
 - Q5 → voice choice: `Yes` starts Step 4 sample capture, `No` skips
@@ -90,9 +99,10 @@ Map the labels to internal variables (same as Claude Code):
 
 When Q5 is `Yes`:
 
-1. If Q1 was `Other`, first capture the custom dialect string from the
-   user's next turn and finalize `dialect`. Only continue to step 2 after
-   the dialect is resolved.
+1. If Q1 was `Other (different language)`, first capture the language from the
+   user's next turn, resolve it and its variant against
+   `references/multilingual.md`, and finalize `language` and `variant`. Only
+   continue to step 2 after they are resolved.
 2. Say exactly: *"Paste 200+ words as your next message."*
 3. Capture the next user turn as the voice sample and return to
    `SKILL.md` Step 4 for validation, writing, and fingerprint extraction.

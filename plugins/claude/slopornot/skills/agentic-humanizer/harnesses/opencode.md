@@ -20,9 +20,10 @@ these that is available in the running session:
    README, then issue questions via its CLI/MCP tool.
 3. **Plain-text fallback** — fall through to `harnesses/generic.md`.
 
-For path 1 or path 2, ask all four required questions (dialect, reading
-level, tone, length) in one call. The wording matches
-`harnesses/claude-code.md`.
+For path 1 or path 2, ask all four required questions (language and variant,
+reading level, tone, length) in one call. The wording matches
+`harnesses/claude-code.md`, including detecting the source language first and
+building Q1's variant options from `references/multilingual.md`.
 
 Only add Q5 when no inline or saved `voice_path` has resolved,
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
@@ -46,8 +47,12 @@ the same call:
 
 Map the labels to internal variables (same as Claude Code):
 
-- Q1 → `dialect`
-- Q2 → `target_grade` (4, 7, 10, 13, 17)
+- Q1 → `language` and `variant` (read the chosen variant; `Other (different
+  language)` is captured next turn and resolved against
+  `references/multilingual.md`)
+- Q2 → `reading_level`
+  (`elementary`/`middle`/`high_school`/`college`/`graduate`; for English also
+  set `target_grade` 4, 7, 10, 13, 17)
 - Q3 → `tone`
 - Q4 → `length_policy` (`±10`, `exp`, `trim`)
 - Q5 → voice choice: `Yes` starts Step 4 sample capture, `No` skips
@@ -55,9 +60,10 @@ Map the labels to internal variables (same as Claude Code):
 
 When Q5 is `Yes`:
 
-1. If Q1 was `Other`, first capture the custom dialect string from the
-   user's next turn and finalize `dialect`. Only continue to step 2 after
-   the dialect is resolved.
+1. If Q1 was `Other (different language)`, first capture the language from the
+   user's next turn, resolve it and its variant against
+   `references/multilingual.md`, and finalize `language` and `variant`. Only
+   continue to step 2 after they are resolved.
 2. Say exactly: *"Paste 200+ words as your next message."*
 3. Capture the next user turn as the voice sample and return to
    `SKILL.md` Step 4 for validation, writing, and fingerprint extraction.

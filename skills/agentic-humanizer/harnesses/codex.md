@@ -12,6 +12,12 @@ Only ask Q5 when no inline or saved `voice_path` has resolved,
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
 contain `"voice_skip": true`.
 
+Before Call 1, detect the source language (see `SKILL.md` Step 3). Build the Q1
+prompt from `references/multilingual.md`: name the detected language and list
+its variants slash-separated, plus "Other (different language)". Show the
+reading level in that language's metric. The JSON below shows the English
+default; substitute the detected language's variants and metric.
+
 ## Call 1 — three questions
 
 ```json
@@ -20,11 +26,11 @@ contain `"voice_skip": true`.
   "params": {
     "questions": [
       {
-        "question": "Which English variant should the rewrite target? (American English / British English / Other)",
+        "question": "Detected English. Confirm language and variant: (American English (en-US) / British English (en-GB) / Other (different language))",
         "type": "text"
       },
       {
-        "question": "What reading level should the output target? (Elementary / Middle school / High school grade 9–11 / College grade 12–15 / Graduate or professional)",
+        "question": "What reading level should the output target? (Elementary / Middle school / High school / College / Graduate; English grades G3-5 / G6-8 / G9-11 / G12-15 / G16+, or the detected language's metric)",
         "type": "text"
       },
       {
@@ -62,10 +68,12 @@ Omit the second question in Call 2 when Q5 is not eligible.
 
 Parse each text answer to map onto the internal variables:
 
-- Q1 → `dialect`: match `american` → `us`, `british` → `uk`, otherwise
-  `other:<verbatim user string>`.
-- Q2 → `target_grade`: match `elementary|3|4|5` → 4; `middle|6|7|8` → 7;
-  `high|9|10|11|12` → 10; `college|13|14|15` → 14; `graduate|16` → 17.
+- Q1 → `language` and `variant`: read the chosen variant (`American English
+  (en-US)` → `en`/`en-US`). `Other (different language)` → capture the language
+  next turn, resolve against `references/multilingual.md`, then ask its variant.
+- Q2 → `reading_level`: match `elementary` → `elementary`, `middle` → `middle`,
+  `high` → `high_school`, `college` → `college`, `graduate` → `graduate`. For
+  English only, also set `target_grade` (4, 7, 10, 13, 17).
 - Q3 → `tone`: lowercase, match against `casual` / `professional` /
   `academic`.
 - Q4 → `length_policy`: match `±10|10%|keep` → `±10`; `expand|exp` →
@@ -79,9 +87,10 @@ If parsing is ambiguous, ask one follow-up clarification (still via
 
 When Q5 is `yes`:
 
-1. If Q1 was `Other`, first capture the custom dialect string from the
-   user's next turn and finalize `dialect`. Only continue to step 2 after
-   the dialect is resolved.
+1. If Q1 was `Other (different language)`, first capture the language from the
+   user's next turn, resolve it and its variant against
+   `references/multilingual.md`, and finalize `language` and `variant`. Only
+   continue to step 2 after they are resolved.
 2. Say exactly: *"Paste 200+ words as your next message."*
 3. Capture the next user turn as the voice sample and return to
    `SKILL.md` Step 4 for validation, writing, and fingerprint extraction.

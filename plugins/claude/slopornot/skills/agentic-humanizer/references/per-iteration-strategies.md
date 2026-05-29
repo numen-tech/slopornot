@@ -23,15 +23,34 @@ use the cached fingerprint in Iteration 2 and Iteration 5 in either mode.
 
 ## Termination
 
-With Slop or Not Pro, stop when `score <= AI_THRESHOLD AND
-|grade - target_grade| <= 1`, OR after `MAX_ITER` iterations. On
-non-convergence, return the best iteration: lowest score that also meets grade
-tolerance; if none meet grade tolerance, lowest score outright.
+The orchestrator resolves a language L and branches loading and termination
+(see `SKILL.md` Step 6); the schedule below composes with that branch.
 
-In Core mode, run the full five strategy passes unless the source is empty
-or unusable. Return the best final rewrite by qualitative criteria: meaning
-preserved, requested grade/tone/length honored, and visible AI tells removed.
-Do not claim detector convergence in Core mode.
+For **English** with Slop or Not Pro, stop when `score <= AI_THRESHOLD AND
+|grade - target_grade| <= 1`, OR after `MAX_ITER` iterations. On non-convergence,
+return the best iteration: lowest score that also meets grade tolerance; if none
+meet grade tolerance, lowest score outright.
+
+For **supported non-English** (es, de, it, sv, da, nb) with Slop or Not Pro,
+there is no AI threshold (the AI score is `n/a`). Stop when the readability score
+for L's formula lands in the target band (per the scale semantics in
+`references/multilingual.md`), OR after `MAX_ITER`. On non-convergence, return
+the iteration closest to the target band.
+
+In **Core mode**, and for **Nynorsk or unsupported languages** in any mode, run
+the full five strategy passes unless the source is empty or unusable. Return the
+best final rewrite by qualitative criteria: meaning preserved, requested reading
+level, tone, and length honored, and visible AI tells removed. Do not claim
+detector convergence.
+
+**Language note (composes with this schedule).** All five iterations run for
+every language. Wherever an iteration below names `references/patterns.md`, that
+catalogue is English only and is not loaded for other languages; for non-English
+L, substitute `references/ai-tells/<L>.md` (read alongside
+`references/supplemental-ai-tells.md`). On non-English Slop or Not Pro calls,
+pass the normalized `language_code` and never pass `britishize`. Read
+readability by the returned `kind` and map it to a band via
+`references/multilingual.md` (see `SKILL.md` Step 6).
 
 ## Iteration 0: baseline
 
@@ -68,29 +87,33 @@ Goal: attack the most obvious AI tells in the source.
 7. Log `{iter: 1, score, grade, strategy: "pattern surgery (top-5)"}`. In
    Core mode, score and grade are `null`.
 
-## Iteration 2: dialect + tone
+## Iteration 2: variant + tone
 
 Goal: align spelling, idiom, and register with the user's interview answers.
 
-### Dialect
+### Variant
 
-Apply the user's dialect choice from Q1:
+Apply the user's language and variant choice from Q1:
 
-- **`uk`**: With Slop or Not Pro, run Text Cleanup with British conversion
-  (`clean_text` with `britishize: true` for MCP, or the app-bundle CLI
-  `cleanup --json --british` command). In Core mode, convert American
-  spellings and idioms by instruction. In either mode, do a quick LLM pass
-  for idioms the cleaner does not catch (`gotten` -> `got`, `apartment` ->
-  `flat`, etc.).
-- **`us`**: Rewrite any UK spellings or idioms in the source to US
-  equivalents. Slop has no en-US conversion flag because American spelling is
+- **English `en-GB` (uk)**: With Slop or Not Pro, run Text Cleanup with British
+  conversion (`clean_text` with `britishize: true` for MCP, or the app-bundle
+  CLI `cleanup --json --british` command). The `britishize` flag is English
+  only; never pass it for any other language. In Core mode, convert American
+  spellings and idioms by instruction. In either mode, do a quick LLM pass for
+  idioms the cleaner does not catch (`gotten` -> `got`, `apartment` -> `flat`,
+  etc.).
+- **English `en-US` (us)**: Rewrite any UK spellings or idioms in the source to
+  US equivalents. Slop has no en-US conversion flag because American spelling is
   its baseline.
-- **`other:<spec>`**: Apply the user-specified rules. Slop has no built-in
-  mode for custom dialect specs; the LLM enforces the spec.
+- **English `other:<spec>`**: Apply the user-specified rules. Slop has no
+  built-in mode for custom dialect specs; the LLM enforces the spec.
+- **Non-English (es, de, it, sv, da, nb, nn)**: Do NOT pass `britishize`. Apply
+  LLM-side variant rules (German de-DE vs de-AT vs de-CH; Spanish es-ES vs
+  es-419; Norwegian Bokmal nb vs Nynorsk nn). See `references/multilingual.md`.
 
 For non-English source text with Slop or Not Pro, pass `language_code` (MCP)
-or `--language <code>` (CLI) when known so Text Cleanup keeps sanitization in
-the right language.
+or `--language <code>` (CLI) so Text Cleanup keeps sanitization in the right
+language.
 
 ### Tone
 
@@ -110,15 +133,21 @@ intent.
 Do not retarget grade level in this iteration.
 
 Slop or Not Pro: score and analyze the result. Core mode: self-check
-dialect, tone, and voice-fingerprint alignment. Log
-`{iter: 2, score, grade, strategy: "dialect + tone"}`.
+variant, tone, and voice-fingerprint alignment. Log
+`{iter: 2, score, grade, strategy: "variant + tone"}`.
 
 ## Iteration 3: grade gap
 
 Goal: close the gap between current grade and target.
 
-With Slop or Not Pro, use the latest Flesch-Kincaid grade. In Core mode,
-estimate the grade from sentence length, word complexity, and the user's target.
+With Slop or Not Pro, read the latest readability score from `scores[]` for the
+resolved language L (read the `kind` and `value`; do not assume Flesch-Kincaid)
+and map it to the target band via `references/multilingual.md`. In Core mode, or
+for Nynorsk and unsupported languages, estimate the level from sentence length,
+word complexity, and the target band. English uses a direct grade; other scales
+compare against the band range, noting that the es Szigriszt and it Gulpease
+ease scales invert (higher = easier) while sv/da/nb LIX is a difficulty index
+(higher = harder).
 
 If `current_grade > target_grade + 1`:
 
@@ -133,8 +162,8 @@ If `current_grade < target_grade - 1`:
 - Introduce precise terminology where the audience supports it.
 - Replace plain verbs with field-specific verbs that match the tone.
 
-If the grade appears already within tolerance, log
-`{iter: 3, skipped: true, reason: "grade in tolerance"}` and proceed to
+If the readability already lands in the target band, log
+`{iter: 3, skipped: true, reason: "readability in target band"}` and proceed to
 Iteration 4.
 
 Slop or Not Pro: score and analyze the result. Core mode: self-check

@@ -14,17 +14,25 @@ Only add Q5 when no inline or saved `voice_path` has resolved,
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
 contain `"voice_skip": true`.
 
+Before issuing the call, detect the source language (see `SKILL.md` Step 3).
+Build Q1 (language and variant) from `references/multilingual.md`: present the
+detected language's variants plus "Other (different language)". Populate each Q2
+reading-level option's `description` with the detected language's metric from
+the registry band table. The JSON below shows the English default; substitute
+the detected language's variants and metric ranges, and keep every question at
+four options or fewer.
+
 ```json
 {
   "questions": [
     {
-      "header": "Dialect",
-      "question": "Which English variant should the rewrite target?",
+      "header": "Language",
+      "question": "Detected English. Confirm the language and variant:",
       "multiSelect": false,
       "options": [
-        { "label": "American English", "description": "Default for US audiences." },
-        { "label": "British English", "description": "Use UK spellings and idioms." },
-        { "label": "Other", "description": "I'll specify a variant in my next message." }
+        { "label": "American English (en-US)", "description": "Default for US audiences." },
+        { "label": "British English (en-GB)", "description": "Use UK spellings and idioms." },
+        { "label": "Other (different language)", "description": "I'll specify the language in my next message." }
       ]
     },
     {
@@ -32,11 +40,11 @@ contain `"voice_skip": true`.
       "question": "What reading level should the output target?",
       "multiSelect": false,
       "options": [
-        { "label": "Elementary (Grade 3–5)" },
-        { "label": "Middle school (Grade 6–8)" },
-        { "label": "High school (Grade 9–11)" },
-        { "label": "College (Grade 12–15)" },
-        { "label": "Graduate or professional (Grade 16+)" }
+        { "label": "Elementary", "description": "English Grade 3-5; substitute the detected language's metric." },
+        { "label": "Middle school", "description": "English Grade 6-8." },
+        { "label": "High school", "description": "English Grade 9-11; e.g. Swedish LIX about 40 to 50, German Wiener about 9 to 11." },
+        { "label": "College", "description": "English Grade 12-15." },
+        { "label": "Graduate or professional", "description": "English Grade 16+." }
       ]
     },
     {
@@ -79,9 +87,13 @@ Omit the `Voice` object when Q5 is not eligible.
 
 Map the labels to internal variables:
 
-- Q1 → `dialect`: `American English` → `us`, `British English` → `uk`,
-  `Other` → prompt for the string in the next user turn.
-- Q2 → `target_grade`: 4, 7, 10, 13, 17 in order.
+- Q1 → `language` and `variant`: read the chosen variant (`American English
+  (en-US)` → `en` / `en-US`). `Other (different language)` → prompt for the
+  language on the next turn, resolve against `references/multilingual.md`, then
+  ask its variant (warn if unsupported).
+- Q2 → `reading_level`: `elementary`, `middle`, `high_school`, `college`,
+  `graduate` in order. For English only, also set `target_grade` (4, 7, 10, 13,
+  17).
 - Q3 → `tone`: lowercase the label.
 - Q4 → `length_policy`: `Keep within ±10% of original` → `±10`,
   `Allow expansion` → `exp`, `Allow trimming` → `trim`.
@@ -90,9 +102,10 @@ Map the labels to internal variables:
 
 When Q5 is `Yes`:
 
-1. If Q1 was `Other`, first capture the custom dialect string from the
-   user's next turn and finalize `dialect`. Only continue to step 2 after
-   the dialect is resolved.
+1. If Q1 was `Other (different language)`, first capture the language from the
+   user's next turn, resolve it and its variant against
+   `references/multilingual.md`, and finalize `language` and `variant`. Only
+   continue to step 2 after they are resolved.
 2. Say exactly: *"Paste 200+ words as your next message."*
 3. Capture the next user turn as the voice sample and return to
    `SKILL.md` Step 4 for validation, writing, and fingerprint extraction.

@@ -11,22 +11,26 @@ voice question only when no inline or saved `voice_path` has resolved,
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
 contain `"voice_skip": true`.
 
+Before Q1, detect the source language (see `SKILL.md` Step 3) and build Q1's
+options from `references/multilingual.md` for the detected language; show Q2's
+bands in that language's metric. The blocks below show the English default.
+
 ```text
 AskQuestion({
-  title: "Dialect",
-  message: "Which English variant should the rewrite target?",
-  options: ["American English", "British English", "Other"]
+  title: "Language",
+  message: "Detected English. Confirm language and variant:",
+  options: ["American English (en-US)", "British English (en-GB)", "Other (different language)"]
 })
 
 AskQuestion({
   title: "Reading level",
   message: "What reading level should the output target?",
   options: [
-    "Elementary (Grade 3–5)",
-    "Middle school (Grade 6–8)",
-    "High school (Grade 9–11)",
-    "College (Grade 12–15)",
-    "Graduate or professional (Grade 16+)"
+    "Elementary (English Grade 3-5)",
+    "Middle school (English Grade 6-8)",
+    "High school (English Grade 9-11)",
+    "College (English Grade 12-15)",
+    "Graduate or professional (English Grade 16+)"
   ]
 })
 
@@ -59,9 +63,13 @@ Omit the `Voice` call when Q5 is not eligible.
 
 Map the chosen labels to internal variables (same as Claude Code):
 
-- Q1 → `dialect`: `American English` → `us`, `British English` → `uk`,
-  `Other` → prompt for the dialect string in the next user turn.
-- Q2 → `target_grade`: 4, 7, 10, 13, 17 in order.
+- Q1 → `language` and `variant`: read the chosen variant (`American English
+  (en-US)` → `en` / `en-US`). `Other (different language)` → prompt for the
+  language next turn, resolve against `references/multilingual.md`, then ask its
+  variant.
+- Q2 → `reading_level`: `elementary`, `middle`, `high_school`, `college`,
+  `graduate` in order. For English only, also set `target_grade` (4, 7, 10, 13,
+  17).
 - Q3 → `tone`: lowercase the label.
 - Q4 → `length_policy`: `Keep within ±10% of original` → `±10`,
   `Allow expansion` → `exp`, `Allow trimming` → `trim`.
@@ -70,9 +78,10 @@ Map the chosen labels to internal variables (same as Claude Code):
 
 When Q5 is `Yes`:
 
-1. If Q1 was `Other`, first capture the custom dialect string from the
-   user's next turn and finalize `dialect`. Only continue to step 2 after
-   the dialect is resolved.
+1. If Q1 was `Other (different language)`, first capture the language from the
+   user's next turn, resolve it and its variant against
+   `references/multilingual.md`, and finalize `language` and `variant`. Only
+   continue to step 2 after they are resolved.
 2. Say exactly: *"Paste 200+ words as your next message."*
 3. Capture the next user turn as the voice sample and return to
    `SKILL.md` Step 4 for validation, writing, and fingerprint extraction.
