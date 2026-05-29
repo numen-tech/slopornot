@@ -21,11 +21,14 @@ routing files.
 | `skills/agentic-humanizer/SKILL.md` | Self-contained `agentic-humanizer` orchestrator. Steps 1-7 (harness detect, profile commands, preferences, voice, optional Slop probe, loop, output). |
 | `skills/agentic-humanizer/harnesses/{claude-code,codex,cursor,gemini-cli,opencode,generic}.md` | Per-harness interview protocols. Edit only the file for the harness you're targeting. |
 | `skills/agentic-humanizer/references/patterns.md` | 29-pattern rewrite vocabulary. Local divergence is out of scope. |
-| `skills/agentic-humanizer/references/supplemental-ai-tells.md` | SlopOrNot-authored supplemental AI-tell checks inspired by Wikipedia's field guide. |
+| `skills/agentic-humanizer/references/supplemental-ai-tells.md` | SlopOrNot-authored supplemental AI-tell checks inspired by Wikipedia's field guide. Language-agnostic S1 to S8 concepts, loaded on every run. |
+| `skills/agentic-humanizer/references/multilingual.md` | Multilingual readability registry: supported languages, BCP-47 variants, readability formula per language, reading-level band mapping, code normalization (Norwegian Bokmal to `nb`). Single source of truth for non-English runs. |
+| `skills/agentic-humanizer/references/ai-tells/<code>.md` | Per-language AI-tell catalogues (es, de, it, sv, da, no). Loaded when the resolved language is not English. `no.md` covers both Bokmal and Nynorsk. |
 | `skills/agentic-humanizer/references/per-iteration-strategies.md` | The 5-iteration cookbook for Core mode and Slop or Not Pro, plus mid-flight Pro-gate fallback. |
 | `skills/agentic-humanizer/references/voice-fingerprint.md` | Voice sample policy, fingerprint schema, extraction prompt, cache rules, and loop injection contracts. |
 | `skills/agentic-humanizer/references/slop-{cli,mcp}-setup.md` | User-facing install guides. |
-| `skills/agentic-humanizer/examples/sample-ai-text.md` | Smoke-test fixture. |
+| `skills/agentic-humanizer/examples/sample-ai-text.md` | Smoke-test fixture (English). |
+| `skills/agentic-humanizer/examples/sample-ai-text-de.md` | German smoke-test fixture (non-English path). |
 | `skills/agentic-humanizer/README.md` | Dedicated Agentic Humanizer README for users and search indexing. |
 | `skills/slop-check/SKILL.md` | Self-contained `slop-check` orchestrator. Steps 1-5 (identify op, resolve backend MCP/CLI/app-bundle fallback, run, format, fallback). |
 | `skills/slop-check/references/slop-tools.md` | Full CLI + MCP tool surface for `slop-check`: params, flags, JSON field paths, score normalization, Pro-gating. |
@@ -88,6 +91,8 @@ routing files.
    | Inline-override grammar or saved-profile schema | `skills/agentic-humanizer/SKILL.md`, `README.md`, `CHANGELOG.md` |
    | Voice fingerprint behavior, schema, or extraction prompt | `skills/agentic-humanizer/SKILL.md`, `README.md`, `skills/agentic-humanizer/references/voice-fingerprint.md`, `skills/agentic-humanizer/references/per-iteration-strategies.md`, `CHANGELOG.md` |
    | New or renamed reference doc under `skills/agentic-humanizer/references/` | `skills/agentic-humanizer/SKILL.md` (links), `AGENTS.md` (Layout table), `scripts/check-links.mjs` if it hardcodes paths |
+   | Supported languages, variants, readability kinds, or band mapping in `references/multilingual.md` | `skills/agentic-humanizer/SKILL.md` (Steps 3/6/7), all 6 `harnesses/*.md`, `references/per-iteration-strategies.md`, `claude-skills/agentic-humanizer/SKILL.md`, `skills/slop-check/SKILL.md`, `skills/slop-check/references/slop-tools.md`, `README.md`, `CHANGELOG.md` |
+   | Per-language tell file (`references/ai-tells/<code>.md`) or a new fixture | `AGENTS.md` (Layout table), `scripts/check-plugin-packaging.mjs` (`selfContainedSkillFiles`), `CHANGELOG.md`; then run `node scripts/sync-plugins.mjs` and `make -C claude-skills build` |
    | Harness routing (added, removed, renamed harness) | `skills/agentic-humanizer/SKILL.md` Step 1, `skills/agentic-humanizer/harnesses/<name>.md`, `README.md`, `CHANGELOG.md` |
    | Lint rules, CI gates, release scripts | `AGENTS.md` (Critical rules § 1), `CONTRIBUTING.md`, `CHANGELOG.md` |
    | Slop CLI / MCP install steps | `skills/agentic-humanizer/references/slop-cli-setup.md` or `skills/agentic-humanizer/references/slop-mcp-setup.md`, `README.md`, `CHANGELOG.md` |

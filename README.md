@@ -6,7 +6,8 @@ OpenCode, Cursor, Gemini CLI, and other AI agents.
 It ships two skills:
 
 - `agentic-humanizer`: an AI humanizer that rewrites AI-generated text with a
-  full 5-pass workflow, saved preferences, and optional voice matching.
+  full 5-pass workflow in English and six other languages, saved preferences,
+  and optional voice matching.
 - `slop-check`: a one-shot on-device AI detector for AI text detection, AI image
   detection, readability, Text Cleanup, raw OmniAID scores when explicitly
   requested, and Pro status.
@@ -14,8 +15,8 @@ It ships two skills:
 **Agentic Humanizer does not need Slop or Not for its core functionality.**
 Without Slop or Not, it still runs the full rewrite workflow and can match a
 writing sample. Slop or Not Pro adds the measured on-device AI detector loop:
-AI score, Flesch-Kincaid readability, Text Cleanup before and after
-humanization, and a cleanup summary in the final output.
+AI score (English only), native-language readability, Text Cleanup before and
+after humanization, and a cleanup summary in the final output.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -25,7 +26,7 @@ Agentic Humanizer is not a one-shot paraphraser. Paste a draft, answer a few
 rewrite preferences, and the skill works through five targeted passes:
 
 1. Pattern surgery against common AI-writing tells.
-2. Dialect and tone alignment.
+2. Variant and tone alignment (language variant and register).
 3. Reading-level adjustment.
 4. Cleanup-aware targeted editing.
 5. Final structural rewrite when earlier passes are not enough.
@@ -35,6 +36,19 @@ Voice matching is part of the core skill. Add a writing sample at
 skill extracts a stylometric fingerprint for rhythm, register, contractions,
 sentence shape, and concrete phrasing. Voice matching works with or without
 Slop or Not Pro.
+
+### Languages
+
+Agentic Humanizer supports English, Spanish, German, Italian, Swedish, Danish,
+and Norwegian Bokmal, plus Norwegian Nynorsk for tells. It detects the source
+language and confirms it in the interview, loads that language's AI-tell
+catalogue, and measures readability with the language's native formula
+(Flesch-Kincaid for English, Wiener Sachtextformel for German, Flesch-Szigriszt
+for Spanish, Gulpease for Italian, LIX for the Nordic languages). The on-device
+AI detector is English only, so for other languages the AI score shows as n/a
+and the loop converges on the reading-level band instead. Nynorsk runs with
+tells but without readability; other languages fall back to language-agnostic
+structural tells with a clear warning.
 
 ## How It Runs
 
@@ -56,7 +70,7 @@ Mac.
 
 - Runs Text Cleanup on the source before the baseline.
 - Scores each pass with Slop or Not's local AI text detector.
-- Checks Flesch-Kincaid reading grade against your target.
+- Checks the native reading grade (Flesch-Kincaid for English; Wiener Sachtextformel, LIX, or another formula per language) against your target band.
 - Runs Text Cleanup again on the selected final text.
 - Shows a Text Cleanup summary with hidden-character, punctuation,
   homoglyph, and dialect-substitution counts.
@@ -215,9 +229,10 @@ Claude Code plugin installs use:
 [paste your AI-generated text here]
 ```
 
-The skill asks for dialect, reading level, tone, and length preference unless
-you pass inline overrides or have a saved profile. It may also ask whether to
-use a writing sample for voice matching.
+The skill detects the source language, then asks for language and variant,
+reading level, tone, and length preference unless you pass inline overrides or
+have a saved profile. It may also ask whether to use a writing sample for voice
+matching.
 
 Output without Slop or Not shows the full workflow without detector claims:
 
@@ -226,10 +241,10 @@ Output without Slop or Not shows the full workflow without detector claims:
 <the rewritten text>
 
 ## Loop history
-| Iter | AI score | Grade | Strategy |
+| Iter | AI score | Readability | Strategy |
 |---|---:|---:|---|
 | 1 | n/a | n/a | pattern surgery |
-| 2 | n/a | n/a | dialect + tone |
+| 2 | n/a | n/a | variant + tone |
 | 3 | n/a | n/a | grade gap |
 | 4 | n/a | n/a | clean + targeted |
 | 5 | n/a | n/a | emergency surgery |
@@ -247,13 +262,13 @@ Slop or Not Pro output adds on-device AI detector scores and cleanup stats:
 <the rewritten text>
 
 ## Loop history
-| Iter | AI score | Grade | Strategy |
+| Iter | AI score | Readability | Strategy |
 |---|---:|---:|---|
-| 0 | 92% | 11.4 | baseline |
-| 1 | 71% | 10.8 | pattern surgery |
-| 2 | 48% | 10.4 | dialect + tone |
-| 3 | 27% | 9.7 | grade gap |
-Converged at iter 3 (<=40% AI, grade target 9-11).
+| 0 | 92% | 11.4 (College) | baseline |
+| 1 | 71% | 10.8 (High school) | pattern surgery |
+| 2 | 48% | 10.4 (High school) | variant + tone |
+| 3 | 27% | 9.7 (High school) | grade gap |
+Converged at iter 3 (<=40% AI, grade target 9 to 11).
 
 ## Text Cleanup summary
 | Stage | Invisibles | Punctuation | Homoglyphs | Dialect substitutions |
@@ -277,8 +292,11 @@ Available flags:
 
 | Flag | Effect |
 |---|---|
-| `dialect=us` or `dialect=uk` | Set the English variant. |
-| `grade=N` | Set the target Flesch-Kincaid grade. |
+| `language=<code>` | Set the target language (for example `language=de`). |
+| `variant=<spec>` | Set the variant (for example `variant=de-AT`). |
+| `dialect=us` or `dialect=uk` | Legacy English alias for `variant=en-US` or `variant=en-GB`. |
+| `grade=N` | Set the target Flesch-Kincaid grade (English only). |
+| `level=<band>` | Set the reading-level band for any language (`elementary` to `graduate`). |
 | `tone=casual`, `tone=professional`, or `tone=academic` | Set the rewrite tone. |
 | `length=±10`, `length=exp`, or `length=trim` | Keep length close, allow expansion, or allow trimming. |
 | `threshold=N` | Override the Slop or Not Pro AI-score target. |
@@ -300,7 +318,7 @@ Manage them with:
 ```text
 /agentic-humanizer show profile
 /agentic-humanizer reset
-/agentic-humanizer set dialect=uk grade=10 tone=casual length=±10
+/agentic-humanizer set language=de variant=de-AT level=high_school tone=casual length=±10
 /agentic-humanizer show voice
 /agentic-humanizer reset voice
 /agentic-humanizer set voice=/path/to/file.txt
@@ -308,14 +326,15 @@ Manage them with:
 
 The voice sample and fingerprint are local files. Fingerprint extraction runs
 through your current AI assistant, so privacy follows that assistant's local or
-cloud setup.
+cloud setup. A saved profile from an earlier version (without a `language`
+field) loads as English and upgrades to the current schema on the next write.
 
 ## What Slop or Not Adds
 
 Slop or Not Pro makes the humanizer more measurable:
 
 - Local AI score per iteration.
-- Local Flesch-Kincaid reading grade per iteration.
+- Local reading grade per iteration (Flesch-Kincaid for English; native formula for other languages).
 - Text Cleanup before and after humanization.
 - Cleanup stats that show hidden characters, punctuation artifacts,
   homoglyphs, and dialect substitutions.

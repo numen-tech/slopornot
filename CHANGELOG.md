@@ -5,6 +5,50 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Multilingual readability for Spanish, German, Italian, Swedish, Danish, and
+  Norwegian Bokmal. The agentic-humanizer loop loads the native readability
+  formula for the detected language (Flesch-Kincaid for English, Wiener
+  Sachtextformel for German, Flesch-Szigriszt for Spanish, Gulpease for Italian,
+  LIX for the Nordic languages), reads whatever score `kind` the app returns,
+  and maps it to a reading-level band.
+- Per-language AI-tell catalogues under `references/ai-tells/` for Spanish
+  (`es`), German (`de`), Italian (`it`), Swedish (`sv`), Danish (`da`), and
+  Norwegian (`no`, covering both Bokmal and Nynorsk), each with that language's
+  characteristic LLM filler and localized structural tells plus CC BY-SA
+  attribution.
+- Central registry `references/multilingual.md`: supported languages, BCP-47
+  variants, the readability formula per language, the reading-level band
+  mapping, and code-normalization rules (Norwegian Bokmal normalizes to `nb`).
+- German smoke-test fixture `examples/sample-ai-text-de.md`.
+- Inline overrides `language=<code>`, `variant=<spec>`, and `level=<band>` for
+  non-English rewrites and non-English reading-level control.
+
+### Changed
+
+- Interview Q1 generalized from "Which English variant?" to a language-confirm
+  and variant step. The skill detects the source language from the pasted text,
+  confirms it, and offers that language's variants from the registry. The
+  interview stays four questions.
+- Profile schema bumped to version 3: adds `language` (default `en`) and
+  `variant` (replacing `dialect`), and stores a `reading_level` band alongside
+  `target_grade`. Old profiles without `language` load as English with the
+  legacy `dialect` mapped to `variant`, and are rewritten as v3 on the next
+  save. The `dialect` inline override stays as an English alias.
+- Non-English AI score is reported as `n/a` with a caveat. The on-device
+  detector returns `kind: "not_english"` for non-English input, so the loop
+  converges on the reading-level band rather than the AI threshold.
+- `slop-check` labels readability by the returned formula instead of hardcoding
+  Flesch-Kincaid, shows the detected language and band, and handles
+  `unsupported_language` and short-input warnings gracefully.
+- `slop-check` handles `detect_text` returning `kind: "not_english"`: it reports
+  "AI text detection is English-only; no score available for <language>" and
+  still shows the readability block, never inventing a score.
+- `slop-check` and the humanizer normalize Norwegian Bokmal to
+  `language_code: "nb"` on tool calls; `no` and `nn` return
+  `unsupported_language`.
+
 ## [0.2.0] (2026-05-21)
 
 ### Added
