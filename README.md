@@ -240,6 +240,9 @@ Output without Slop or Not shows the full workflow without detector claims:
 ## Humanized text
 <the rewritten text>
 
+## Language
+English (en-US). Readability: Flesch-Kincaid.
+
 ## Loop history
 | Iter | AI score | Readability | Strategy |
 |---|---:|---:|---|
@@ -260,6 +263,9 @@ Slop or Not Pro output adds on-device AI detector scores and cleanup stats:
 ```markdown
 ## Humanized text
 <the rewritten text>
+
+## Language
+English (en-US). Readability: Flesch-Kincaid.
 
 ## Loop history
 | Iter | AI score | Readability | Strategy |
