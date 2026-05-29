@@ -13,7 +13,10 @@ Bundle all four required questions in one call. Add Q5 to the same
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
 contain `"voice_skip": true`.
 
-Before issuing the call, detect the source language (see `SKILL.md` Step 3) and
+Before issuing the call, detect the source language (see `SKILL.md` Step 3). If
+Step 3 flagged the language as ambiguous (text under ~20 words or mixed), follow
+its ambiguous branch: ask the language first (the supported languages plus "Other
+(different language)"), resolve it, then ask that language's variant. Otherwise
 build Q1's options from `references/multilingual.md` for the detected language;
 populate each Q2 option's `description` with that language's metric. The JSON
 below shows the English default.

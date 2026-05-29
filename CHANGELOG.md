@@ -49,6 +49,35 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `language_code: "nb"` on tool calls; `no` and `nn` return
   `unsupported_language`.
 
+### Fixed
+
+- The final post-loop scoring pass now follows the same per-language rule as the
+  iterations: English scores `detect_text` and `analyze_readability`, supported
+  non-English scores readability only, and Nynorsk or unsupported languages skip
+  both. Earlier the finalization ran `detect_text` and `analyze_readability`
+  unconditionally, so non-English and Nynorsk runs could surface a misleading
+  `not_english` or `unsupported_language` result after the loop.
+- Inline `language=` without `variant=` now resolves to that language's default
+  variant from the registry instead of inheriting the saved profile's variant,
+  so an English profile plus `language=de` no longer produces the inconsistent
+  `de` with `en-US` pair.
+- Legacy `dialect`/`target_grade` profiles are upgraded to the v3 schema before
+  the missing-rewrite-keys check, so returning users with an older profile keep
+  their preferences instead of being pushed back through the interview.
+- The per-iteration cookbook no longer points unsupported languages at a
+  non-existent `references/ai-tells/<code>.md`. Nynorsk and unsupported
+  languages load `references/supplemental-ai-tells.md` only (plus the Nynorsk
+  section of `ai-tells/no.md` for `nn`), matching `SKILL.md` Step 6.
+- The Claude Code interview's four-option cap is scoped to the Q1 language and
+  variant list, so the reading-level question keeps all five bands.
+- Every harness now follows Step 3's ambiguous-language branch, asking for the
+  language before its variant when the source text is short or mixed, instead of
+  asserting a detected language.
+- `slop-check` readability handles the CLI's camelCase warning objects
+  (`unsupportedLanguage`, `insufficientText`) alongside the MCP colon-tagged
+  strings, so CLI-only runs surface the unsupported-language and short-input
+  messages.
+
 ## [0.2.0] (2026-05-21)
 
 ### Added

@@ -22,8 +22,10 @@ these that is available in the running session:
 
 For path 1 or path 2, ask all four required questions (language and variant,
 reading level, tone, length) in one call. The wording matches
-`harnesses/claude-code.md`, including detecting the source language first and
-building Q1's variant options from `references/multilingual.md`.
+`harnesses/claude-code.md`, including detecting the source language first,
+following `SKILL.md` Step 3's ambiguous-language branch when detection is
+uncertain (ask the language before its variant), and building Q1's variant
+options from `references/multilingual.md`.
 
 Only add Q5 when no inline or saved `voice_path` has resolved,
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not

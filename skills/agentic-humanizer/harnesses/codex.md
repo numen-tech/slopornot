@@ -12,10 +12,13 @@ Only ask Q5 when no inline or saved `voice_path` has resolved,
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
 contain `"voice_skip": true`.
 
-Before Call 1, detect the source language (see `SKILL.md` Step 3). Build the Q1
-prompt from `references/multilingual.md`: name the detected language and list
-its variants slash-separated, plus "Other (different language)". Show the
-reading level in that language's metric. The JSON below shows the English
+Before Call 1, detect the source language (see `SKILL.md` Step 3). If Step 3
+flagged the language as ambiguous (text under ~20 words or mixed), follow its
+ambiguous branch: ask the language first (the supported languages plus "Other
+(different language)"), resolve it, then ask that language's variant. Otherwise
+build the Q1 prompt from `references/multilingual.md`: name the detected language
+and list its variants slash-separated, plus "Other (different language)". Show
+the reading level in that language's metric. The JSON below shows the English
 default; substitute the detected language's variants and metric.
 
 ## Call 1 — three questions

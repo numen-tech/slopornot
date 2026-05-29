@@ -16,12 +16,16 @@ Only ask Q5 when no inline or saved `voice_path` has resolved,
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
 contain `"voice_skip": true`.
 
-Detect the source language first (see `SKILL.md` Step 3). State the detected
-language in the opening line and build question 1's options from
-`references/multilingual.md` for that language (and show question 2's bands in
-that language's metric). The messages below show the English default; substitute
-the detected language's variants and metric, and adjust the example token to
-match.
+Detect the source language first (see `SKILL.md` Step 3). If Step 3 flagged the
+language as ambiguous (text under ~20 words or mixed), do not state a detected
+language: first send a one-line language question listing the supported
+languages plus "Other", wait for the reply, resolve it against
+`references/multilingual.md`, then send the questions below built for the chosen
+language. Otherwise state the detected language in the opening line and build
+question 1's options from `references/multilingual.md` for that language (and
+show question 2's bands in that language's metric). The messages below show the
+English default; substitute the detected language's variants and metric, and
+adjust the example token to match.
 
 Send the user this exact message (English default):
 

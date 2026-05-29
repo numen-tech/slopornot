@@ -25,7 +25,7 @@ Pro adds measured on-device AI detector checks.
 
 **Inline overrides:** `/agentic-humanizer language=<code> variant=<spec> dialect=us|uk grade=N level=<band> tone=casual|professional|academic length=±10|exp|trim threshold=N max=N voice=off voice-skip skip-interview [paste]`
 
-`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `dialect=us|uk` is a legacy English alias. `grade=N` is English only; `level=<band>` (`elementary|middle|high_school|college|graduate`) sets the reading level for any language. See `references/multilingual.md`.
+`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `language=` without `variant=` uses that language's default variant from the registry. `dialect=us|uk` is a legacy English alias. `grade=N` is English only; `level=<band>` (`elementary|middle|high_school|college|graduate`) sets the reading level for any language. See `references/multilingual.md`.
 
 ## What this skill does
 
@@ -55,9 +55,12 @@ fifth voice question only when no inline `voice=off` or `voice-skip` override
 is present.
 
 Before Q1, detect the source language from the pasted text with the host LLM.
-Build Q1 from `references/multilingual.md`: present the detected language's
-variants plus "Other (different language)", staying within the four-option
-`ask_user_input_v0` cap. Populate Q2's options with the detected language's
+If the text is under ~20 words or mixed, treat the language as ambiguous: make
+the first question a language choice (the supported languages plus "Other"),
+resolve it against `references/multilingual.md`, and only then ask that
+language's variant. Otherwise build Q1 from `references/multilingual.md`:
+present the detected language's variants plus "Other (different language)",
+staying within the four-option `ask_user_input_v0` cap. Populate Q2's options with the detected language's
 metric. The calls below show the English default. Variant sets that fit the cap:
 English (en-US, en-GB, Other = 3); German (de-DE, de-AT, de-CH, Other = 4);
 Norwegian (nb, nn, Other = 3); Spanish (es-ES, es-419, Other = 3); Italian,
@@ -368,8 +371,13 @@ non-convergence, return the iteration closest to the target band.
 `MAX_ITER` iterations and select by quality.
 
 After selecting the final iteration, run Text Cleanup on that selected text.
-Store `final_cleanup_stats`, use the cleaned text as the final output, then
-run final `detect_text` and `analyze_readability` on the cleaned final text.
+Store `final_cleanup_stats` and use the cleaned text as the final output. Then
+run the final scoring pass gated by L, matching the loop's per-language rule:
+for English, run final `detect_text` and `analyze_readability`; for supported
+non-English (es, de, it, sv, da, nb), run final `analyze_readability` only (skip
+`detect_text`, which returns `not_english` with a null score); for Nynorsk or an
+unsupported language, skip both (readability returns `unsupported_language` and
+the AI score is `n/a`).
 
 ### Completion in Core mode
 

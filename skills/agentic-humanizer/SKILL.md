@@ -34,7 +34,7 @@ languages use native readability and per-language tells. See
 
 **Inline overrides:** `/agentic-humanizer language=<code> variant=<spec> dialect=us|uk grade=N level=<band> tone=casual|professional|academic length=±10|exp|trim threshold=N max=N voice=/path/to/file.txt|off voice-skip skip-interview [paste]`
 
-`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `dialect=us|uk` is a legacy English alias: `dialect=us` equals `language=en variant=en-US`, `dialect=uk` equals `language=en variant=en-GB`. `grade=N` sets the Flesch-Kincaid target and is English only; `level=<band>` sets the reading-level band (`elementary|middle|high_school|college|graduate`) for any language. Explicit `language=`/`variant=` win over `dialect=`. See `references/multilingual.md` for supported codes and variants.
+`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `dialect=us|uk` is a legacy English alias: `dialect=us` equals `language=en variant=en-US`, `dialect=uk` equals `language=en variant=en-GB`. `grade=N` sets the Flesch-Kincaid target and is English only; `level=<band>` sets the reading-level band (`elementary|middle|high_school|college|graduate`) for any language. Explicit `language=`/`variant=` win over `dialect=`. Setting `language=` without `variant=` uses that language's default variant from the registry (the first variant listed). See `references/multilingual.md` for supported codes and variants.
 
 ## What this skill does
 
@@ -99,7 +99,11 @@ If the text is under ~20 words or mixed, treat the language as ambiguous.
 
 1. **Inline overrides** (`language=`, `variant=`, `dialect=`, `grade=`,
    `level=`, `tone=`, `length=`) -> use them; do not read the profile for the
-   overridden keys. Inline `language=`/`variant=` also override detection.
+   overridden keys. Inline `language=`/`variant=` also override detection. When
+   `language=` is given without `variant=`, set the variant to that language's
+   default from `references/multilingual.md` (the first variant listed), not the
+   profile's variant, so the pair stays consistent (for example `language=de`
+   alone resolves to `variant=de-DE`).
 2. **`skip-interview` flag** -> use the saved profile if present, otherwise
    fall back to defaults (English, en-US, High school, Professional, ±10%).
 3. **Saved profile at `~/.agentic-humanizer/profile.json`** present:
@@ -122,11 +126,18 @@ PROFILE=~/.agentic-humanizer/profile.json
 [ -f "$PROFILE" ] && cat "$PROFILE"
 ```
 
-If the file is missing, malformed JSON, or missing required rewrite keys,
-treat it as absent and run the interview. Version 1 profiles load normally.
-Missing voice fields use their defaults in Step 4. If a parseable profile has
-`voice_skip` but is missing rewrite keys, ignore it for the rewrite interview
-but still honor `voice_skip` in Step 4.
+If the file is missing or is malformed JSON, treat it as absent and run the
+interview. If it is parseable, first apply the back-compat normalization in the
+next paragraph (it maps a legacy `dialect`/`target_grade` profile to
+`language`/`variant`/`reading_level`), then judge completeness: only treat the
+profile as absent (and run the interview) when it still lacks the resolved
+rewrite settings (`language`, `variant`, `reading_level`, `tone`,
+`length_policy`) after that mapping. Version 1 and version 2 profiles, which
+carry `dialect` and `target_grade` rather than the v3 keys, are complete once
+normalized and load without re-prompting. Missing voice fields use their
+defaults in Step 4. If a parseable profile has `voice_skip` but is still missing
+rewrite keys after normalization, ignore it for the rewrite interview but still
+honor `voice_skip` in Step 4.
 
 **Back-compat (read any older profile as v3).** A profile without a `language`
 field is English: set `language="en"` and map the legacy `dialect` to `variant`
@@ -488,8 +499,13 @@ no AI score. Run all `MAX_ITER` iterations and select by quality, as in Core
 mode.
 
 After selecting the final iteration, run Text Cleanup on that selected text.
-Store `final_cleanup_stats`, use the cleaned text as the final output, then
-run final `detect_text` and `analyze_readability` on the cleaned final text.
+Store `final_cleanup_stats` and use the cleaned text as the final output. Then
+run the final scoring pass gated by L, matching the loop's per-language rule:
+for English, run final `detect_text` and `analyze_readability`; for supported
+non-English (es, de, it, sv, da, nb), run final `analyze_readability` only (skip
+`detect_text`, which returns `not_english` with a null score); for Nynorsk or an
+unsupported language, skip both (readability returns `unsupported_language` and
+the AI score is `n/a`).
 
 ### Completion in Core mode
 

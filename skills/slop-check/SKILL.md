@@ -202,12 +202,17 @@ For non-English, label by the returned kind, for example:
 Language: de · Band: High school · Words: 180 · Sentences: 12
 ```
 
-If `scores[]` is empty, read `warnings`: `unsupported_language:<code>` means no
-score is available (report "Readability not available for <language> in this app
-version"); `insufficient_text:NN` is a soft warning (scores may still be
-present; treat as advisory), reported as "Not enough text to score reliably
-(insufficient_text:28)." `approximate_syllable_counts:<lang>` is benign. Do not
-invent a value.
+If `scores[]` is empty, read `warnings`. Warnings come back in two shapes by
+backend: MCP returns colon-tagged strings (`unsupported_language:<code>`,
+`insufficient_text:NN`, `approximate_syllable_counts:<lang>`); the CLI returns
+camelCase objects under `readability.warnings[]` (`unsupportedLanguage`,
+`insufficientText`, optionally with `wordCount`). Treat the two forms as
+equivalent: `unsupported_language` / `unsupportedLanguage` means no score is
+available (report "Readability not available for <language> in this app
+version"); `insufficient_text` / `insufficientText` is a soft warning (scores
+may still be present; treat as advisory), reported as "Not enough text to score
+reliably (insufficient_text:28)."; `approximate_syllable_counts` /
+`approximateSyllableCounts` is benign. Do not invent a value.
 
 **Cleanup:** print the counts line, then the cleaned text in its own fenced
 `text` block so the user can copy it verbatim. For CLI output, use

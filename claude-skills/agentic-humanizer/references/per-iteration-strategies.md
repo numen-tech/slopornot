@@ -45,13 +45,17 @@ detector convergence.
 
 **Language note (composes with this schedule).** All five iterations run for
 every language. Wherever an iteration below names `references/patterns.md`, that
-catalogue is English only and is not loaded for other languages; for non-English
-L, substitute `references/ai-tells/<L>.md` (Norwegian Bokmal and Nynorsk both use
-`references/ai-tells/no.md`), read alongside
-`references/supplemental-ai-tells.md`. On non-English Slop or Not Pro calls,
-pass the normalized `language_code` and never pass `britishize`. Read
-readability by the returned `kind` and map it to a band via
-`references/multilingual.md` (see `SKILL.md` Step 6).
+catalogue is English only and is not loaded for other languages. For supported
+non-English L (es, de, it, sv, da, nb), substitute `references/ai-tells/<L>.md`
+(Norwegian Bokmal and Nynorsk both use `references/ai-tells/no.md`), read
+alongside `references/supplemental-ai-tells.md`. For Nynorsk (nn) and
+unsupported languages there is no per-language tell file: read
+`references/supplemental-ai-tells.md` only (plus the Nynorsk section of
+`references/ai-tells/no.md` for nn), matching `SKILL.md` Step 6's
+unsupported-language branch. On non-English Slop or Not Pro calls, pass the
+normalized `language_code` and never pass `britishize`. Read readability by the
+returned `kind` and map it to a band via `references/multilingual.md` (see
+`SKILL.md` Step 6).
 
 Wherever an iteration below calls `detect_text` or says to "score and analyze,"
 that full detector path is English only. For supported non-English L (es, de, it,
