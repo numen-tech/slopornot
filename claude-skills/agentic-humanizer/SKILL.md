@@ -379,7 +379,8 @@ iteration by rewrite quality: preserve meaning, honor the requested reading
 level, tone, and length, and remove the most visible AI tells from the tell
 files loaded for L's branch (English: `references/patterns.md` plus
 `references/supplemental-ai-tells.md`; other languages:
-`references/supplemental-ai-tells.md` plus `references/ai-tells/<L>.md`).
+`references/supplemental-ai-tells.md` plus `references/ai-tells/<L>.md`, where
+Norwegian Bokmal and Nynorsk both use `references/ai-tells/no.md`).
 
 ### Mid-flight Pro-gate
 

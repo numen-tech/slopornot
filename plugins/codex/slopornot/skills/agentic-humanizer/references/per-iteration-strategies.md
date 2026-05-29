@@ -46,11 +46,19 @@ detector convergence.
 **Language note (composes with this schedule).** All five iterations run for
 every language. Wherever an iteration below names `references/patterns.md`, that
 catalogue is English only and is not loaded for other languages; for non-English
-L, substitute `references/ai-tells/<L>.md` (read alongside
-`references/supplemental-ai-tells.md`). On non-English Slop or Not Pro calls,
+L, substitute `references/ai-tells/<L>.md` (Norwegian Bokmal and Nynorsk both use
+`references/ai-tells/no.md`), read alongside
+`references/supplemental-ai-tells.md`. On non-English Slop or Not Pro calls,
 pass the normalized `language_code` and never pass `britishize`. Read
 readability by the returned `kind` and map it to a band via
 `references/multilingual.md` (see `SKILL.md` Step 6).
+
+Wherever an iteration below calls `detect_text` or says to "score and analyze,"
+that full detector path is English only. For supported non-English L (es, de, it,
+sv, da, nb), "score" means `analyze_readability` alone: do not call `detect_text`
+(it returns `kind: "not_english"` with a null score, adding nothing). For Nynorsk
+(nn) and unsupported languages, skip both `detect_text` and `analyze_readability`
+(no readability is available) and self-assess as in Core mode.
 
 ## Iteration 0: baseline
 
