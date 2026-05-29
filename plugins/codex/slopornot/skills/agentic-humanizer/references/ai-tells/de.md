@@ -13,8 +13,7 @@ Treat each tell as a clue to inspect, not proof that the passage is
 AI-written. See [supplemental-ai-tells.md](../supplemental-ai-tells.md) for the
 shared structural concepts S1 to S8; this file adds German-specific lexical
 filler plus localized versions of the structural tells. `references/patterns.md`
-(English vocabulary) is not loaded for German text, so rely on this catalogue
-and the supplemental tells instead.
+(English vocabulary) is not loaded for German text.
 
 ## Lexical catalogue
 

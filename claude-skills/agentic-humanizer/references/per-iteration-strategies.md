@@ -57,7 +57,10 @@ readability by the returned `kind` and map it to a band via
 Slop or Not Pro:
 
 1. Use the pre-cleaned source from `SKILL.md` Step 6.
-2. Call `detect_text(T)` and `analyze_readability(T)`.
+2. For English, call `detect_text(T)` and `analyze_readability(T)`. For
+   supported non-English, call `analyze_readability(T)` only (the AI score is
+   n/a, so `detect_text` adds nothing). For Nynorsk or unsupported, skip both
+   (no readability is available).
 3. If both already pass, short-circuit: return T with note
    *"already passes both targets"* and still run final Text Cleanup before
    output.
@@ -149,14 +152,17 @@ compare against the band range, noting that the es Szigriszt and it Gulpease
 ease scales invert (higher = easier) while sv/da/nb LIX is a difficulty index
 (higher = harder).
 
-If `current_grade > target_grade + 1`:
+If the text is harder than the target band (en and de grade scales:
+`current_grade` above the band's upper edge; sv/da/nb LIX above the band; es
+Szigriszt and it Gulpease ease scales below the band):
 
 - Shorten sentences by splitting compound and complex sentences.
 - Swap polysyllabic words for shorter synonyms where the meaning survives
   (`utilize` -> `use`, `commence` -> `start`, `subsequently` -> `then`).
 - Avoid removing precise terminology; substitute, do not generalize.
 
-If `current_grade < target_grade - 1`:
+If the text is easier than the target band (grade scales: `current_grade` below
+the band's lower edge; LIX below the band; ease scales above the band):
 
 - Combine short clauses with subordinating conjunctions.
 - Introduce precise terminology where the audience supports it.

@@ -164,16 +164,12 @@ limitation and stop. Do not probe Slop or run the loop.
 **Preference resolution order:**
 
 1. **Inline overrides** for all four rewrite parameters -> use them.
-2. **`skip-interview` flag** -> use defaults (American, High school,
+2. **`skip-interview` flag** -> use defaults (English en-US, High school,
    Professional, ±10%).
 3. **No complete inline overrides** -> run the interview below.
 
-Before the interview, detect the source language from the pasted text with the
-host LLM (no backend needed). Q1 confirms it and offers that language's variants
-from `references/multilingual.md`.
-
-**Run the interview** using the protocol in Step 1. Capture these rewrite
-settings here:
+**Run the interview** using the protocol in Step 1 (which detects the source
+language and confirms it in Q1). Capture these rewrite settings here:
 
 - `language` (a base code such as `en`, `de`, `es`, `it`, `sv`, `da`, `nb`,
   `nn`, or other) and `variant` (a BCP-47 tag or `other:<spec>`)
@@ -285,11 +281,11 @@ interview, voice matching, or rewrite loop.
 
 ## Step 6: Run the loop
 
-Read `references/multilingual.md` (the registry: supported languages,
-readability formulas, band mapping, code normalization). Resolve the language L
-from the inline `language=` override or the detected and confirmed language from
-Step 1. Read `references/per-iteration-strategies.md` (the per-iteration
-cookbook). Then load the tell catalogue for L's branch:
+Resolve the language L from the inline `language=` override or the detected and
+confirmed language from Step 1. If L is not English, read
+`references/multilingual.md` (the registry: readability formulas, band mapping,
+code normalization). Read `references/per-iteration-strategies.md` (the
+per-iteration cookbook). Then load the tell catalogue for L's branch:
 
 - **L is `en`:** read `references/patterns.md` (the 29-pattern rewrite
   vocabulary) and `references/supplemental-ai-tells.md`. Use the full detector
@@ -426,14 +422,13 @@ Converged at iter 3 (<=40% AI, grade target 9 to 11).
 - <bullet 3 (optional)>
 ```
 
-**Language line.** Always show the resolved language, variant, and readability
-formula name, for example "German (de-DE). Readability: Wiener Sachtextformel."
+**Language line.** Always show the resolved language, variant, and the
+readability formula's display name from `references/multilingual.md`, for example
+"German (de-DE). Readability: Wiener Sachtextformel."
 
-**Readability column.** Label the value by the returned `kind`:
-`fleschKincaidGradeLevel` shows the grade number, `wienerSachtextformel4` shows
-"Wiener", `fleschSzigriszt` shows "Szigriszt", `gulpease` shows "Gulpease",
-`lix` shows "LIX". Show the value and the band in parentheses, for example
-"Wiener: 10.6 (High school)".
+**Readability column.** The formula is named once in the Language line (use its
+display name from `references/multilingual.md`). In the loop-history column show
+only the value and the band in parentheses, for example "10.6 (High school)".
 
 **AI score column (non-English).** Render "n/a (detector is English-only)" on
 the first row and "n/a" thereafter. In Core mode, render "n/a" for every row.

@@ -369,10 +369,10 @@ Do not skip the interview, voice matching, or rewrite loop.
 
 ## Step 6: Run the loop
 
-Read `references/multilingual.md` (the registry: supported languages,
-readability formulas, band mapping, code normalization). Resolve the language L
-from the profile, the inline `language=` override, or the detected and confirmed
-language from Step 3. Read `references/per-iteration-strategies.md` (the
+Resolve the language L from the profile, the inline `language=` override, or the
+detected and confirmed language from Step 3. If L is not English, read
+`references/multilingual.md` (the registry: readability formulas, band mapping,
+code normalization). Read `references/per-iteration-strategies.md` (the
 per-iteration cookbook). Then load the tell catalogue for L's branch below. The
 language branch composes with, and does not replace, the 5-iteration schedule.
 
@@ -392,11 +392,10 @@ Bokmal section). Pass the normalized `language_code` on every Slop or Not call.
 Read whatever score `kind` `scores[]` returns, label it by that `kind`, and map
 the value to a band using `references/multilingual.md`. The AI score is `n/a`:
 `detect_text` returns `kind: "not_english"` with `score: null` for non-English
-input, so do not use it for convergence. To get readability under Slop or Not
-Pro, call `analyze_readability` directly (or read the still-populated
-`readability` block from the `not_english` `detect_text` response). Terminate on
-readability band membership (per-scale semantics in the registry) or after
-MAX_ITER; there is no AI threshold check.
+input, so do not call it for readability convergence. Get readability under Slop
+or Not Pro with a single `analyze_readability` call; do not also call
+`detect_text`. Terminate on readability band membership (per-scale semantics in
+the registry) or after MAX_ITER; there is no AI threshold check.
 
 **L is `nn` (Norwegian Nynorsk) or an unsupported language.** Do NOT read
 `references/patterns.md`. Read `references/supplemental-ai-tells.md` (and
@@ -543,8 +542,9 @@ Converged at iter 3 (<=40% AI, grade target 9 to 11).
 - <bullet 3 (optional)>
 ```
 
-**Language line.** Always show the resolved language, variant, and readability
-formula name, for example "German (de-DE). Readability: Wiener Sachtextformel."
+**Language line.** Always show the resolved language, variant, and the
+readability formula's display name from `references/multilingual.md`, for example
+"German (de-DE). Readability: Wiener Sachtextformel."
 When detection overrode a saved profile language, mark it and add the note, for
 example "German (de-DE, detected; saved profile language is English).
 Readability: Wiener Sachtextformel." followed by:
@@ -553,12 +553,9 @@ Readability: Wiener Sachtextformel." followed by:
 > _Ran in German because the text was detected as German; your saved profile language is English. Override with `language=` to change._
 ```
 
-**Readability column.** Label the value by the returned `kind`:
-`fleschKincaidGradeLevel` shows the grade number, `wienerSachtextformel4` shows
-"Wiener", `fleschSzigriszt` shows "Szigriszt", `gulpease` shows "Gulpease",
-`lix` shows "LIX". Show the value and the band in parentheses, for example
-"Wiener: 10.6 (High school)". For English, keep the bare grade number plus the
-band.
+**Readability column.** The formula is named once in the Language line (use its
+display name from `references/multilingual.md`). In the loop-history column show
+only the value and the band in parentheses, for example "10.6 (High school)".
 
 **AI score column (non-English).** Render "n/a (detector is English-only)" on
 the first row and "n/a" thereafter. In Core mode, render "n/a" for every row.

@@ -30,6 +30,11 @@ English returns two kinds (`fleschKincaidGradeLevel` and `fleschReadingEase`);
 `fleschReadingEase` is informational and does not drive termination. Every
 supported non-English language returns exactly one kind.
 
+Formula display names (the single source for output labels): `fleschKincaidGradeLevel`
+-> "Flesch-Kincaid grade", `fleschReadingEase` -> "Reading Ease",
+`wienerSachtextformel4` -> "Wiener Sachtextformel", `fleschSzigriszt` ->
+"Flesch-Szigriszt", `gulpease` -> "Gulpease", `lix` -> "LIX".
+
 ## Code normalization rules
 
 Always pass a normalized BCP-47 code on MCP or CLI calls.
