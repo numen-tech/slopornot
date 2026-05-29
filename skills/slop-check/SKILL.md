@@ -132,7 +132,15 @@ Use the operation-to-tool map in `references/slop-tools.md` section 5.
 Key points:
 
 - `text-detect`: request readability alongside detection
-  (`include_readability: true` on MCP; `slop text --json` returns both).
+  (`include_readability: true` on MCP; `slop text --json` returns both). When
+  the input language is detectable, pass a normalized `language_code` (Norwegian
+  Bokmal is `nb`, never `no` or `nn`); omit it when ambiguous so the app
+  auto-detects. For non-English input `detect_text` returns
+  `kind: "not_english"` with a null score; see Step 4.
+- `readability`: pass the same normalized `language_code` when detectable. The
+  returned `scores[]` `kind` depends on the language and is not always
+  Flesch-Kincaid; read whatever kind is present (see Step 4 and
+  `references/slop-tools.md` section 2).
 - Images: default to `image-detect`. When shell commands are available, use
   the absolute CLI path with shell redirection from the image path:
   `"/Applications/Slop Or Not.app/Contents/MacOS/slop" image --json < "<path>"`.
@@ -169,17 +177,37 @@ Map the verdict by rule (verdicts have gradations like `probably_ai_slop`):
 title-cased. Show the label, the raw verdict in parentheses, and the
 percentage.
 
+When `detect_text` returns `kind: "not_english"` (non-English input), `score`
+and `verdict` are null. Do not show an AI percentage. Print instead: "AI text
+detection is English-only; no score available for <language>." (read the
+language from the `language` field), then show the readability block if the
+response carries one. Never invent a score for non-English input.
+
 **Readability:**
+
+Read whatever `kind` `scores[]` returns; do not assume `fleschKincaidGradeLevel`.
+Look up the formula display name, scale direction, and band ranges in
+`references/slop-tools.md` section 2. Show the formula name, the value, the
+detected language, and the band.
 
 ```markdown
 **Flesch-Kincaid grade: 9.7** (Reading Ease 62.4)
-Words: 210 · Sentences: 14
+Language: en · Band: High school · Words: 210 · Sentences: 14
 ```
 
-If `scores[]` is empty (short input), the response carries a `warnings`
-entry like `insufficient_text:NN`. Report that instead of a grade, for
-example: `Not enough text to score reliably (insufficient_text:28).` Do
-not invent a grade.
+For non-English, label by the returned kind, for example:
+
+```markdown
+**Wiener Sachtextformel: 11.2**
+Language: de · Band: High school · Words: 180 · Sentences: 12
+```
+
+If `scores[]` is empty, read `warnings`: `unsupported_language:<code>` means no
+score is available (report "Readability not available for <language> in this app
+version"); `insufficient_text:NN` is a soft warning (scores may still be
+present; treat as advisory), reported as "Not enough text to score reliably
+(insufficient_text:28)." `approximate_syllable_counts:<lang>` is benign. Do not
+invent a value.
 
 **Cleanup:** print the counts line, then the cleaned text in its own fenced
 `text` block so the user can copy it verbatim. For CLI output, use
@@ -269,14 +297,18 @@ Output:
 User: `what grade level is draft.md`
 
 Action: explicit file path, `readability`. MCP `analyze_readability` with
-the file contents. Read the `fleschKincaidGradeLevel` entry.
+the file contents and a normalized `language_code` when detectable. Read
+whatever `kind` `scores[]` returns (here English `fleschKincaidGradeLevel`).
 
 Output:
 
 ```markdown
 **Flesch-Kincaid grade: 7.2** (Reading Ease 71.8)
-Words: 148 · Sentences: 11
+Language: en · Band: Middle school · Words: 148 · Sentences: 11
 ```
+
+For a German file, the same operation reads `wienerSachtextformel4` and labels
+it "Wiener Sachtextformel" with the German band.
 
 **Example D, cleanup with a zero-width character:**
 
