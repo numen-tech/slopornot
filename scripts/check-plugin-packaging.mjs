@@ -67,8 +67,20 @@ function requireArrayIncludes(values, expected, label) {
   }
 }
 
+// Each self-contained source is compared against both plugin hosts, so cache
+// its contents and read it from disk only once.
+const sourceContentCache = new Map();
+
+function readSourceOnce(sourcePath) {
+  let content = sourceContentCache.get(sourcePath);
+  if (content === undefined) {
+    content = fs.readFileSync(path.join(root, sourcePath), 'utf8');
+    sourceContentCache.set(sourcePath, content);
+  }
+  return content;
+}
+
 function requireSyncedFile(sourcePath, destinationPath) {
-  const source = path.join(root, sourcePath);
   const destination = path.join(root, destinationPath);
 
   if (!fs.existsSync(destination)) {
@@ -76,10 +88,9 @@ function requireSyncedFile(sourcePath, destinationPath) {
     return;
   }
 
-  const sourceContent = fs.readFileSync(source, 'utf8');
   const destinationContent = fs.readFileSync(destination, 'utf8');
 
-  if (sourceContent !== destinationContent) {
+  if (readSourceOnce(sourcePath) !== destinationContent) {
     errors.push(`${destinationPath} is out of sync with ${sourcePath}`);
   }
 }
