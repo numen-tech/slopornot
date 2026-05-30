@@ -68,8 +68,11 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   non-existent `references/ai-tells/<code>.md`. Nynorsk and unsupported
   languages load `references/supplemental-ai-tells.md` only (plus the Nynorsk
   section of `ai-tells/no.md` for `nn`), matching `SKILL.md` Step 6.
-- The Claude Code interview's four-option cap is scoped to the Q1 language and
-  variant list, so the reading-level question keeps all five bands.
+- Option-capped harnesses (Claude Code, Cursor, Gemini CLI, OpenCode) now
+  collapse College and Graduate into one "College or professional" reading-level
+  option so the question stays within the four-option cap; Graduate remains
+  reachable via inline `level=graduate` or `grade=N`. Plain-text (generic) and
+  free-text (Codex) harnesses, which have no option cap, keep all five bands.
 - Every harness now follows Step 3's ambiguous-language branch, asking for the
   language before its variant when the source text is short or mixed, instead of
   asserting a detected language.
@@ -93,6 +96,32 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The Claude Desktop bundle's ambiguous-language prompt now stays within the
   four-option `ask_user_input_v0` cap: it offers the three most likely languages
   plus "Other", instead of listing every supported language in one call.
+- Option-capped harnesses (Claude Code, Cursor, Gemini CLI, OpenCode) now cap the
+  ambiguous-language question at the three most likely languages plus "Other
+  (different language)", matching the Desktop bundle, instead of listing all
+  seven supported languages past the four-option cap. Generic and Codex, which
+  have no option cap, still list them all.
+- English `level=<band>` without `grade=` now derives `target_grade` from the
+  band midpoint (graduate maps to 17), so the English convergence check
+  `|grade - target_grade| <= 1` is always defined. Non-English profiles store
+  `target_grade: null`.
+- Added a deterministic band-assignment rule to `references/multilingual.md` and
+  the `slop-check` tool surface: a value on a shared band boundary belongs to the
+  higher-numeric band, and a grade score that lands in a gap takes the nearest
+  band midpoint (ties to the higher band), so reading-level labels and band-range
+  termination are unambiguous.
+- Corrected the `slop-check` skill description, which still advertised
+  Flesch-Kincaid readability only, to name each language's native formula.
+- Removed the ambiguous "we" row (`vi` in both standards) from the Norwegian
+  Nynorsk vs Bokmal contrast table in `references/ai-tells/no.md`, which could
+  flag legitimate Nynorsk `vi` as Bokmal contamination.
+- The per-iteration cookbook restates the non-English tell-file substitution at
+  each step that names `references/patterns.md`, and scopes the grade-tolerance
+  note to English (non-English grade scales use the target band midpoint).
+- Clarified in the READMEs that non-English reading-level band convergence
+  applies with Slop or Not Pro; the core workflow runs all five passes and
+  selects by quality, the same as English. The output Language line uses the
+  registry display name "Flesch-Kincaid grade".
 
 ## [0.2.0] (2026-05-21)
 

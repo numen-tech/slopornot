@@ -103,7 +103,7 @@ If the text is under ~20 words or mixed, treat the language as ambiguous.
    `language=` is given without `variant=`, set the variant to that language's
    default from `references/multilingual.md` (the first variant listed), not the
    profile's variant, so the pair stays consistent (for example `language=de`
-   alone resolves to `variant=de-DE`).
+   alone resolves to `variant=de-DE`). For English, when `level=` is set without `grade=`, derive `target_grade` from the resolved band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17); an explicit `grade=N` always wins.
 2. **`skip-interview` flag** -> use the saved profile if present, otherwise
    fall back to defaults (English, en-US, High school, Professional, ±10%).
 3. **Saved profile at `~/.agentic-humanizer/profile.json`** present:
@@ -171,15 +171,21 @@ Step 4 handles that answer. Capture these rewrite settings here:
 detected unambiguously, present "Detected <language>. Which variant?" with that
 language's variants from `references/multilingual.md` plus "Other (different
 language)". When the language is ambiguous or unknown, ask the language first,
-then its variant. If the user picks "Other (different language)", capture the
-language name or code on the next turn, resolve it against the registry, and
-warn if it is unsupported (no curated tells or readability). Q2 keeps the five
-reading-level bands; show each band's helper text in the resolved language's
-metric (for example "High school (LIX about 40 to 50)" for Swedish, "High
-school (Grade 9 to 11)" for English), drawn from the registry band table. For
-Norwegian Nynorsk and unsupported languages, present the bands without a metric
-helper. Map Q1 to `language` (normalized) and `variant`; map Q2 to
-`reading_level` (and `target_grade` for English).
+then its variant; option-capped harnesses (Claude Code, Cursor, Gemini CLI,
+OpenCode) offer the three most likely languages plus "Other (different
+language)" to stay within their four-option limit, while plain-text and
+free-text harnesses (generic, Codex) may list them all. If the user picks
+"Other (different language)", capture the language name or code on the next
+turn, resolve it against the registry, and warn if it is unsupported (no curated
+tells or readability). Q2 covers the five reading-level bands; show each band's
+helper text in the resolved language's metric (for example "High school (LIX
+about 40 to 50)" for Swedish, "High school (Grade 9 to 11)" for English), drawn
+from the registry band table. Option-capped harnesses collapse College and
+Graduate into one "College or professional" option to fit the four-option limit,
+so Graduate is selected via inline `level=graduate` or `grade=N` there; generic
+and Codex keep all five bands. For Norwegian Nynorsk and unsupported languages,
+present the bands without a metric helper. Map Q1 to `language` (normalized) and
+`variant`; map Q2 to `reading_level` (and `target_grade` for English).
 
 After the rewrite answers, ask **one final yes/no question** (use the same
 harness question tool):
@@ -195,7 +201,7 @@ cat > ~/.agentic-humanizer/profile.json <<EOF
   "language": "<en|de|es|it|sv|da|nb|nn|other>",
   "variant": "<en-US|en-GB|de-DE|de-AT|de-CH|es-ES|es-419|it-IT|sv|da|nb|nn|other:...>",
   "reading_level": "<elementary|middle|high_school|college|graduate>",
-  "target_grade": <4|7|10|13|17>,
+  "target_grade": <4|7|10|13|17 for en, else null>,
   "tone": "<casual|professional|academic>",
   "length_policy": "<±10|exp|trim>",
   "voice_path": "~/.agentic-humanizer/voice.txt",
@@ -207,9 +213,10 @@ cat > ~/.agentic-humanizer/profile.json <<EOF
 EOF
 ```
 
-`target_grade` is meaningful only when `language` is `en`; for other languages
-the loop reads `reading_level`. For English, keep `target_grade` consistent with
-`reading_level` (the band midpoint).
+`target_grade` is meaningful only when `language` is `en`; write it as `null`
+for other languages, where the loop reads `reading_level`. For English, keep
+`target_grade` consistent with `reading_level` (the band midpoint), including on
+the inline `level=` path.
 
 Then continue to Step 4. Inline overrides on a future call always win over a
 saved profile for that one call only; they do not overwrite the file.
@@ -537,7 +544,7 @@ block).
 <final text>
 
 ## Language
-English (en-US). Readability: Flesch-Kincaid.
+English (en-US). Readability: Flesch-Kincaid grade.
 
 ## Loop history
 | Iter | AI score | Readability | Strategy |

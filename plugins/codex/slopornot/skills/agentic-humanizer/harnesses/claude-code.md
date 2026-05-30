@@ -16,8 +16,9 @@ contain `"voice_skip": true`.
 
 Before issuing the call, detect the source language (see `SKILL.md` Step 3). If
 Step 3 flagged the language as ambiguous (text under ~20 words or mixed), follow
-its ambiguous branch: ask the language first (offer the supported languages plus
-"Other (different language)"), resolve the choice, then build Q1 from that
+its ambiguous branch: ask the language first (offer the three most likely
+languages plus "Other (different language)", within the four-option cap),
+resolve the choice, then build Q1 from that
 language's variants. Otherwise build Q1 (language and variant) from
 `references/multilingual.md`: present the detected language's variants plus
 "Other (different language)", keeping Q1 to four options or fewer (the named
@@ -48,8 +49,7 @@ variants and metric ranges.
         { "label": "Elementary", "description": "English Grade 3-5; substitute the detected language's metric." },
         { "label": "Middle school", "description": "English Grade 6-8." },
         { "label": "High school", "description": "English Grade 9-11; e.g. Swedish LIX about 40 to 50, German Wiener about 9 to 11." },
-        { "label": "College", "description": "English Grade 12-15." },
-        { "label": "Graduate or professional", "description": "English Grade 16+." }
+        { "label": "College or professional", "description": "English Grade 12+; substitute the detected language's metric. Graduate-level via inline level=graduate or grade=N." }
       ]
     },
     {
@@ -96,9 +96,11 @@ Map the labels to internal variables:
   (en-US)` → `en` / `en-US`). `Other (different language)` → prompt for the
   language on the next turn, resolve against `references/multilingual.md`, then
   ask its variant (warn if unsupported).
-- Q2 → `reading_level`: `elementary`, `middle`, `high_school`, `college`,
-  `graduate` in order. For English only, also set `target_grade` (4, 7, 10, 13,
-  17).
+- Q2 → `reading_level`: `Elementary` → `elementary`, `Middle school` →
+  `middle`, `High school` → `high_school`, `College or professional` →
+  `college`. For English only, also set `target_grade` (4, 7, 10, 13). Graduate
+  (`graduate`, `target_grade` 17) is reachable via inline `level=graduate` or
+  `grade=N`, not this question.
 - Q3 → `tone`: lowercase the label.
 - Q4 → `length_policy`: `Keep within ±10% of original` → `±10`,
   `Allow expansion` → `exp`, `Allow trimming` → `trim`.

@@ -46,7 +46,9 @@ catalogue, and measures readability with the language's native formula
 (Flesch-Kincaid for English, Wiener Sachtextformel for German, Flesch-Szigriszt
 for Spanish, Gulpease for Italian, LIX for the Nordic languages). The on-device
 AI detector is English only, so for other languages the AI score shows as n/a
-and the loop converges on the reading-level band instead. Nynorsk runs with
+and, with Slop or Not Pro, the loop then converges on the reading-level band
+instead; the no-Slop core workflow runs all five passes and selects by quality,
+the same as English. Nynorsk runs with
 tells but without readability; other languages fall back to language-agnostic
 structural tells with a clear warning.
 
@@ -241,7 +243,7 @@ Output without Slop or Not shows the full workflow without detector claims:
 <the rewritten text>
 
 ## Language
-English (en-US). Readability: Flesch-Kincaid.
+English (en-US). Readability: Flesch-Kincaid grade.
 
 ## Loop history
 | Iter | AI score | Readability | Strategy |
@@ -265,7 +267,7 @@ Slop or Not Pro output adds on-device AI detector scores and cleanup stats:
 <the rewritten text>
 
 ## Language
-English (en-US). Readability: Flesch-Kincaid.
+English (en-US). Readability: Flesch-Kincaid grade.
 
 ## Loop history
 | Iter | AI score | Readability | Strategy |

@@ -25,7 +25,11 @@ reading level, tone, length) in one call. The wording matches
 `harnesses/claude-code.md`, including detecting the source language first,
 following `SKILL.md` Step 3's ambiguous-language branch when detection is
 uncertain (ask the language before its variant), and building Q1's variant
-options from `references/multilingual.md`.
+options from `references/multilingual.md`. Observe the same four-option cap as
+`harnesses/claude-code.md`: collapse College and Graduate into one "College or
+professional" option (Graduate via inline `level=graduate` or `grade=N`), and
+when the language is ambiguous offer the three most likely languages plus "Other
+(different language)".
 
 Only add Q5 when no inline or saved `voice_path` has resolved,
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
@@ -52,9 +56,10 @@ Map the labels to internal variables (same as Claude Code):
 - Q1 → `language` and `variant` (read the chosen variant; `Other (different
   language)` is captured next turn and resolved against
   `references/multilingual.md`)
-- Q2 → `reading_level`
-  (`elementary`/`middle`/`high_school`/`college`/`graduate`; for English also
-  set `target_grade` 4, 7, 10, 13, 17)
+- Q2 → `reading_level` (`College or professional` → `college`; otherwise
+  `elementary`/`middle`/`high_school`; for English also set `target_grade`
+  4, 7, 10, 13). Graduate (`target_grade` 17) is reachable via inline
+  `level=graduate` or `grade=N`, not this question.
 - Q3 → `tone`
 - Q4 → `length_policy` (`±10`, `exp`, `trim`)
 - Q5 → voice choice: `Yes` starts Step 4 sample capture, `No` skips

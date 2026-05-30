@@ -70,6 +70,20 @@ the range itself is the target zone. Note the inverted direction for es and it
 | College | `college` | 12 to 15 (target 13) | 12 to 14 (target 13) | 40 to 55 | 20 to 40 | 50 to 60 |
 | Graduate | `graduate` | 16 and above (target 17) | 15 and above (target 15) | below 40 | below 20 | 60 and above |
 
+**Band assignment (deterministic).** Published ranges can share an endpoint or
+leave a gap, so apply these tie-break rules for both the loop-history band label
+and band-range termination:
+
+- Range-membership scales (`fleschSzigriszt`, `gulpease`, `lix`): treat each
+  range as lower-bound inclusive and upper-bound exclusive, with the outermost
+  bands open-ended. A value on a shared boundary belongs to the higher-numeric
+  band (LIX `40` is High school, not Middle; es Szigriszt `80` is Elementary,
+  not Middle).
+- Grade scales (`fleschKincaidGradeLevel`, `wienerSachtextformel4`): a score that
+  falls in a gap between two band ranges takes the nearest band midpoint, ties to
+  the higher band (FK `11.5` -> College; de Wiener `11.5` -> College). This
+  matches the `|score - band_midpoint| <= 1` termination test.
+
 `reading_level` is stored in `profile.json` (v3). Numeric `target_grade` is
 meaningful only for English; for other languages the loop reads `reading_level`
 and maps via this table.

@@ -15,8 +15,9 @@ contain `"voice_skip": true`.
 
 Before issuing the call, detect the source language (see `SKILL.md` Step 3). If
 Step 3 flagged the language as ambiguous (text under ~20 words or mixed), follow
-its ambiguous branch: ask the language first (the supported languages plus "Other
-(different language)"), resolve it, then ask that language's variant. Otherwise
+its ambiguous branch: ask the language first (the three most likely languages
+plus "Other (different language)", within the four-option cap), resolve it, then
+ask that language's variant. Otherwise
 build Q1's options from `references/multilingual.md` for the detected language;
 populate each Q2 option's `description` with that language's metric. The JSON
 below shows the English default.
@@ -41,9 +42,8 @@ below shows the English default.
       "options": [
         { "label": "Elementary", "description": "English Grade 3-5; substitute the detected language's metric." },
         { "label": "Middle school", "description": "English Grade 6-8." },
-        { "label": "High school", "description": "English Grade 9-11; e.g. Swedish LIX about 40 to 50." },
-        { "label": "College", "description": "English Grade 12-15." },
-        { "label": "Graduate or professional", "description": "English Grade 16+." }
+        { "label": "High school", "description": "English Grade 9-11; e.g. Swedish LIX about 40 to 50, German Wiener about 9 to 11." },
+        { "label": "College or professional", "description": "English Grade 12+; substitute the detected language's metric. Graduate-level via inline level=graduate or grade=N." }
       ]
     },
     {
@@ -92,9 +92,10 @@ Map the labels to internal variables (same as Claude Code):
 - Q1 → `language` and `variant` (read the chosen variant; `Other (different
   language)` is captured next turn and resolved against
   `references/multilingual.md`)
-- Q2 → `reading_level`
-  (`elementary`/`middle`/`high_school`/`college`/`graduate`; for English also
-  set `target_grade` 4, 7, 10, 13, 17)
+- Q2 → `reading_level` (`College or professional` → `college`; otherwise
+  `elementary`/`middle`/`high_school`; for English also set `target_grade`
+  4, 7, 10, 13). Graduate (`target_grade` 17) is reachable via inline
+  `level=graduate` or `grade=N`, not this question.
 - Q3 → `tone`
 - Q4 → `length_policy` (`±10`, `exp`, `trim`)
 - Q5 → voice choice: `Yes` starts Step 4 sample capture, `No` skips

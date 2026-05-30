@@ -161,7 +161,6 @@ Bokmal. Watch for these contrasts:
 | what | `kva` | `hva` |
 | something | `noko` | `noe` |
 | much | `mykje` | `mye` |
-| we | `me` or `vi` | `vi` |
 | only | `berre` | `bare` |
 | remember | `hugse` | `huske` |
 

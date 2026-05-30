@@ -19,7 +19,9 @@ use the cached fingerprint in Iteration 2 and Iteration 5 in either mode.
 
 - `AI_THRESHOLD = 40` (override: `threshold=N`, Slop or Not Pro only)
 - `MAX_ITER = 5` (override: `max=N`, Slop or Not Pro only)
-- Grade tolerance: ±1 of the user's `target_grade` (from interview Q2)
+- Grade tolerance: ±1 (English: of `target_grade` from interview Q2 or inline
+  `grade=`/`level=`; non-English grade scales: of the target band midpoint in
+  `references/multilingual.md`)
 
 ## Termination
 
@@ -81,15 +83,18 @@ Slop or Not Pro:
 Core mode:
 
 1. Read the original source text.
-2. List the most visible AI tells from `references/patterns.md` and
-   `references/supplemental-ai-tells.md`.
+2. List the most visible AI tells from `references/patterns.md` (English; for
+   non-English L substitute `references/ai-tells/<L>.md`, per the language note
+   above) and `references/supplemental-ai-tells.md`.
 3. Log `{iter: 0, score: null, grade: null, strategy: "baseline"}`.
 
 ## Iteration 1: pattern surgery
 
 Goal: attack the most obvious AI tells in the source.
 
-1. Read `references/patterns.md` and `references/supplemental-ai-tells.md`.
+1. Read `references/patterns.md` and `references/supplemental-ai-tells.md` (for
+   non-English L, use `references/ai-tells/<L>.md` in place of `patterns.md`,
+   per the language note above).
 2. Identify which canonical patterns and supplemental tells the source trips.
    List them in order of frequency, with the most common first.
 3. Attack the **top 5** by frequency. Rewrite each instance in place. Do not
@@ -195,7 +200,8 @@ Goal: address residual AI signal and mechanical text artifacts.
    British cleanup pass on the same text. Core mode: normalize obvious
    invisible-character descriptions, odd punctuation, spacing artifacts, and
    copied chatbot wrappers by instruction.
-2. Re-read `references/patterns.md` and
+2. Re-read `references/patterns.md` (or `references/ai-tells/<L>.md` for
+   non-English L, per the language note above) and
    `references/supplemental-ai-tells.md`. Identify the 1-2 patterns or tells
    that still appear most strongly.
 3. Make targeted, small edits; do not retarget large sections of text in this

@@ -13,8 +13,9 @@ contain `"voice_skip": true`.
 
 Before Q1, detect the source language (see `SKILL.md` Step 3). If Step 3 flagged
 the language as ambiguous (text under ~20 words or mixed), follow its ambiguous
-branch: ask the language first (the supported languages plus "Other (different
-language)"), resolve it, then ask that language's variant. Otherwise build Q1's
+branch: ask the language first (the three most likely languages plus "Other
+(different language)", within the four-option cap), resolve it, then ask that
+language's variant. Otherwise build Q1's
 options from `references/multilingual.md` for the detected language; show Q2's
 bands in that language's metric. The blocks below show the English default.
 
@@ -32,8 +33,7 @@ AskQuestion({
     "Elementary (English Grade 3-5)",
     "Middle school (English Grade 6-8)",
     "High school (English Grade 9-11)",
-    "College (English Grade 12-15)",
-    "Graduate or professional (English Grade 16+)"
+    "College or professional (English Grade 12+)"
   ]
 })
 
@@ -70,9 +70,11 @@ Map the chosen labels to internal variables (same as Claude Code):
   (en-US)` → `en` / `en-US`). `Other (different language)` → prompt for the
   language next turn, resolve against `references/multilingual.md`, then ask its
   variant.
-- Q2 → `reading_level`: `elementary`, `middle`, `high_school`, `college`,
-  `graduate` in order. For English only, also set `target_grade` (4, 7, 10, 13,
-  17).
+- Q2 → `reading_level`: `Elementary` → `elementary`, `Middle school` →
+  `middle`, `High school` → `high_school`, `College or professional` →
+  `college`. For English only, also set `target_grade` (4, 7, 10, 13). Graduate
+  (`graduate`, `target_grade` 17) is reachable via inline `level=graduate` or
+  `grade=N`, not this question.
 - Q3 → `tone`: lowercase the label.
 - Q4 → `length_policy`: `Keep within ±10% of original` → `±10`,
   `Allow expansion` → `exp`, `Allow trimming` → `trim`.

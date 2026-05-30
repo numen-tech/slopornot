@@ -34,8 +34,9 @@ language, confirms it in the interview, loads that language's AI-tell catalogue,
 and measures readability with the language's native formula (Flesch-Kincaid for
 English, Wiener Sachtextformel for German, Flesch-Szigriszt for Spanish, Gulpease
 for Italian, LIX for the Nordic languages). The on-device AI detector is English
-only, so other languages show the AI score as `n/a` and the loop converges on the
-reading-level band instead.
+only, so other languages show the AI score as `n/a`; with Slop or Not Pro the
+loop then converges on the reading-level band, and the no-Slop core workflow runs
+all five passes and selects by quality, the same as English.
 
 ## Install
 

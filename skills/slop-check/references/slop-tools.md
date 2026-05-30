@@ -99,6 +99,14 @@ Reading-level band guide (for the "Band:" label in `SKILL.md` Step 4):
 | College | 12 to 15 | 12 to 14 | 40 to 55 | 20 to 40 | 50 to 60 |
 | Graduate | 16+ | 15+ | below 40 | below 20 | 60+ |
 
+Band assignment is deterministic. Range-membership scales (`fleschSzigriszt`,
+`gulpease`, `lix`) treat each range as lower-bound inclusive and upper-bound
+exclusive with open-ended outer bands, so a value on a shared boundary takes the
+higher-numeric band (LIX `40` is High school; es Szigriszt `80` is Elementary).
+Grade scales (`fleschKincaidGradeLevel`, `wienerSachtextformel4`) label a score
+that lands between two ranges by the nearest band midpoint, ties to the higher
+band (FK `11.5` -> College).
+
 Language code: always pass a normalized BCP-47 code when known. Norwegian
 Bokmal is `nb`; never pass `no` or `nn` to `analyze_readability` (both return
 `unsupported_language` with empty `scores`).

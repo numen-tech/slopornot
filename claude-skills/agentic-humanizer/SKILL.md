@@ -180,8 +180,10 @@ language and confirms it in Q1). Capture these rewrite settings here:
 - `language` (a base code such as `en`, `de`, `es`, `it`, `sv`, `da`, `nb`,
   `nn`, or other) and `variant` (a BCP-47 tag or `other:<spec>`)
 - `reading_level` in {`elementary`, `middle`, `high_school`, `college`,
-  `graduate`}; for English also `target_grade` in {4, 7, 10, 13} (or any integer
-  N from inline `grade=N`)
+  `graduate`}; for English also `target_grade` (the band midpoint 4, 7, 10, 13,
+  17, or any integer N from inline `grade=N`). When `level=` resolves to English
+  without `grade=`, derive `target_grade` from the band midpoint (graduate ->
+  17), even though the interview itself collapses College and Graduate.
 - `tone` in {`casual`, `professional`, `academic`}
 - `length_policy` in {`±10`, `exp`, `trim`}
 
@@ -411,7 +413,7 @@ block).
 <final text>
 
 ## Language
-English (en-US). Readability: Flesch-Kincaid.
+English (en-US). Readability: Flesch-Kincaid grade.
 
 ## Loop history
 | Iter | AI score | Readability | Strategy |

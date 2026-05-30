@@ -4,7 +4,8 @@ version: 0.1.0
 description: |
   Routes a request to Slop or Not Pro's on-device tools: detect whether
   text or an image is AI-generated, clean AI artifacts out of text, and
-  score readability (Flesch-Kincaid). Runs locally on a Mac via the
+  score readability with each language's native formula (Flesch-Kincaid for
+  English). Runs locally on a Mac via the
   SlopOrNot MCP server or the slop CLI. Use when the user asks "is this
   AI", "did a bot write this", "is this image AI generated", "clean the
   invisible characters out of this", "what reading grade is this", or
