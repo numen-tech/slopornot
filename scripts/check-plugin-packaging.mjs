@@ -6,37 +6,31 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
 
-// Self-contained skills are synced verbatim into each plugin payload at
-// the same skills/<name>/ relative path.
-const selfContainedSkillFiles = [
-  'skills/agentic-humanizer/SKILL.md',
-  'skills/agentic-humanizer/README.md',
-  'skills/agentic-humanizer/harnesses/claude-code.md',
-  'skills/agentic-humanizer/harnesses/codex.md',
-  'skills/agentic-humanizer/harnesses/cursor.md',
-  'skills/agentic-humanizer/harnesses/gemini-cli.md',
-  'skills/agentic-humanizer/harnesses/generic.md',
-  'skills/agentic-humanizer/harnesses/opencode.md',
-  'skills/agentic-humanizer/references/patterns.md',
-  'skills/agentic-humanizer/references/per-iteration-strategies.md',
-  'skills/agentic-humanizer/references/slop-cli-setup.md',
-  'skills/agentic-humanizer/references/slop-mcp-setup.md',
-  'skills/agentic-humanizer/references/supplemental-ai-tells.md',
-  'skills/agentic-humanizer/references/voice-fingerprint.md',
-  'skills/agentic-humanizer/references/multilingual.md',
-  'skills/agentic-humanizer/references/ai-tells/da.md',
-  'skills/agentic-humanizer/references/ai-tells/de.md',
-  'skills/agentic-humanizer/references/ai-tells/es.md',
-  'skills/agentic-humanizer/references/ai-tells/it.md',
-  'skills/agentic-humanizer/references/ai-tells/no.md',
-  'skills/agentic-humanizer/references/ai-tells/sv.md',
-  'skills/agentic-humanizer/examples/sample-ai-text.md',
-  'skills/agentic-humanizer/examples/sample-ai-text-de.md',
-  'skills/slop-check/SKILL.md',
-  'skills/slop-check/README.md',
-  'skills/slop-check/references/slop-tools.md',
-  'skills/slop-check/references/slop-setup.md',
-];
+// Self-contained skills live entirely under skills/<name>/ and are copied
+// wholesale into each plugin payload (see sync-plugins.mjs). Derive the file
+// list from disk so new harnesses, references, or examples are covered
+// automatically instead of being hand-maintained here.
+const selfContainedSkills = ['agentic-humanizer', 'slop-check'];
+
+function listSkillFiles(skill) {
+  const files = [];
+
+  function walk(current) {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const entryPath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        walk(entryPath);
+      } else if (entry.isFile()) {
+        files.push(path.relative(root, entryPath));
+      }
+    }
+  }
+
+  walk(path.join(root, 'skills', skill));
+  return files.sort();
+}
+
+const selfContainedSkillFiles = selfContainedSkills.flatMap(listSkillFiles);
 
 function readJson(relativePath) {
   const fullPath = path.join(root, relativePath);
