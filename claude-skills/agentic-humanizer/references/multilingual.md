@@ -49,7 +49,7 @@ Always pass a normalized BCP-47 code on MCP or CLI calls.
 | `da` | `da` | Danish |
 | `nb` | `nb` | Norwegian Bokmal |
 | `no` (macro) | `nb` | The app treats `no` as unsupported; remap to `nb` |
-| `nn` | `nn` | Nynorsk: unsupported for readability; pass for detection only |
+| `nn` | `nn` | Nynorsk: unsupported for readability and detection (returns `not_english` with null score); tells-only |
 | Any other code | as-is | Unsupported language (see policy below) |
 
 Never pass `no`. The macro code returns `unsupported_language:no` even though
@@ -67,8 +67,8 @@ the range itself is the target zone. Note the inverted direction for es and it
 | Elementary | `elementary` | 3 to 5 (target 4) | 4 to 5 (target 4) | 80 to 100 | 80 to 100 | below 30 |
 | Middle school | `middle` | 6 to 8 (target 7) | 6 to 8 (target 7) | 65 to 80 | 60 to 80 | 30 to 40 |
 | High school | `high_school` | 9 to 11 (target 10) | 9 to 11 (target 10) | 55 to 65 | 40 to 60 | 40 to 50 |
-| College | `college` | 12 to 15 (target 13) | 12 to 14 (target 13) | 40 to 55 | 20 to 40 | 50 to 60 |
-| Graduate | `graduate` | 16 and above (target 17) | 15 and above (target 15) | below 40 | below 20 | 60 and above |
+| College | `college` | 12 to 14 (target 13) | 12 to 14 (target 13) | 40 to 55 | 20 to 40 | 50 to 60 |
+| Graduate | `graduate` | 15 and above (target 17) | 15 and above (target 15) | below 40 | below 20 | 60 and above |
 
 **Band assignment (deterministic).** Published ranges can share an endpoint or
 leave a gap, so apply these tie-break rules for both the loop-history band label
@@ -76,9 +76,10 @@ and band-range termination:
 
 - Range-membership scales (`fleschSzigriszt`, `gulpease`, `lix`): treat each
   range as lower-bound inclusive and upper-bound exclusive, with the outermost
-  bands open-ended. A value on a shared boundary belongs to the higher-numeric
-  band (LIX `40` is High school, not Middle; es Szigriszt `80` is Elementary,
-  not Middle).
+  bands open-ended. A boundary value belongs to the band that has it as its
+  lower bound (the band covering the numerically higher scores): LIX `40` is
+  High school (40-50), not Middle (30-40); es Szigriszt `80` is Elementary
+  (80-100), not Middle (65-80).
 - Grade scales (`fleschKincaidGradeLevel`, `wienerSachtextformel4`): a score that
   falls in a gap between two band ranges takes the nearest band midpoint, ties to
   the higher band (FK `11.5` -> College; de Wiener `11.5` -> College). This
@@ -98,12 +99,12 @@ returned `kind`, and consults the band table.
   to the target band midpoint, not a hardcoded `target_grade`). Open-ended
   Graduate band exception: Graduate has no upper edge and its midpoint sits at
   the band's lower edge, so terminate on range membership (`score >=` the
-  Graduate lower edge: de Wiener `15`) instead of the symmetric tolerance. This
-  stops a College-level score (de Wiener `14`, which `|14 - 15| <= 1` would
-  otherwise accept) from satisfying a Graduate target, while still converging on
-  scores harder than the midpoint. English terminates on its explicit
-  `target_grade` (see `SKILL.md`), whose Graduate value `17` already lies inside
-  the `16`-and-above band, so the English check needs no adjustment.
+  Graduate lower edge) instead of the symmetric tolerance. This applies to both
+  English FK (Graduate lower edge: `15`) and German Wiener (Graduate lower edge:
+  `15`). Range membership stops a College-level score (FK `14` or Wiener `14`,
+  which `|14 - 15| <= 1` would otherwise accept) from satisfying a Graduate
+  target, while still converging on scores harder than the midpoint. Non-graduate
+  bands (elementary through college) still use `|score - band_midpoint| <= 1`.
 - Ease scales (`fleschSzigriszt`, `gulpease`): terminate on band-range membership
   (the range is the tolerance). Higher means easier, so driving toward Elementary
   drives the score toward 100 and toward Graduate drives it toward 0.
@@ -116,8 +117,10 @@ returned `kind`, and consults the band table.
 
 - Bokmal (`nb`): pass `language_code: "nb"`; the app returns LIX. Use the
   `ai-tells/no.md` Bokmal section.
-- Nynorsk (`nn`): the app returns `unsupported_language:nn` with empty scores.
-  Tells-only, no readability, warn. Use the `ai-tells/no.md` Nynorsk section.
+- Nynorsk (`nn`): `detect_text` returns `kind: "not_english"` with a null score
+  (AI score is `n/a`) and `analyze_readability` returns `unsupported_language:nn`
+  with empty scores. Tells-only, no readability, no AI score, warn. Use the
+  `ai-tells/no.md` Nynorsk section.
 - Never pass `no`; remap to `nb` before any tool call.
 
 ## Unsupported-language policy

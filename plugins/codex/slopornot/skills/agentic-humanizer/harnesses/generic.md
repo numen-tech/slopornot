@@ -42,8 +42,8 @@ Reply with the four tokens in order, on one line, e.g. "1 3 b ±10".
    1. Elementary (English Grade 3-5)
    2. Middle school (English Grade 6-8)
    3. High school (English Grade 9-11)
-   4. College (English Grade 12-15)
-   5. Graduate or professional (English Grade 16+)
+   4. College (English Grade 12-14)
+   5. Graduate (English Grade 15+)
 
 3) What tone?
    a. Casual
@@ -71,8 +71,8 @@ Reply with the five tokens in order, on one line, e.g. "1 3 b ±10 n".
    1. Elementary (English Grade 3-5)
    2. Middle school (English Grade 6-8)
    3. High school (English Grade 9-11)
-   4. College (English Grade 12-15)
-   5. Graduate or professional (English Grade 16+)
+   4. College (English Grade 12-14)
+   5. Graduate (English Grade 15+)
 
 3) What tone?
    a. Casual

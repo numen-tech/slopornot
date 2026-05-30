@@ -96,20 +96,27 @@ Reading-level band guide (for the "Band:" label in `SKILL.md` Step 4):
 | Elementary | 3 to 5 | 4 to 5 | 80 to 100 | 80 to 100 | below 30 |
 | Middle school | 6 to 8 | 6 to 8 | 65 to 80 | 60 to 80 | 30 to 40 |
 | High school | 9 to 11 | 9 to 11 | 55 to 65 | 40 to 60 | 40 to 50 |
-| College | 12 to 15 | 12 to 14 | 40 to 55 | 20 to 40 | 50 to 60 |
-| Graduate | 16+ | 15+ | below 40 | below 20 | 60+ |
+| College | 12 to 14 | 12 to 14 | 40 to 55 | 20 to 40 | 50 to 60 |
+| Graduate | 15+ | 15+ | below 40 | below 20 | 60+ |
 
 Band assignment is deterministic. Range-membership scales (`fleschSzigriszt`,
 `gulpease`, `lix`) treat each range as lower-bound inclusive and upper-bound
-exclusive with open-ended outer bands, so a value on a shared boundary takes the
-higher-numeric band (LIX `40` is High school; es Szigriszt `80` is Elementary).
-Grade scales (`fleschKincaidGradeLevel`, `wienerSachtextformel4`) label a score
-that lands between two ranges by the nearest band midpoint, ties to the higher
-band (FK `11.5` -> College).
+exclusive with open-ended outer bands. A boundary value belongs to the band that
+has it as its lower bound (the band covering the numerically higher scores):
+LIX `40` is High school (40-50), not Middle (30-40); es Szigriszt `80` is
+Elementary (80-100), not Middle (65-80). Grade scales
+(`fleschKincaidGradeLevel`, `wienerSachtextformel4`) label a score that lands
+between two ranges by the nearest band midpoint, ties to the higher band
+(FK `11.5` -> College).
 
 Language code: always pass a normalized BCP-47 code when known. Norwegian
-Bokmal is `nb`; never pass `no` or `nn` to `analyze_readability` (both return
-`unsupported_language` with empty `scores`).
+Bokmal is `nb`; always remap a detected or user-supplied `no` (macro) to `nb`
+before any tool call (the app returns `unsupported_language:no` even though
+Bokmal text scores correctly under `nb`). Never pass `no` to `detect_text` or
+`analyze_readability`. Passing `nn` (Nynorsk) to `analyze_readability` returns
+`unsupported_language:nn` with empty scores; passing it to `detect_text`
+returns `kind: "not_english"` with a null score (same as any non-English
+language).
 
 `scores[]` can be **empty**. Read `warnings`:
 

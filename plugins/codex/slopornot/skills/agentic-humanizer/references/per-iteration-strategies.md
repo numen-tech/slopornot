@@ -19,19 +19,25 @@ use the cached fingerprint in Iteration 2 and Iteration 5 in either mode.
 
 - `AI_THRESHOLD = 40` (override: `threshold=N`, Slop or Not Pro only)
 - `MAX_ITER = 5` (override: `max=N`, Slop or Not Pro only)
-- Grade tolerance: ±1 (English: of `target_grade` from interview Q2 or inline
-  `grade=`/`level=`; non-English grade scales: of the target band midpoint in
-  `references/multilingual.md`)
+- Grade tolerance: ±1 for elementary through college bands (English: of
+  `target_grade` from interview Q2 or inline `grade=`/`level=`; non-English grade
+  scales: of the target band midpoint in `references/multilingual.md`). For the
+  open-ended Graduate band on grade scales (English FK and German Wiener),
+  termination uses range membership (`grade >= 15`) instead of the symmetric
+  tolerance; see `references/multilingual.md` Termination semantics.
 
 ## Termination
 
 The orchestrator resolves a language L and branches loading and termination
 (see `SKILL.md` Step 6); the schedule below composes with that branch.
 
-For **English** with Slop or Not Pro, stop when `score <= AI_THRESHOLD AND
-|grade - target_grade| <= 1`, OR after `MAX_ITER` iterations. On non-convergence,
-return the best iteration: lowest score that also meets grade tolerance; if none
-meet grade tolerance, lowest score outright.
+For **English** with Slop or Not Pro, stop when `score <= AI_THRESHOLD` AND the
+reading-level grade test passes, OR after `MAX_ITER` iterations. The grade test
+is `|grade - target_grade| <= 1` for elementary through college; for the Graduate
+band use range membership `grade >= 15` (FK lower edge) per
+`SKILL.md` Termination and `references/multilingual.md`. On non-convergence,
+return the best iteration: lowest score that also meets the grade test; if none
+meet the grade test, lowest score outright.
 
 For **supported non-English** (es, de, it, sv, da, nb) with Slop or Not Pro,
 there is no AI threshold (the AI score is `n/a`). Stop when the readability score
@@ -106,8 +112,10 @@ Goal: attack the most obvious AI tells in the source.
    invent new patterns to attack; the catalogues are the rule. For
    supplemental source-integrity tells, remove obvious wrapper artifacts but
    do not invent missing facts, citations, or verification.
-4. Leave dialect, tone, and grade level untouched in this iteration.
-5. Slop or Not Pro: call `detect_text` and `analyze_readability`.
+4. Leave language, variant, tone, and reading level untouched in this iteration.
+5. Slop or Not Pro: score and analyze the result (per the language rule:
+   English calls `detect_text` and `analyze_readability`; supported non-English
+   calls `analyze_readability` only; Nynorsk and unsupported languages skip both).
 6. Core mode: self-check that the top-5 pattern hits were removed.
 7. Log `{iter: 1, score, grade, strategy: "pattern surgery (top-5)"}`. In
    Core mode, score and grade are `null`.

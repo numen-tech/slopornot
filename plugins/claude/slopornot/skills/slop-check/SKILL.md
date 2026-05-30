@@ -135,11 +135,15 @@ Key points:
 - `text-detect`: request readability alongside detection
   (`include_readability: true` on MCP; `slop text --json` returns both). When
   the input language is detectable, pass a normalized `language_code` (Norwegian
-  Bokmal is `nb`, never `no` or `nn`); omit it when ambiguous so the app
-  auto-detects. For non-English input `detect_text` returns
-  `kind: "not_english"` with a null score; see Step 4.
-- `readability`: pass the same normalized `language_code` when detectable. The
-  returned `scores[]` `kind` depends on the language and is not always
+  Bokmal is `nb`; never pass the macro `no`, remap it to `nb`); omit it when
+  ambiguous so the app auto-detects. Passing `nn` (Nynorsk) is harmless but
+  returns `kind: "not_english"` with a null score, same as any non-English
+  language. For non-English input `detect_text` returns `kind: "not_english"`
+  with a null score; see Step 4.
+- `readability`: pass the same normalized `language_code` when detectable.
+  Norwegian Bokmal is `nb`; always remap a detected `no` to `nb` before passing
+  (never pass `no`; it returns `unsupported_language:no` even for Bokmal text).
+  The returned `scores[]` `kind` depends on the language and is not always
   Flesch-Kincaid; read whatever kind is present (see Step 4 and
   `references/slop-tools.md` section 2).
 - Images: default to `image-detect`. When shell commands are available, use

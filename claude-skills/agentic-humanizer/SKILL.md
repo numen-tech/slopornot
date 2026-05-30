@@ -66,9 +66,14 @@ present the detected language's variants plus "Other (different language)",
 staying within the four-option `ask_user_input_v0` cap. Populate Q2's options with the detected language's
 metric. The calls below show the English default. Variant sets that fit the cap:
 English (en-US, en-GB, Other = 3); German (de-DE, de-AT, de-CH, Other = 4);
-Norwegian (nb, nn, Other = 3); Spanish (es-ES, es-419, Other = 3); Italian,
-Swedish, and Danish (single variant plus Other). If a language ever needs more
-than three named variants, keep the three most common plus "Other".
+Norwegian Bokmal (nb, Other = 2); Norwegian Nynorsk (nn, Other = 2); Spanish
+(es-ES, es-419, Other = 3); Italian, Swedish, and Danish (single variant plus
+Other). Norwegian Bokmal (`nb`) and Norwegian Nynorsk (`nn`) are separate
+languages in the registry: Bokmal returns LIX readability while Nynorsk is
+unsupported for both readability and detection (tells-only). Map a chosen
+Norwegian option to `language: "nb"` or `language: "nn"`, never to
+`language: "nb", variant: "nn"`. If a language ever needs more than three named
+variants, keep the three most common plus "Other".
 
 ```text
 ask_user_input_v0({
@@ -93,7 +98,16 @@ ask_user_input_v0({
     }
   ]
 })
+```
 
+The example above shows English grade ranges. For a non-English run, replace
+the parenthetical ranges with the detected language's metric from the registry
+band table (`references/multilingual.md`), for example: German "High school
+(Wiener about 9 to 11)", Swedish "High school (LIX about 40 to 50)", Spanish
+"High school (Szigriszt about 55 to 65)". Never copy the English grade ranges
+literally for a non-English target language.
+
+```text
 ask_user_input_v0({
   questions: [
     {
@@ -301,6 +315,11 @@ per-iteration cookbook). Then load the tell catalogue for L's branch:
 - **L is `en`:** read `references/patterns.md` (the 29-pattern rewrite
   vocabulary) and `references/supplemental-ai-tells.md`. Use the full detector
   path; read the Flesch-Kincaid grade where `kind` is `fleschKincaidGradeLevel`.
+  If `target_grade` is null or unset here (for example inherited from a
+  non-English saved profile through a partial inline override), derive it from
+  the resolved `reading_level` band midpoint (elementary 4, middle 7, high_school
+  10, college 13, graduate 17) before the termination check; an explicit inline
+  `grade=` always wins.
 - **L is `es`, `de`, `it`, `sv`, `da`, or `nb`:** do NOT read `patterns.md`
   (English only). Read `references/supplemental-ai-tells.md` and
   `references/ai-tells/<L>.md` (Norwegian Bokmal uses `ai-tells/no.md`). Pass the
@@ -365,10 +384,13 @@ Normalize those into this internal shape:
 
 ### Termination with Slop or Not Pro
 
-**English (L is `en`):** AI score <= `AI_THRESHOLD` AND
-`|grade - target_grade| <= 1`, or after `MAX_ITER`. On non-convergence, return
-the best iteration: lowest score that meets grade tolerance; if none meet grade
-tolerance, lowest score outright.
+**English (L is `en`):** AI score <= `AI_THRESHOLD` AND the reading-level grade
+test passes, or after `MAX_ITER`. The grade test is `|grade - target_grade| <= 1`
+for elementary through college; for the Graduate band, replace the grade test
+with range membership `grade >= 15` (FK lower edge), matching the per-scale
+semantics in `references/multilingual.md`. On non-convergence, return the best
+iteration: lowest score that meets the grade test; if none meet the grade test,
+lowest score outright.
 
 **Supported non-English (es, de, it, sv, da, nb):** no AI threshold (the AI
 score is `n/a`). Terminate when the readability score for L's formula lands in

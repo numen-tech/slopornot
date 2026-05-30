@@ -33,7 +33,7 @@ default; substitute the detected language's variants and metric.
         "type": "text"
       },
       {
-        "question": "What reading level should the output target? (Elementary / Middle school / High school / College / Graduate; English grades G3-5 / G6-8 / G9-11 / G12-15 / G16+, or the detected language's metric)",
+        "question": "What reading level should the output target? (Elementary / Middle school / High school / College / Graduate; English grades G3-5 / G6-8 / G9-11 / G12-14 / G15+, or the detected language's metric)",
         "type": "text"
       },
       {

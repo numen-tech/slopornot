@@ -18,9 +18,10 @@ function listSkillFiles(skill) {
   function walk(current) {
     for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
       const entryPath = path.join(current, entry.name);
-      if (entry.isDirectory()) {
+      const stats = entry.isSymbolicLink() ? fs.statSync(entryPath) : entry;
+      if (stats.isDirectory()) {
         walk(entryPath);
-      } else if (entry.isFile()) {
+      } else if (stats.isFile()) {
         files.push(path.relative(root, entryPath));
       }
     }

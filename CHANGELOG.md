@@ -189,6 +189,45 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `references/supplemental-ai-tells.md` alone for an unsupported language
   (supported non-English languages still add `references/ai-tells/<L>.md`),
   matching the Step 6 language branch and the per-iteration cookbook.
+- English `target_grade` is now always defined when entering the English
+  termination check via a partial inline override over a saved non-English
+  profile. The Step 6 English branch now derives `target_grade` from the
+  `reading_level` band midpoint (elementary 4, middle 7, high_school 10,
+  college 13, graduate 17) whenever it is null or unset; an explicit inline
+  `grade=` still wins.
+- English FK bands retiled to College 12-14 (target 13) and Graduate 15 and
+  above (target 17), matching the German Wiener layout. The open Graduate band
+  now terminates by range membership (`grade >= 15`) for English as well as
+  German, so a College-level FK grade of 14 can no longer satisfy a Graduate
+  target and any graduate-or-harder grade converges. The back-compat band
+  lookup (`12 to 14 -> college`, `15 and above -> graduate`) is updated to
+  match.
+- The reading-level label "Graduate or professional" is unified to "Graduate"
+  in all harness files that enumerate five bands, so the same intent maps to
+  the same band across harnesses. Option-capped harnesses retain their
+  intentional "College or professional" collapsed option.
+- The `detected_variant_hint` stored in Step 3 is now used: the
+  skip-interview no-profile path and the detection-wins variant-resolution
+  path both prefer `detected_variant_hint` when it is a valid variant for the
+  resolved language, falling back to the registry default only when the hint
+  is absent or invalid.
+- Clarified Norwegian Nynorsk (`nn`) behavior throughout: passing `nn` to
+  `detect_text` returns `kind: "not_english"` with a null score (harmless,
+  same as any non-English language); the AI score is always `n/a`. The
+  registry normalization table no longer implies detection produces a useful
+  result for Nynorsk.
+- `slop-check` and the slop-tools reference now document the `no`-to-`nb`
+  remap for Norwegian Bokmal: always remap a detected or user-supplied macro
+  `no` to `nb` before any tool call, so Bokmal text is scored instead of
+  returning `unsupported_language:no`.
+- Tie-break wording for range-membership scales rewritten to be unambiguous
+  for inverted ease scales: a boundary value belongs to the band that has it
+  as its lower bound (the band covering the numerically higher scores).
+- Stale "dialect" term in the per-iteration cookbook's Iteration 1 replaced
+  with "language and variant"; "grade level" replaced with "reading level".
+- The CLI probe path in `SKILL.md` Step 5 now states clearly that the detection
+  score is a 0-1 decimal (multiply by 100 for a percentage) and readability
+  grades are never percentages.
 
 ## [0.2.0] (2026-05-21)
 

@@ -106,8 +106,10 @@ If the text is under ~20 words or mixed, treat the language as ambiguous.
    alone resolves to `variant=de-DE`; an unsupported language with no registry
    entry, such as `language=fr`, resolves to `variant=other:fr`). For English, when `level=` is set without `grade=`, derive `target_grade` from the resolved band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17); an explicit `grade=N` always wins.
 2. **`skip-interview` flag** -> use the saved profile if present. With no
-   profile, keep the detected source language and its default variant from
-   `references/multilingual.md` and default the rest (High school, Professional,
+   profile, keep the detected source language; for the variant, use
+   `detected_variant_hint` when it is a valid variant for the resolved language,
+   otherwise the resolved language's default variant from
+   `references/multilingual.md`. Default the rest (High school, Professional,
    ±10%); fall back to English/en-US only when detection is ambiguous or no text
    was pasted. For English, derive `target_grade` 10 from the High school band.
 3. **Saved profile at `~/.agentic-humanizer/profile.json`** present:
@@ -120,8 +122,10 @@ If the text is under ~20 words or mixed, treat the language as ambiguous.
      language and skip the detection-versus-profile choice; otherwise
      **detection wins** and the call runs in `detected_language`. For the
      variant, an inline `variant=` whose language matches the resolved language
-     wins (rule 1); otherwise use the resolved language's default variant from
-     `references/multilingual.md`. For `tone`, `length_policy`, and
+     wins (rule 1); otherwise use `detected_variant_hint` when it is a valid
+     variant for the resolved language, falling back to the resolved language's
+     default variant from `references/multilingual.md` when the hint is absent
+     or invalid. For `tone`, `length_policy`, and
      `reading_level`, inline overrides still win (rule 1); fall back to the
      profile's values only for keys not set inline (the band is
      language-agnostic; map it to the resolved language's metric via the
@@ -158,7 +162,7 @@ field is English: set `language="en"` and map the legacy `dialect` to `variant`
 (`us` -> `en-US`, `uk` -> `en-GB`, `other:<spec>` -> `variant: "other:<spec>"`).
 Derive `reading_level` from `target_grade` using the band table in
 `references/multilingual.md` (3 to 5 -> `elementary`, 6 to 8 -> `middle`, 9 to
-11 -> `high_school`, 12 to 15 -> `college`, 16 and above -> `graduate`; default
+11 -> `high_school`, 12 to 14 -> `college`, 15 and above -> `graduate`; default
 `high_school` if `target_grade` is absent). Read every existing field first so
 custom values are preserved, then rewrite the whole file as v3 on the next
 write. `target_grade` drives termination only for English; for other languages
@@ -396,9 +400,10 @@ paths, set `slop_mode="slop-or-not-pro"` and `slop_backend="cli"`:
 - `detection.resultFewSentences._0`
 - `ai_probability`
 
-For CLI readability, read the grade from `readability.scores[]` where `kind`
-is `fleschKincaidGradeLevel`. Treat the score as a 0-1 decimal unless the
-value is already greater than 1.
+For CLI readability, read the grade from `readability.scores[]` where `kind` is
+`fleschKincaidGradeLevel`. The detection score (`detection.result._0`) is a 0-1
+decimal: multiply by 100 for a percentage unless the value exceeds 1. Readability
+grades are never percentages.
 
 The probe fixture above is English, so its readability block always returns
 `kind: fleschKincaidGradeLevel`. This call only proves Pro access; discard its
@@ -423,8 +428,12 @@ language branch composes with, and does not replace, the 5-iteration schedule.
 **L is `en` (English).** Read `references/patterns.md` (the canonical 29-pattern
 rewrite vocabulary) and `references/supplemental-ai-tells.md`. Use the full
 detector path. Read the Flesch-Kincaid grade from `scores[]` where `kind` is
-`fleschKincaidGradeLevel`. Terminate per "Termination with Slop or Not Pro"
-below.
+`fleschKincaidGradeLevel`. If `target_grade` is null or unset here (for example
+inherited from a non-English saved profile through a partial inline override),
+derive it from the resolved `reading_level` band midpoint (elementary 4, middle
+7, high_school 10, college 13, graduate 17) before the termination check; an
+explicit inline `grade=` always wins. Terminate per "Termination with Slop or
+Not Pro" below.
 
 **L is `es`, `de`, `it`, `sv`, `da`, or `nb` (supported non-English).** Do NOT
 read `references/patterns.md` (it is English vocabulary). Read
@@ -514,10 +523,13 @@ Normalize those into this internal shape:
 
 ### Termination with Slop or Not Pro
 
-**English (L is `en`):** AI score <= `AI_THRESHOLD` AND
-`|grade - target_grade| <= 1`, or after `MAX_ITER`. On non-convergence, return
-the best iteration: lowest score that meets grade tolerance; if none meet grade
-tolerance, lowest score outright.
+**English (L is `en`):** AI score <= `AI_THRESHOLD` AND the reading-level grade
+test passes, or after `MAX_ITER`. The grade test is `|grade - target_grade| <= 1`
+for elementary through college; for the Graduate band, replace the grade test
+with range membership `grade >= 15` (the Graduate lower edge in FK), matching
+the per-scale semantics in `references/multilingual.md`. On non-convergence,
+return the best iteration: lowest score that meets the grade test; if none meet
+the grade test, lowest score outright.
 
 **Supported non-English (L in {es, de, it, sv, da, nb}):** no AI threshold (the
 AI score is `n/a`). Terminate when the readability score for L's formula lands
