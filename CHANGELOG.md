@@ -122,6 +122,18 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   applies with Slop or Not Pro; the core workflow runs all five passes and
   selects by quality, the same as English. The output Language line uses the
   registry display name "Flesch-Kincaid grade".
+- Inline `variant=` matching the detected language is now honored on the
+  saved-profile language-mismatch path, instead of being overridden by the
+  registry default variant. This completes the inline-override preservation that
+  previously covered only `tone`, `length`, and `level`.
+- The English `target_grade` is now derived from the reading-level band midpoint
+  when a detected English run overrides a saved non-English profile (which stores
+  `target_grade: null`), so the English convergence check
+  `|grade - target_grade| <= 1` is always defined after a language switch.
+- The Slop MCP and CLI setup guides (`references/slop-mcp-setup.md`,
+  `references/slop-cli-setup.md`) now describe native per-language readability
+  instead of Flesch-Kincaid only, matching the runtime's multilingual scoring
+  path.
 
 ## [0.2.0] (2026-05-21)
 

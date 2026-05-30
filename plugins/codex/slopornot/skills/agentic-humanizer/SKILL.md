@@ -111,13 +111,19 @@ If the text is under ~20 words or mixed, treat the language as ambiguous.
      ambiguous, use the profile silently and skip the interview. Never
      re-prompt a user who already has a profile unless they ask.
    - If `detected_language` differs from the profile's `language`
-     (unambiguous), **detection wins**: run this call in the detected language
-     using that language's default variant from `references/multilingual.md`.
-     For `tone`, `length_policy`, and `reading_level`, inline overrides still
-     win (rule 1); fall back to the profile's values only for keys not set
-     inline (the band is language-agnostic; map it to the new language's metric
-     via the registry). Do not prompt and do not rewrite the profile. Add the
-     language-mismatch note for Step 7.
+     (unambiguous), **detection wins**: run this call in the detected language.
+     For the variant, an inline `variant=` whose language matches the detected
+     language wins (rule 1); otherwise use that language's default variant from
+     `references/multilingual.md`. For `tone`, `length_policy`, and
+     `reading_level`, inline overrides still win (rule 1); fall back to the
+     profile's values only for keys not set inline (the band is
+     language-agnostic; map it to the new language's metric via the registry).
+     When the resolved language is English, derive `target_grade` from the
+     resolved `reading_level` band midpoint (elementary 4, middle 7,
+     high_school 10, college 13, graduate 17) unless an inline `grade=` wins;
+     a saved non-English profile stores `target_grade: null`, so it must be
+     derived here for the English termination check. Do not prompt and do not
+     rewrite the profile. Add the language-mismatch note for Step 7.
 4. **No profile, no overrides** -> run the harness interview as below.
 
 Read the saved profile with:
