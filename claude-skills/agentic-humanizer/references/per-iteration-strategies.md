@@ -75,9 +75,14 @@ Slop or Not Pro:
    supported non-English, call `analyze_readability(T)` only (the AI score is
    n/a, so `detect_text` adds nothing). For Nynorsk or unsupported, skip both
    (no readability is available).
-3. If both already pass, short-circuit: return T with note
-   *"already passes both targets"* and still run final Text Cleanup before
-   output.
+3. Short-circuit if the resolved language's targets already pass: for English,
+   both `score <= AI_THRESHOLD` and `|grade - target_grade| <= 1`; for supported
+   non-English, the readability score already lands in the target band (the AI
+   score is n/a, so readability alone is the gate). Return T with the note
+   (English *"already passes both targets"*; non-English *"already in the target
+   readability band"*) and still run final Text Cleanup before output. Nynorsk
+   and unsupported languages have no measurable target here and never
+   short-circuit.
 4. Otherwise log `{iter: 0, score, grade, strategy: "baseline"}`.
 
 Core mode:

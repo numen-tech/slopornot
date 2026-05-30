@@ -150,6 +150,33 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   language-mismatch path, instead of the branch always running in the detected
   language. Correcting a misdetection with `language=<code>` while a different
   saved profile exists now loads that language's tells and readability rules.
+- Choosing `Never ask again` for the voice prompt no longer writes a complete
+  profile full of default rewrite settings when the user has no saved profile
+  (or declined to save one). The skill now persists a voice-only record holding
+  just `voice_skip`, so the next run still asks the language, tone, and
+  reading-level questions instead of silently skipping the interview.
+- Supported non-English Pro runs can again take the Iteration 0 baseline
+  short-circuit. The cookbook required both the AI and grade targets to pass,
+  which a non-English run (readability only, AI score `n/a`) could never satisfy;
+  it now short-circuits on readability band membership alone, matching the
+  non-English termination rule.
+- German (and other grade-scale) runs targeting `level=graduate` no longer stop
+  one band early. The open-ended Graduate band terminates on range membership
+  (`score >=` its lower edge, de Wiener `15`) instead of the symmetric
+  `|score - band_midpoint| <= 1` tolerance, so a College-level Wiener score of
+  `14` no longer satisfies a Graduate target.
+- The one-call harnesses (Claude Code, Gemini CLI, OpenCode) now spell out that
+  the ambiguous-language path is the one exception to the single
+  `AskUserQuestion` call: a first call resolves the language, then a second
+  carries the variant, reading-level, tone, length, and voice questions. The
+  previous wording required exactly one call yet also told the agent to ask the
+  language before building the variant question, which cannot both hold.
+- The generic harness's token-reply parse fallback keeps the language already
+  resolved for the run. After three unparseable replies it now defaults only the
+  reading level, tone, and length (keeping a detected or chosen non-English
+  language with its registry default variant) instead of hard-resetting to
+  American English, which had dropped a German or Spanish user onto the English
+  variant, tell, and detector path.
 
 ## [0.2.0] (2026-05-21)
 

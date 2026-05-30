@@ -95,7 +95,15 @@ returned `kind`, and consults the band table.
 
 - Grade scales (`fleschKincaidGradeLevel`, `wienerSachtextformel4`): terminate on
   `|score - band_midpoint| <= 1` (the existing plus-or-minus-1 tolerance applied
-  to the target band midpoint, not a hardcoded `target_grade`).
+  to the target band midpoint, not a hardcoded `target_grade`). Open-ended
+  Graduate band exception: Graduate has no upper edge and its midpoint sits at
+  the band's lower edge, so terminate on range membership (`score >=` the
+  Graduate lower edge: de Wiener `15`) instead of the symmetric tolerance. This
+  stops a College-level score (de Wiener `14`, which `|14 - 15| <= 1` would
+  otherwise accept) from satisfying a Graduate target, while still converging on
+  scores harder than the midpoint. English terminates on its explicit
+  `target_grade` (see `SKILL.md`), whose Graduate value `17` already lies inside
+  the `16`-and-above band, so the English check needs no adjustment.
 - Ease scales (`fleschSzigriszt`, `gulpease`): terminate on band-range membership
   (the range is the tolerance). Higher means easier, so driving toward Elementary
   drives the score toward 100 and toward Graduate drives it toward 0.

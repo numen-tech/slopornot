@@ -255,9 +255,19 @@ Read `references/voice-fingerprint.md` before running this step. Set
    Options: `Yes`, `No`, `Never ask again`.
 
 If Q5 is `No`, skip voice matching for this call. If Q5 is `Never ask again`,
-write or update `~/.agentic-humanizer/profile.json` with `"voice_skip": true`
-and `"version": 3` (filling other fields from the saved profile or the v3
-defaults), then skip voice matching.
+persist `voice_skip` without inventing rewrite preferences, then skip voice
+matching. Read any existing profile first:
+
+- A profile already exists (including one just saved in Step 3): rewrite it with
+  `"voice_skip": true` and `"version": 3`, preserving its current rewrite keys
+  (`language`, `variant`, `reading_level`, `target_grade`, `tone`,
+  `length_policy`).
+- No profile exists (the user declined to save rewrite defaults in Step 3):
+  write a voice-only record holding just `"voice_skip": true` and `"version": 3`,
+  with no rewrite keys. Do not fill them from the v3 defaults. Step 3 treats such
+  a profile as incomplete for the rewrite interview, so the language, tone, and
+  reading-level questions still run next time, while it still honors `voice_skip`
+  here.
 
 If Q5 is `Yes`, say exactly:
 
@@ -510,9 +520,11 @@ tolerance, lowest score outright.
 
 **Supported non-English (L in {es, de, it, sv, da, nb}):** no AI threshold (the
 AI score is `n/a`). Terminate when the readability score for L's formula lands
-in the target band (grade scales use `|score - band_midpoint| <= 1`; ease scales
-and LIX use band-range membership; see `references/multilingual.md`) or after
-`MAX_ITER`. On non-convergence, return the iteration closest to the target band.
+in the target band (grade scales use `|score - band_midpoint| <= 1`, except the
+open-ended Graduate band, which uses range membership so a College-level score
+cannot satisfy a Graduate target; ease scales and LIX use band-range membership;
+see `references/multilingual.md`) or after `MAX_ITER`. On non-convergence, return
+the iteration closest to the target band.
 
 **Nynorsk or unsupported (L is `nn` or other):** tells-only, no readability and
 no AI score. Run all `MAX_ITER` iterations and select by quality, as in Core

@@ -6,9 +6,11 @@ prompts.
 
 ## The interview — one tool call
 
-Issue exactly one `AskUserQuestion` call with all eligible questions in the
-same `questions` array. This is faster for the user (one panel) and cleaner
-for the model context (one tool result instead of several).
+When the source language is unambiguous, issue exactly one `AskUserQuestion`
+call with all eligible questions in the same `questions` array. This is faster
+for the user (one panel) and cleaner for the model context (one tool result
+instead of several). The ambiguous-language path is the sole exception and takes
+two calls; see below.
 
 Only add Q5 when no inline or saved `voice_path` has resolved,
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
@@ -16,10 +18,12 @@ contain `"voice_skip": true`.
 
 Before issuing the call, detect the source language (see `SKILL.md` Step 3). If
 Step 3 flagged the language as ambiguous (text under ~20 words or mixed), follow
-its ambiguous branch: ask the language first (offer the three most likely
-languages plus "Other (different language)", within the four-option cap),
-resolve the choice, then build Q1 from that
-language's variants. Otherwise build Q1 (language and variant) from
+its ambiguous branch with two `AskUserQuestion` calls: the first call asks only
+the language (offer the three most likely languages plus "Other (different
+language)", within the four-option cap); after the choice resolves (capturing an
+"Other" language on the next turn), a second call carries Q1 (that language's
+variants) together with the reading-level, tone, length, and any eligible voice
+questions. Otherwise build Q1 (language and variant) from
 `references/multilingual.md`: present the detected language's variants plus
 "Other (different language)", keeping Q1 to four options or fewer (the named
 variants plus "Other"); if a language has more than three named variants, offer

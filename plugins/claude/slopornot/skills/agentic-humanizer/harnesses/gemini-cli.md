@@ -8,16 +8,19 @@ tool mapping) that accepts a `questions` array with `header`, `question`,
 
 ## The interview — one tool call
 
-Bundle all four required questions in one call. Add Q5 to the same
+Bundle all four required questions in one call (the ambiguous-language path is
+the sole exception and takes two calls; see below). Add Q5 to the same
 `questions` array only when no inline or saved `voice_path` has resolved,
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not
 contain `"voice_skip": true`.
 
 Before issuing the call, detect the source language (see `SKILL.md` Step 3). If
 Step 3 flagged the language as ambiguous (text under ~20 words or mixed), follow
-its ambiguous branch: ask the language first (the three most likely languages
-plus "Other (different language)", within the four-option cap), resolve it, then
-ask that language's variant. Otherwise
+its ambiguous branch with two calls: the first call asks only the language (the
+three most likely languages plus "Other (different language)", within the
+four-option cap); after it resolves (capturing an "Other" language on the next
+turn), a second call carries Q1 (that language's variants) plus the
+reading-level, tone, length, and any eligible voice questions. Otherwise
 build Q1's options from `references/multilingual.md` for the detected language;
 populate each Q2 option's `description` with that language's metric. The JSON
 below shows the English default.

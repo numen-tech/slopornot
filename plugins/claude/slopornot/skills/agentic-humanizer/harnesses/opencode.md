@@ -21,15 +21,17 @@ these that is available in the running session:
 3. **Plain-text fallback** — fall through to `harnesses/generic.md`.
 
 For path 1 or path 2, ask all four required questions (language and variant,
-reading level, tone, length) in one call. The wording matches
-`harnesses/claude-code.md`, including detecting the source language first,
-following `SKILL.md` Step 3's ambiguous-language branch when detection is
-uncertain (ask the language before its variant), and building Q1's variant
-options from `references/multilingual.md`. Observe the same four-option cap as
+reading level, tone, length) in one call when the source language is
+unambiguous. The wording matches `harnesses/claude-code.md`, including detecting
+the source language first and building Q1's variant options from
+`references/multilingual.md`. Observe the same four-option cap as
 `harnesses/claude-code.md`: collapse College and Graduate into one "College or
 professional" option (Graduate via inline `level=graduate` or `grade=N`), and
 when the language is ambiguous offer the three most likely languages plus "Other
-(different language)".
+(different language)". Follow `SKILL.md` Step 3's ambiguous-language branch when
+detection is uncertain: as in `harnesses/claude-code.md` it takes two calls, a
+first call to resolve the language and a second carrying Q1's variants plus the
+reading-level, tone, length, and any eligible voice questions.
 
 Only add Q5 when no inline or saved `voice_path` has resolved,
 `~/.agentic-humanizer/voice.txt` is absent, and the saved profile does not

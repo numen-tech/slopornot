@@ -104,8 +104,12 @@ Wait for the user's reply. Parse strictly:
 
 If the reply does not parse, send: *"I couldn't parse that. Please reply
 with four tokens, e.g. `1 3 b ±10`."* and wait again. Maximum 2 reparse
-attempts; on the third bad reply, fall back to defaults
-(American · High school · Professional · ±10%) and proceed.
+attempts; on the third bad reply, default only the unanswered reading level,
+tone, and length (High school · Professional · ±10%) and keep the language
+already resolved for this run: a detected or user-chosen non-English language
+stays with its default variant from `references/multilingual.md`. Fall back to
+American English (en-US) only when no language was resolved (ambiguous with no
+choice yet, or English). Then proceed.
 
 For the five-answer variant, change the reparse example to
 `1 3 b ±10 n`.
