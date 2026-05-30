@@ -25,7 +25,7 @@ Pro adds measured on-device AI detector checks.
 
 **Inline overrides:** `/agentic-humanizer language=<code> variant=<spec> dialect=us|uk grade=N level=<band> tone=casual|professional|academic length=±10|exp|trim threshold=N max=N voice=off voice-skip skip-interview [paste]`
 
-`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `language=` without `variant=` uses that language's default variant from the registry. `dialect=us|uk` is a legacy English alias. `grade=N` is English only; `level=<band>` (`elementary|middle|high_school|college|graduate`) sets the reading level for any language. See `references/multilingual.md`.
+`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `language=` without `variant=` uses that language's default variant from the registry (or `other:<code>` for an unsupported language). `dialect=us|uk` is a legacy English alias. `grade=N` is English only; `level=<band>` (`elementary|middle|high_school|college|graduate`) sets the reading level for any language. See `references/multilingual.md`.
 
 ## What this skill does
 
@@ -394,9 +394,11 @@ Log AI score and readability as `null` for every iteration. Select the final
 iteration by rewrite quality: preserve meaning, honor the requested reading
 level, tone, and length, and remove the most visible AI tells from the tell
 files loaded for L's branch (English: `references/patterns.md` plus
-`references/supplemental-ai-tells.md`; other languages:
+`references/supplemental-ai-tells.md`; supported non-English languages:
 `references/supplemental-ai-tells.md` plus `references/ai-tells/<L>.md`, where
-Norwegian Bokmal and Nynorsk both use `references/ai-tells/no.md`).
+Norwegian Bokmal and Nynorsk both use `references/ai-tells/no.md`; unsupported
+languages: `references/supplemental-ai-tells.md` alone, since no per-language
+tell file exists).
 
 ### Mid-flight Pro-gate
 

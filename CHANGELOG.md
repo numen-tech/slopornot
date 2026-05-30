@@ -177,6 +177,18 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   language with its registry default variant) instead of hard-resetting to
   American English, which had dropped a German or Spanish user onto the English
   variant, tell, and detector path.
+- An unsupported `language=` override with no `variant=` (for example
+  `language=fr`) now resolves to a deterministic `other:<code>` variant instead
+  of leaving the variant undefined. The registry carried variant lists only for
+  supported languages, so Step 7 display and profile writes had no value to
+  record; `references/multilingual.md` now defines `other:<code>` as the default
+  variant for any unsupported code, and the inline-override, `set`, and
+  profile-resolution rules resolve to it.
+- `SKILL.md` Step 6 Core-mode completion no longer points unsupported languages
+  at a non-existent `references/ai-tells/<L>.md`. It now loads
+  `references/supplemental-ai-tells.md` alone for an unsupported language
+  (supported non-English languages still add `references/ai-tells/<L>.md`),
+  matching the Step 6 language branch and the per-iteration cookbook.
 
 ## [0.2.0] (2026-05-21)
 

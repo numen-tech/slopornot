@@ -135,6 +135,15 @@ Japanese, Portuguese):
 7. Warn clearly in Step 7: no curated tell catalogue or readability bands exist
    for that language; results are advisory.
 
+**Variant fallback.** Unsupported codes have no row in the supported-languages
+table and therefore no variant list, so the registry's "default variant" for any
+unsupported code is `other:<code>` (for example `language=fr` resolves to
+`variant: "other:fr"`). Resolution rules in `SKILL.md` that read the default
+variant from this registry use this value for unsupported languages, so Step 7
+display and profile writes always have a variant. The `other:<code>` form is the
+profile and display variant only; on tool calls still pass the bare language code
+(normalized as-is per the table above) as `language_code`, never `other:<code>`.
+
 ## Provenance
 
 Score kinds and sample values verified empirically against MCP v1.0.9 with Pro

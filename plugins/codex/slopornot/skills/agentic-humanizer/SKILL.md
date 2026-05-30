@@ -34,7 +34,7 @@ languages use native readability and per-language tells. See
 
 **Inline overrides:** `/agentic-humanizer language=<code> variant=<spec> dialect=us|uk grade=N level=<band> tone=casual|professional|academic length=±10|exp|trim threshold=N max=N voice=/path/to/file.txt|off voice-skip skip-interview [paste]`
 
-`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `dialect=us|uk` is a legacy English alias: `dialect=us` equals `language=en variant=en-US`, `dialect=uk` equals `language=en variant=en-GB`. `grade=N` sets the Flesch-Kincaid target and is English only; `level=<band>` sets the reading-level band (`elementary|middle|high_school|college|graduate`) for any language. Explicit `language=`/`variant=` win over `dialect=`. Setting `language=` without `variant=` uses that language's default variant from the registry (the first variant listed). See `references/multilingual.md` for supported codes and variants.
+`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `dialect=us|uk` is a legacy English alias: `dialect=us` equals `language=en variant=en-US`, `dialect=uk` equals `language=en variant=en-GB`. `grade=N` sets the Flesch-Kincaid target and is English only; `level=<band>` sets the reading-level band (`elementary|middle|high_school|college|graduate`) for any language. Explicit `language=`/`variant=` win over `dialect=`. Setting `language=` without `variant=` uses that language's default variant from the registry (the first variant listed, or `other:<code>` for an unsupported language with no registry entry). See `references/multilingual.md` for supported codes and variants.
 
 ## What this skill does
 
@@ -76,7 +76,7 @@ The user can manage their saved profile with these subcommands:
 |---|---|
 | `/agentic-humanizer show profile` | Print `~/.agentic-humanizer/profile.json` (or "no profile saved"). |
 | `/agentic-humanizer reset` | `rm ~/.agentic-humanizer/profile.json` and confirm. |
-| `/agentic-humanizer set language=de variant=de-AT level=high_school tone=casual length=±10` | Write a profile from inline params without running the interview. Recognized keys: `language`, `variant`, `dialect` (legacy English alias), `grade` (English only), `level`, `tone`, `length`. Any subset is allowed; missing keys keep their current value or use the default if no profile exists. When `language` (or legacy `dialect`) changes without an explicit `variant`, reset `variant` to that language's default from `references/multilingual.md` (the first variant listed) instead of keeping the old one, so the saved pair stays consistent (for example `set language=de` on an English profile writes `variant=de-DE`, not `en-US`). For English, keep the level fields consistent: `level=` sets `reading_level` and derives `target_grade` from the band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17), and `grade=N` sets `target_grade=N` and `reading_level` to that grade's band; when the saved `language` becomes non-English, write `target_grade: null` (the loop reads `reading_level`). |
+| `/agentic-humanizer set language=de variant=de-AT level=high_school tone=casual length=±10` | Write a profile from inline params without running the interview. Recognized keys: `language`, `variant`, `dialect` (legacy English alias), `grade` (English only), `level`, `tone`, `length`. Any subset is allowed; missing keys keep their current value or use the default if no profile exists. When `language` (or legacy `dialect`) changes without an explicit `variant`, reset `variant` to that language's default from `references/multilingual.md` (the first variant listed, or `other:<code>` for an unsupported language) instead of keeping the old one, so the saved pair stays consistent (for example `set language=de` on an English profile writes `variant=de-DE`, not `en-US`). For English, keep the level fields consistent: `level=` sets `reading_level` and derives `target_grade` from the band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17), and `grade=N` sets `target_grade=N` and `reading_level` to that grade's band; when the saved `language` becomes non-English, write `target_grade: null` (the loop reads `reading_level`). |
 | `/agentic-humanizer show voice` | Print `~/.agentic-humanizer/voice-fingerprint.json` if present, plus the sample path; otherwise say no voice is saved. |
 | `/agentic-humanizer reset voice` | Remove `~/.agentic-humanizer/voice.txt` and `~/.agentic-humanizer/voice-fingerprint.json`, then clear voice fields from the profile without deleting the rewrite preferences. |
 | `/agentic-humanizer set voice=/path/to/file.txt` | Save the profile's `voice_path`, clear `voice_skip`, and use that path on future runs. Do not extract the fingerprint until the next rewrite call. |
@@ -103,7 +103,8 @@ If the text is under ~20 words or mixed, treat the language as ambiguous.
    `language=` is given without `variant=`, set the variant to that language's
    default from `references/multilingual.md` (the first variant listed), not the
    profile's variant, so the pair stays consistent (for example `language=de`
-   alone resolves to `variant=de-DE`). For English, when `level=` is set without `grade=`, derive `target_grade` from the resolved band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17); an explicit `grade=N` always wins.
+   alone resolves to `variant=de-DE`; an unsupported language with no registry
+   entry, such as `language=fr`, resolves to `variant=other:fr`). For English, when `level=` is set without `grade=`, derive `target_grade` from the resolved band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17); an explicit `grade=N` always wins.
 2. **`skip-interview` flag** -> use the saved profile if present. With no
    profile, keep the detected source language and its default variant from
    `references/multilingual.md` and default the rest (High school, Professional,
@@ -546,9 +547,11 @@ Log AI score and readability as `null` for every iteration. Select the final
 iteration by rewrite quality: preserve meaning, honor the requested reading
 level, tone, and length, and remove the most visible AI tells from the tell
 files loaded for L's branch (for English, `references/patterns.md` plus
-`references/supplemental-ai-tells.md`; for other languages,
+`references/supplemental-ai-tells.md`; for a supported non-English language,
 `references/supplemental-ai-tells.md` plus `references/ai-tells/<L>.md`, where
-Norwegian Bokmal and Nynorsk both use `references/ai-tells/no.md`).
+Norwegian Bokmal and Nynorsk both use `references/ai-tells/no.md`; for an
+unsupported language, `references/supplemental-ai-tells.md` alone, since no
+per-language tell file exists).
 
 ### Mid-flight Pro-gate
 
