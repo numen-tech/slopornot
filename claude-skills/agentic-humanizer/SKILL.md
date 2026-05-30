@@ -55,10 +55,13 @@ fifth voice question only when no inline `voice=off` or `voice-skip` override
 is present.
 
 Before Q1, detect the source language from the pasted text with the host LLM.
-If the text is under ~20 words or mixed, treat the language as ambiguous: make
-the first question a language choice (the supported languages plus "Other"),
-resolve it against `references/multilingual.md`, and only then ask that
-language's variant. Otherwise build Q1 from `references/multilingual.md`:
+If the text is under ~20 words or mixed, treat the language as ambiguous:
+because `ask_user_input_v0` caps at four options, do not list every supported
+language at once. Make the first call offer the three most likely languages
+plus "Other (a different language)"; if the user picks "Other", they name the
+language in their next message (resolve it against `references/multilingual.md`).
+Only after the language resolves do you ask that language's variant. Otherwise
+build Q1 from `references/multilingual.md`:
 present the detected language's variants plus "Other (different language)",
 staying within the four-option `ask_user_input_v0` cap. Populate Q2's options with the detected language's
 metric. The calls below show the English default. Variant sets that fit the cap:

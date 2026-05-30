@@ -76,7 +76,7 @@ The user can manage their saved profile with these subcommands:
 |---|---|
 | `/agentic-humanizer show profile` | Print `~/.agentic-humanizer/profile.json` (or "no profile saved"). |
 | `/agentic-humanizer reset` | `rm ~/.agentic-humanizer/profile.json` and confirm. |
-| `/agentic-humanizer set language=de variant=de-AT level=high_school tone=casual length=±10` | Write a profile from inline params without running the interview. Recognized keys: `language`, `variant`, `dialect` (legacy English alias), `grade` (English only), `level`, `tone`, `length`. Any subset is allowed; missing keys keep their current value or use the default if no profile exists. |
+| `/agentic-humanizer set language=de variant=de-AT level=high_school tone=casual length=±10` | Write a profile from inline params without running the interview. Recognized keys: `language`, `variant`, `dialect` (legacy English alias), `grade` (English only), `level`, `tone`, `length`. Any subset is allowed; missing keys keep their current value or use the default if no profile exists. When `language` (or legacy `dialect`) changes without an explicit `variant`, reset `variant` to that language's default from `references/multilingual.md` (the first variant listed) instead of keeping the old one, so the saved pair stays consistent (for example `set language=de` on an English profile writes `variant=de-DE`, not `en-US`). |
 | `/agentic-humanizer show voice` | Print `~/.agentic-humanizer/voice-fingerprint.json` if present, plus the sample path; otherwise say no voice is saved. |
 | `/agentic-humanizer reset voice` | Remove `~/.agentic-humanizer/voice.txt` and `~/.agentic-humanizer/voice-fingerprint.json`, then clear voice fields from the profile without deleting the rewrite preferences. |
 | `/agentic-humanizer set voice=/path/to/file.txt` | Save the profile's `voice_path`, clear `voice_skip`, and use that path on future runs. Do not extract the fingerprint until the next rewrite call. |
@@ -113,9 +113,10 @@ If the text is under ~20 words or mixed, treat the language as ambiguous.
    - If `detected_language` differs from the profile's `language`
      (unambiguous), **detection wins**: run this call in the detected language
      using that language's default variant from `references/multilingual.md`.
-     Keep the profile's `tone`, `length_policy`, and `reading_level` (the band
-     is language-agnostic; map it to the new language's metric via the
-     registry). Do not prompt and do not rewrite the profile. Add the
+     For `tone`, `length_policy`, and `reading_level`, inline overrides still
+     win (rule 1); fall back to the profile's values only for keys not set
+     inline (the band is language-agnostic; map it to the new language's metric
+     via the registry). Do not prompt and do not rewrite the profile. Add the
      language-mismatch note for Step 7.
 4. **No profile, no overrides** -> run the harness interview as below.
 

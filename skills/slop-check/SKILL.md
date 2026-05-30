@@ -58,7 +58,7 @@ Pick one operation from the request. Do not ask a question to disambiguate.
 | `text-detect` | "is this AI", "did a bot write this", "AI written" |
 | `image-detect` | "is this image AI", "AI generated picture", "real photo" |
 | `image-score` | "raw OmniAID score", "absolute OmniAID model score" |
-| `readability` | "reading level", "what grade", "Flesch", "how readable" |
+| `readability` | "reading level", "what grade", "Flesch", "how readable", or a native formula name ("LIX", "Wiener Sachtextformel", "Gulpease", "Flesch-Szigriszt", "Reading Ease") |
 | `cleanup` | "clean this", "strip invisible/zero-width", "remove homoglyphs" |
 | `status` | "is slop set up", "is Slop or Not working", "check Pro" |
 
@@ -186,8 +186,12 @@ response carries one. Never invent a score for non-English input.
 **Readability:**
 
 Read whatever `kind` `scores[]` returns; do not assume `fleschKincaidGradeLevel`.
-Look up the formula display name, scale direction, and band ranges in
-`references/slop-tools.md` section 2. Show the formula name, the value, the
+When the language returns two kinds (English: `fleschKincaidGradeLevel` plus
+`fleschReadingEase`), band and lead with the Flesch-Kincaid grade and show
+Reading Ease as a supplemental value in parentheses; never derive the band from
+Reading Ease, whose 0-to-100 scale is inverted. For a single-kind language, band
+that one kind. Look up the formula display name, scale direction, and band ranges
+in `references/slop-tools.md` section 2. Show the formula name, the value, the
 detected language, and the band.
 
 ```markdown

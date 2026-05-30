@@ -84,8 +84,10 @@ Display names: `fleschKincaidGradeLevel` -> "Flesch-Kincaid grade",
 `fleschReadingEase` -> "Reading Ease", `wienerSachtextformel4` -> "Wiener
 Sachtextformel", `fleschSzigriszt` -> "Flesch-Szigriszt", `gulpease` ->
 "Gulpease", `lix` -> "LIX". English returns two kinds (grade plus Reading
-Ease); each other language returns exactly one. Reading values are never
-percentages.
+Ease); each other language returns exactly one. For English, the primary score
+is the Flesch-Kincaid grade: band the reading level from it and treat Reading
+Ease (an inverted 0-to-100 ease scale) as a supplemental display value only,
+never the band source. Reading values are never percentages.
 
 Reading-level band guide (for the "Band:" label in `SKILL.md` Step 4):
 

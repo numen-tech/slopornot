@@ -77,6 +77,22 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`unsupportedLanguage`, `insufficientText`) alongside the MCP colon-tagged
   strings, so CLI-only runs surface the unsupported-language and short-input
   messages.
+- Inline `tone`, `length`, and `level` overrides now survive a saved-profile
+  language mismatch. When the detected language differs from the saved profile,
+  the detection-wins path keeps explicit inline overrides and falls back to
+  profile values only for keys not set inline.
+- `/agentic-humanizer set language=<code>` (or legacy `dialect=`) without an
+  explicit `variant` now resets the saved `variant` to that language's registry
+  default instead of persisting a stale pair such as `de` with `en-US`.
+- `slop-check` bands English readability from the Flesch-Kincaid grade and shows
+  Reading Ease as a supplemental value, instead of risking a reading-level band
+  computed from the inverted Reading Ease scale.
+- `slop-check` routes native readability formula names (`LIX`, `Wiener
+  Sachtextformel`, `Gulpease`, `Flesch-Szigriszt`, `Reading Ease`) to the
+  readability operation instead of falling through to AI text detection.
+- The Claude Desktop bundle's ambiguous-language prompt now stays within the
+  four-option `ask_user_input_v0` cap: it offers the three most likely languages
+  plus "Other", instead of listing every supported language in one call.
 
 ## [0.2.0] (2026-05-21)
 
