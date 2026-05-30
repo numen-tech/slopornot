@@ -110,7 +110,7 @@ Available flags:
 | `max=N` | Override the Slop or Not Pro measured-iteration cap. |
 | `voice=/path/to/file.txt` | Use a writing sample for this run. |
 | `voice=off` or `voice-skip` | Skip voice matching. |
-| `skip-interview` | Use saved preferences or defaults. |
+| `skip-interview` | Use saved preferences, or defaults in the detected language. |
 
 ## Local Files
 

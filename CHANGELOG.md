@@ -134,6 +134,22 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `references/slop-cli-setup.md`) now describe native per-language readability
   instead of Flesch-Kincaid only, matching the runtime's multilingual scoring
   path.
+- `/agentic-humanizer set level=<band>` (or `grade=N`) now keeps the saved
+  English `target_grade` and `reading_level` in sync, and writes
+  `target_grade: null` when the saved language becomes non-English. The
+  profile-management path stops before Step 3's derivation, so previously
+  changing only the level left a stale `target_grade` that future
+  profile-loaded English runs terminated against.
+- `skip-interview` with no saved profile now keeps the detected source language
+  and its registry default variant, defaulting only the reading level, tone, and
+  length. It falls back to English/en-US only when detection is ambiguous or no
+  text was pasted, so a non-English draft no longer takes the English variant,
+  tell catalogue, and detector path. The Claude Desktop bundle gets the same
+  detected-language fallback.
+- An explicit inline `language=` now wins over detection on the saved-profile
+  language-mismatch path, instead of the branch always running in the detected
+  language. Correcting a misdetection with `language=<code>` while a different
+  saved profile exists now loads that language's tells and readability rules.
 
 ## [0.2.0] (2026-05-21)
 

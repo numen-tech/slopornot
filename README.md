@@ -311,7 +311,7 @@ Available flags:
 | `max=N` | Override the Slop or Not Pro measured-iteration cap. |
 | `voice=/path/to/file.txt` | Use this voice sample for this call only. |
 | `voice=off` or `voice-skip` | Skip voice matching for this call. |
-| `skip-interview` | Use the saved profile if present, otherwise use defaults. |
+| `skip-interview` | Use the saved profile if present, otherwise defaults in the detected language. |
 
 ## Saved Preferences And Voice
 

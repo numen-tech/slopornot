@@ -76,7 +76,7 @@ The user can manage their saved profile with these subcommands:
 |---|---|
 | `/agentic-humanizer show profile` | Print `~/.agentic-humanizer/profile.json` (or "no profile saved"). |
 | `/agentic-humanizer reset` | `rm ~/.agentic-humanizer/profile.json` and confirm. |
-| `/agentic-humanizer set language=de variant=de-AT level=high_school tone=casual length=±10` | Write a profile from inline params without running the interview. Recognized keys: `language`, `variant`, `dialect` (legacy English alias), `grade` (English only), `level`, `tone`, `length`. Any subset is allowed; missing keys keep their current value or use the default if no profile exists. When `language` (or legacy `dialect`) changes without an explicit `variant`, reset `variant` to that language's default from `references/multilingual.md` (the first variant listed) instead of keeping the old one, so the saved pair stays consistent (for example `set language=de` on an English profile writes `variant=de-DE`, not `en-US`). |
+| `/agentic-humanizer set language=de variant=de-AT level=high_school tone=casual length=±10` | Write a profile from inline params without running the interview. Recognized keys: `language`, `variant`, `dialect` (legacy English alias), `grade` (English only), `level`, `tone`, `length`. Any subset is allowed; missing keys keep their current value or use the default if no profile exists. When `language` (or legacy `dialect`) changes without an explicit `variant`, reset `variant` to that language's default from `references/multilingual.md` (the first variant listed) instead of keeping the old one, so the saved pair stays consistent (for example `set language=de` on an English profile writes `variant=de-DE`, not `en-US`). For English, keep the level fields consistent: `level=` sets `reading_level` and derives `target_grade` from the band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17), and `grade=N` sets `target_grade=N` and `reading_level` to that grade's band; when the saved `language` becomes non-English, write `target_grade: null` (the loop reads `reading_level`). |
 | `/agentic-humanizer show voice` | Print `~/.agentic-humanizer/voice-fingerprint.json` if present, plus the sample path; otherwise say no voice is saved. |
 | `/agentic-humanizer reset voice` | Remove `~/.agentic-humanizer/voice.txt` and `~/.agentic-humanizer/voice-fingerprint.json`, then clear voice fields from the profile without deleting the rewrite preferences. |
 | `/agentic-humanizer set voice=/path/to/file.txt` | Save the profile's `voice_path`, clear `voice_skip`, and use that path on future runs. Do not extract the fingerprint until the next rewrite call. |
@@ -104,22 +104,28 @@ If the text is under ~20 words or mixed, treat the language as ambiguous.
    default from `references/multilingual.md` (the first variant listed), not the
    profile's variant, so the pair stays consistent (for example `language=de`
    alone resolves to `variant=de-DE`). For English, when `level=` is set without `grade=`, derive `target_grade` from the resolved band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17); an explicit `grade=N` always wins.
-2. **`skip-interview` flag** -> use the saved profile if present, otherwise
-   fall back to defaults (English, en-US, High school, Professional, ±10%).
+2. **`skip-interview` flag** -> use the saved profile if present. With no
+   profile, keep the detected source language and its default variant from
+   `references/multilingual.md` and default the rest (High school, Professional,
+   ±10%); fall back to English/en-US only when detection is ambiguous or no text
+   was pasted. For English, derive `target_grade` 10 from the High school band.
 3. **Saved profile at `~/.agentic-humanizer/profile.json`** present:
    - If `detected_language` equals the profile's `language`, or detection is
      ambiguous, use the profile silently and skip the interview. Never
      re-prompt a user who already has a profile unless they ask.
    - If `detected_language` differs from the profile's `language`
-     (unambiguous), **detection wins**: run this call in the detected language.
-     For the variant, an inline `variant=` whose language matches the detected
-     language wins (rule 1); otherwise use that language's default variant from
+     (unambiguous), the call does not run in the profile's language. An inline
+     `language=` still wins (rule 1): when one was supplied, run in that
+     language and skip the detection-versus-profile choice; otherwise
+     **detection wins** and the call runs in `detected_language`. For the
+     variant, an inline `variant=` whose language matches the resolved language
+     wins (rule 1); otherwise use the resolved language's default variant from
      `references/multilingual.md`. For `tone`, `length_policy`, and
      `reading_level`, inline overrides still win (rule 1); fall back to the
      profile's values only for keys not set inline (the band is
-     language-agnostic; map it to the new language's metric via the registry).
-     When the resolved language is English, derive `target_grade` from the
-     resolved `reading_level` band midpoint (elementary 4, middle 7,
+     language-agnostic; map it to the resolved language's metric via the
+     registry). When the resolved language is English, derive `target_grade`
+     from the resolved `reading_level` band midpoint (elementary 4, middle 7,
      high_school 10, college 13, graduate 17) unless an inline `grade=` wins;
      a saved non-English profile stores `target_grade: null`, so it must be
      derived here for the English termination check. Do not prompt and do not

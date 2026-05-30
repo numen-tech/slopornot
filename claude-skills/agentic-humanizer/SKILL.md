@@ -170,8 +170,11 @@ limitation and stop. Do not probe Slop or run the loop.
 **Preference resolution order:**
 
 1. **Inline overrides** for all four rewrite parameters -> use them.
-2. **`skip-interview` flag** -> use defaults (English en-US, High school,
-   Professional, ±10%).
+2. **`skip-interview` flag** -> skip the interview and use defaults (High
+   school, Professional, ±10%). Detect the source language first (per Step 1)
+   and keep it with its default variant from `references/multilingual.md`; fall
+   back to English/en-US only when detection is ambiguous or no text was pasted.
+   For English, also set `target_grade` 10.
 3. **No complete inline overrides** -> run the interview below.
 
 **Run the interview** using the protocol in Step 1 (which detects the source
