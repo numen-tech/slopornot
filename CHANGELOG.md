@@ -27,6 +27,10 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Extracted the dense saved-profile vs detected-language resolution logic from
+  `SKILL.md` Step 3 into a new `references/profile-resolution.md` decision table
+  (language, variant, reading level, tone, length, and English `target_grade`),
+  with a pointer from Step 3. No behavior change.
 - Interview Q1 generalized from "Which English variant?" to a language-confirm
   and variant step. The skill detects the source language from the pasted text,
   confirms it, and offers that language's variants from the registry. The
@@ -51,6 +55,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Step 6 now uses the language resolved in Step 3, including a base language
+  inferred from a `variant=`-only override (for example `variant=de-AT` resolves
+  to German), in both the main skill and the Claude Desktop fork. Previously
+  Step 6 re-derived the language from only the saved profile, inline `language=`,
+  or detection, so a variant-only override could still send the run down the
+  English tells and readability path.
 - Cursor's ambiguous-language branch now prepends one language-only `AskQuestion` call and then resumes the normal one-question-per-call sequence (variant, reading level, tone, length, optional voice). The previous wording described a single second call that bundled multiple questions, which is invalid because Cursor's `AskQuestion` takes one question per call.
 - The Claude Desktop fork's Step 3 now applies inline overrides per key: when only some parameters are supplied inline (for example `language=de` alone), the interview runs only for the keys not set inline. Previously, any partial set of inline overrides fell through to the full interview and could ignore an explicit `language=`.
 - English Graduate-band termination now distinguishes between band-selected and explicitly overridden targets. When Graduate was selected as a band (via `level=graduate` or the interview, `target_grade` derived as 17), termination uses range membership (`grade >= 15`). When an explicit inline `grade=N` was given, the symmetric `|grade - target_grade| <= 1` tolerance is kept so the explicit target is honored. German Wiener `level=graduate` is unaffected and always uses range membership.
