@@ -14,16 +14,16 @@ Only under rule 3, with a saved profile present and `detected_language` resolved
 unambiguously. If `detected_language` equals the profile's `language`, or
 detection is ambiguous, use the profile silently and skip the interview (never
 re-prompt a user who already has a profile unless they ask). Every row below
-also never prompts, never rewrites the saved profile, and adds the
-language-mismatch note for Step 7.
+also never prompts and never rewrites the saved profile. The note column says
+what to carry into Step 7.
 
 ## Language and variant
 
-| Inline on this call | Resolved language L | Resolved variant |
-|---|---|---|
-| `language=` (with or without `variant=`) | the inline language (wins over detection and the profile) | inline `variant=` when its base language matches L, else L's registry default variant from `references/multilingual.md` (`other:<code>` for an unsupported L, for example `other:fr`, never the bare code) |
-| `variant=` only (no `language=`) | base language inferred from the variant's BCP-47 prefix (`other` when the prefix is unsupported) | the inline variant |
-| neither | `detected_language` (detection wins over the profile) | `detected_variant_hint` when it is a valid variant for L, else L's registry default variant |
+| Inline on this call | Resolved language L | Resolved variant | Step 7 note |
+|---|---|---|---|
+| `language=` (with or without `variant=`) | the inline language (wins over detection and the profile) | inline `variant=` when its base language matches L, else L's registry default variant from `references/multilingual.md` (`other:<code>` for an unsupported L, for example `other:fr`, never the bare code) | Add an inline-language note: "Ran in <L display name> because `language=<L>` was set for this call; your saved profile language is <profile language>." |
+| `variant=` only (no `language=`) | base language inferred from the variant's BCP-47 prefix, keeping the bare prefix even when unsupported (for example `variant=fr-CA` resolves to L `fr`, not `other`) | the inline variant | Add an inline-variant note: "Ran in <L display name> because `variant=<tag>` implies language `<L>`; your saved profile language is <profile language>." |
+| neither | `detected_language` (detection wins over the profile) | `detected_variant_hint` when it is a valid variant for L, else L's registry default variant | Add the detection note from `SKILL.md` Step 7. |
 
 ## Reading level, tone, length
 
@@ -46,5 +46,5 @@ other language.
 - When L is not English, leave `target_grade` as `null`; the loop reads
   `reading_level` and maps it via the registry.
 
-After resolving, do not prompt and do not rewrite the saved profile. Carry the
-language-mismatch note into Step 7 (see the Language line rules there).
+After resolving, do not prompt and do not rewrite the saved profile. Carry only
+the Step 7 note for the row that supplied L.

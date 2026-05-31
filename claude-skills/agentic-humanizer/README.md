@@ -53,7 +53,7 @@ Swedish, Danish, and Norwegian (Bokmal and Nynorsk); the AI score is English
 only, and other languages use native readability and per-language tells.
 
 Skip the interview for one call by passing every preference inline, or pass
-`skip-interview` to use defaults:
+`skip-interview` to use detected-language defaults:
 
 ```text
 /agentic-humanizer skip-interview [paste]
@@ -81,7 +81,7 @@ that run only; nothing is written to disk.
 | `threshold=N` | Override the Slop or Not Pro AI-score target. |
 | `max=N` | Override the Slop or Not Pro measured-iteration cap. |
 | `voice=off` or `voice-skip` | Skip voice matching. |
-| `skip-interview` | Use defaults (American, High school, Professional, ±10%). |
+| `skip-interview` | Use detected language and its default variant when clear, otherwise English/en-US, with High school, Professional, and ±10%. |
 
 ## Sandbox notes
 

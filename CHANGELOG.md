@@ -84,7 +84,7 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Cursor's ambiguous-language branch now prepends one language-only `AskQuestion` call and then resumes the normal one-question-per-call sequence (variant, reading level, tone, length, optional voice). The previous wording described a single second call that bundled multiple questions, which is invalid because Cursor's `AskQuestion` takes one question per call.
 - The Claude Desktop fork's Step 3 now applies inline overrides per key: when only some parameters are supplied inline (for example `language=de` alone), the interview runs only for the keys not set inline. Previously, any partial set of inline overrides fell through to the full interview and could ignore an explicit `language=`.
 - English Graduate-band termination now distinguishes between band-selected and explicitly overridden targets. When Graduate was selected as a band (via `level=graduate` or the interview, `target_grade` derived as 17), termination uses range membership (`grade >= 15`). When an explicit inline `grade=N` was given, the symmetric `|grade - target_grade| <= 1` tolerance is kept so the explicit target is honored. German Wiener `level=graduate` is unaffected and always uses range membership.
-- `variant=<tag>` without `language=` now infers the base language from the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`, `variant=es-419` -> `language=es`), preventing incoherent pairs such as `language=en` with `variant=de-AT`. If the prefix is not a supported language, the run treats it as `language=other` and warns; if an explicit `language=` conflicts with the variant's prefix, `language=` wins and the run warns.
+- `variant=<tag>` without `language=` now infers the base language from the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`, `variant=es-419` -> `language=es`), preventing incoherent pairs such as `language=en` with `variant=de-AT`. If the prefix is unsupported, the run keeps that bare prefix as the language and warns; if an explicit `language=` conflicts with the variant's prefix, `language=` wins and the run warns.
 - Clarify the interview question count in `SKILL.md`, make the Cursor ambiguous-language interview an explicit two-step flow to match the other one-call harnesses, and describe the Claude Desktop fork's run-only voice fingerprint as in-memory rather than cached.
 - The final post-loop scoring pass now follows the same per-language rule as the
   iterations: English scores `detect_text` and `analyze_readability`, supported
@@ -267,6 +267,16 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Norwegian Nynorsk (`nn`) and unsupported languages, which have no formula
   (Step 6 skips readability), instead of leaving the wording to imply a formula
   name that does not exist.
+- Unsupported `variant=` prefixes now keep the inferred bare language code and
+  inline variant instead of collapsing to the generic `other` language, so a call such as
+  `variant=fr-CA` keeps `language=fr` while warning that French has no curated
+  support.
+- Saved-profile mismatch notes now match the source that won: detection, inline
+  `language=`, or a language inferred from inline `variant=`, so Step 7 no
+  longer says detection chose the language when an inline override did.
+- The Claude Desktop README now documents that `skip-interview` uses detected
+  language defaults when detection is clear, falling back to English/en-US only
+  when the source language is ambiguous or absent.
 
 ## [0.2.0] (2026-05-21)
 

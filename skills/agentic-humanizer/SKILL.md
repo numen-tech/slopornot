@@ -34,7 +34,7 @@ languages use native readability and per-language tells. See
 
 **Inline overrides:** `/agentic-humanizer language=<code> variant=<spec> dialect=us|uk grade=N level=<band> tone=casual|professional|academic length=±10|exp|trim threshold=N max=N voice=/path/to/file.txt|off voice-skip skip-interview [paste]`
 
-`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `dialect=us|uk` is a legacy English alias: `dialect=us` equals `language=en variant=en-US`, `dialect=uk` equals `language=en variant=en-GB`. `grade=N` sets the Flesch-Kincaid target and is English only; `level=<band>` sets the reading-level band (`elementary|middle|high_school|college|graduate`) for any language. Explicit `language=`/`variant=` win over `dialect=`. Setting `language=` without `variant=` uses that language's default variant from the registry (the first variant listed, or `other:<code>` for an unsupported language with no registry entry). Setting `variant=<tag>` without `language=` infers the base language from the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`); if the prefix is not a supported language, the run treats it as `language=other` and warns. See `references/multilingual.md` for supported codes and variants.
+`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `dialect=us|uk` is a legacy English alias: `dialect=us` equals `language=en variant=en-US`, `dialect=uk` equals `language=en variant=en-GB`. `grade=N` sets the Flesch-Kincaid target and is English only; `level=<band>` sets the reading-level band (`elementary|middle|high_school|college|graduate`) for any language. Explicit `language=`/`variant=` win over `dialect=`. Setting `language=` without `variant=` uses that language's default variant from the registry (the first variant listed, or `other:<code>` for an unsupported language with no registry entry). Setting `variant=<tag>` without `language=` infers the base language from the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`); if the prefix is unsupported, keep that bare prefix as the language, use the inline variant, and warn. See `references/multilingual.md` for supported codes and variants.
 
 ## What this skill does
 
@@ -76,7 +76,7 @@ The user can manage their saved profile with these subcommands:
 |---|---|
 | `/agentic-humanizer show profile` | Print `~/.agentic-humanizer/profile.json` (or "no profile saved"). |
 | `/agentic-humanizer reset` | `rm ~/.agentic-humanizer/profile.json` and confirm. |
-| `/agentic-humanizer set language=de variant=de-AT level=high_school tone=casual length=±10` | Write a profile from inline params without running the interview. Recognized keys: `language`, `variant`, `dialect` (legacy English alias), `grade` (English only), `level`, `tone`, `length`. Any subset is allowed; missing keys keep their current value or use the default if no profile exists. When `language` changes without an explicit `variant`, reset `variant` to that language's default from `references/multilingual.md` (the first variant listed, or `other:<code>` for an unsupported language) instead of keeping the old one, so the saved pair stays consistent (for example `set language=de` on an English profile writes `variant=de-DE`, not `en-US`). A legacy `dialect=` change without an explicit `variant` resets `variant` to that alias's specific English variant, not the registry default: `dialect=us` writes `variant=en-US` and `dialect=uk` writes `variant=en-GB`. When `variant=<tag>` is given without `language=`, infer the base language from the variant's BCP-47 prefix (for example `set variant=de-AT` -> `language=de`) and update the saved `language` accordingly; if the prefix is not a supported language, treat it as `language=other` and warn. For English, keep the level fields consistent: `level=` sets `reading_level` and derives `target_grade` from the band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17), and `grade=N` sets `target_grade=N` and `reading_level` to that grade's band; when the saved `language` becomes non-English, write `target_grade: null` (the loop reads `reading_level`). |
+| `/agentic-humanizer set language=de variant=de-AT level=high_school tone=casual length=±10` | Write a profile from inline params without running the interview. Recognized keys: `language`, `variant`, `dialect` (legacy English alias), `grade` (English only), `level`, `tone`, `length`. Any subset is allowed; missing keys keep their current value or use the default if no profile exists. When `language` changes without an explicit `variant`, reset `variant` to that language's default from `references/multilingual.md` (the first variant listed, or `other:<code>` for an unsupported language) instead of keeping the old one, so the saved pair stays consistent (for example `set language=de` on an English profile writes `variant=de-DE`, not `en-US`). A legacy `dialect=` change without an explicit `variant` resets `variant` to that alias's specific English variant, not the registry default: `dialect=us` writes `variant=en-US` and `dialect=uk` writes `variant=en-GB`. When `variant=<tag>` is given without `language=`, infer the base language from the variant's BCP-47 prefix (for example `set variant=de-AT` -> `language=de`) and update the saved `language` accordingly; if the prefix is unsupported, keep that bare prefix as `language`, keep the inline variant, and warn that the language has no curated support. For English, keep the level fields consistent: `level=` sets `reading_level` and derives `target_grade` from the band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17), and `grade=N` sets `target_grade=N` and `reading_level` to that grade's band; when the saved `language` becomes non-English, write `target_grade: null` (the loop reads `reading_level`). |
 | `/agentic-humanizer show voice` | Print `~/.agentic-humanizer/voice-fingerprint.json` if present, plus the sample path; otherwise say no voice is saved. |
 | `/agentic-humanizer reset voice` | Remove `~/.agentic-humanizer/voice.txt` and `~/.agentic-humanizer/voice-fingerprint.json`, then clear voice fields from the profile without deleting the rewrite preferences. |
 | `/agentic-humanizer set voice=/path/to/file.txt` | Save the profile's `voice_path`, clear `voice_skip`, and use that path on future runs. Do not extract the fingerprint until the next rewrite call. |
@@ -107,8 +107,9 @@ If the text is under ~20 words or mixed, treat the language as ambiguous.
    entry, such as `language=fr`, resolves to `variant=other:fr`). When
    `variant=<tag>` is given without `language=`, infer the base language from
    the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`,
-   `variant=es-419` -> `language=es`); if the prefix is not a supported language,
-   treat it as `language=other` and warn. If an explicit `language=` is also
+   `variant=es-419` -> `language=es`); if the prefix is unsupported, keep that
+   bare prefix as the language, keep the inline variant, and warn that the
+   language has no curated support. If an explicit `language=` is also
    present and conflicts with the variant's base language, `language=` wins and
    the run warns. For English, when `level=` is set without `grade=`, derive
    `target_grade` from the resolved band midpoint (elementary 4, middle 7,
@@ -133,7 +134,7 @@ If the text is under ~20 words or mixed, treat the language as ambiguous.
      key. Resolve language, variant, reading level, tone, length, and English
      `target_grade` for this case using the decision table in
      `references/profile-resolution.md`. Do not prompt and do not rewrite the
-     profile. Add the language-mismatch note for Step 7.
+     profile. Carry the table's matching note into Step 7.
 4. **No saved profile** -> run the harness interview for any rewrite keys not
    already set by inline overrides (rule 1). With some keys set inline, ask only
    the remaining ones; with none set inline, run the full interview as below.
@@ -626,6 +627,14 @@ Readability: Wiener Sachtextformel." followed by:
 
 ```markdown
 > _Ran in German because the text was detected as German; your saved profile language is English. Override with `language=` to change._
+```
+
+When an inline `language=` or variant-inferred language overrode a saved profile
+language, mark that source instead of saying detection chose the language. Use
+the wording from `references/profile-resolution.md`, for example:
+
+```markdown
+> _Ran in French because `language=fr` was set for this call; your saved profile language is English._
 ```
 
 **Readability column.** The formula is named once in the Language line (use its

@@ -25,7 +25,7 @@ Pro adds measured on-device AI detector checks.
 
 **Inline overrides:** `/agentic-humanizer language=<code> variant=<spec> dialect=us|uk grade=N level=<band> tone=casual|professional|academic length=±10|exp|trim threshold=N max=N voice=off voice-skip skip-interview [paste]`
 
-`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `language=` without `variant=` uses that language's default variant from the registry (or `other:<code>` for an unsupported language). `variant=<tag>` without `language=` infers the base language from the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`); if the prefix is not a supported language, the run treats it as `language=other` and warns. `dialect=us|uk` is a legacy English alias. `grade=N` is English only; `level=<band>` (`elementary|middle|high_school|college|graduate`) sets the reading level for any language. See `references/multilingual.md`.
+`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `language=` without `variant=` uses that language's default variant from the registry (or `other:<code>` for an unsupported language). `variant=<tag>` without `language=` infers the base language from the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`); if the prefix is unsupported, keep that bare prefix as the language, use the inline variant, and warn. `dialect=us|uk` is a legacy English alias. `grade=N` is English only; `level=<band>` (`elementary|middle|high_school|college|graduate`) sets the reading level for any language. See `references/multilingual.md`.
 
 ## What this skill does
 
@@ -192,10 +192,11 @@ limitation and stop. Do not probe Slop or run the loop.
    resolves to `variant=de-DE`; an unsupported language such as `language=fr`
    resolves to `variant=other:fr`). When `variant=<tag>` is given without
    `language=`, infer the base language from the variant's BCP-47 prefix (for
-   example `variant=de-AT` -> `language=de`); if the prefix is not a supported
-   language, treat it as `language=other` and warn. If an explicit `language=`
-   is also present and conflicts with the variant's base language, `language=`
-   wins and the run warns. For English, when `level=` is set without `grade=`,
+   example `variant=de-AT` -> `language=de`); if the prefix is unsupported, keep
+   that bare prefix as the language, keep the inline variant, and warn that the
+   language has no curated support. If an explicit `language=` is also present
+   and conflicts with the variant's base language, `language=` wins and the run
+   warns. For English, when `level=` is set without `grade=`,
    derive `target_grade` from the band midpoint (elementary 4, middle 7,
    high_school 10, college 13, graduate 17); an explicit `grade=N` always wins.
    When the resolved language is not English, `grade=N` is ignored. Interview
