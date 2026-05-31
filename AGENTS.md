@@ -23,6 +23,7 @@ routing files.
 | `skills/agentic-humanizer/references/patterns.md` | 29-pattern rewrite vocabulary. Local divergence is out of scope. |
 | `skills/agentic-humanizer/references/supplemental-ai-tells.md` | SlopOrNot-authored supplemental AI-tell checks inspired by Wikipedia's field guide. Language-agnostic S1 to S8 concepts, loaded on every run. |
 | `skills/agentic-humanizer/references/multilingual.md` | Multilingual readability registry: supported languages, BCP-47 variants, readability formula per language, reading-level band mapping, code normalization (Norwegian Bokmal to `nb`). Single source of truth for non-English runs. |
+| `skills/agentic-humanizer/references/profile-resolution.md` | Decision table for `SKILL.md` Step 3 rule 3: how a saved profile resolves against an unambiguously detected different language (language, variant, reading level, tone, length, English `target_grade`). Loaded only on the saved-profile-versus-detected-language path. |
 | `skills/agentic-humanizer/references/ai-tells/<code>.md` | Per-language AI-tell catalogues (es, de, it, sv, da, no). Loaded when the resolved language is not English. `no.md` covers both Bokmal and Nynorsk. |
 | `skills/agentic-humanizer/references/per-iteration-strategies.md` | The 5-iteration cookbook for Core mode and Slop or Not Pro, plus mid-flight Pro-gate fallback. |
 | `skills/agentic-humanizer/references/voice-fingerprint.md` | Voice sample policy, fingerprint schema, extraction prompt, cache rules, and loop injection contracts. |

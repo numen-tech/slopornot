@@ -322,7 +322,8 @@ interview, voice matching, or rewrite loop.
 
 ## Step 6: Run the loop
 
-Resolve the language L from the inline `language=` override or the detected and
+Use the language L resolved in Step 3: any inline `language=`, else the base
+language inferred from a `variant=`-only override, else the detected and
 confirmed language from Step 1. If L is not English, read
 `references/multilingual.md` (the registry: readability formulas, band mapping,
 code normalization). Read `references/per-iteration-strategies.md` (the
@@ -483,9 +484,12 @@ Converged at iter 3 (<=40% AI, grade target 9 to 11).
 - <bullet 3 (optional)>
 ```
 
-**Language line.** Always show the resolved language, variant, and the
+**Language line.** Always show the resolved language and variant, plus the
 readability formula's display name from `references/multilingual.md`, for example
-"German (de-DE). Readability: Wiener Sachtextformel."
+"German (de-DE). Readability: Wiener Sachtextformel." For Norwegian Nynorsk
+(`nn`) and unsupported languages there is no formula (Step 6 skips readability),
+so render readability as unavailable instead, for example "Norwegian Nynorsk
+(nn). Readability: not available."
 
 **Readability column.** The formula is named once in the Language line (use its
 display name from `references/multilingual.md`). In the loop-history column show

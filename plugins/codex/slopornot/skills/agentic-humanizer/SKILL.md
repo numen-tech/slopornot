@@ -125,24 +125,13 @@ If the text is under ~20 words or mixed, treat the language as ambiguous.
      ambiguous, use the profile silently and skip the interview. Never
      re-prompt a user who already has a profile unless they ask.
    - If `detected_language` differs from the profile's `language`
-     (unambiguous), the call does not run in the profile's language. An inline
-     `language=` still wins (rule 1): when one was supplied, run in that
-     language and skip the detection-versus-profile choice; otherwise
-     **detection wins** and the call runs in `detected_language`. For the
-     variant, an inline `variant=` whose language matches the resolved language
-     wins (rule 1); otherwise use `detected_variant_hint` when it is a valid
-     variant for the resolved language, falling back to the resolved language's
-     default variant from `references/multilingual.md` when the hint is absent
-     or invalid. For `tone`, `length_policy`, and
-     `reading_level`, inline overrides still win (rule 1); fall back to the
-     profile's values only for keys not set inline (the band is
-     language-agnostic; map it to the resolved language's metric via the
-     registry). When the resolved language is English, derive `target_grade`
-     from the resolved `reading_level` band midpoint (elementary 4, middle 7,
-     high_school 10, college 13, graduate 17) unless an inline `grade=` wins;
-     a saved non-English profile stores `target_grade: null`, so it must be
-     derived here for the English termination check. Do not prompt and do not
-     rewrite the profile. Add the language-mismatch note for Step 7.
+     (unambiguous), the call does not run in the profile's language: an inline
+     `language=` wins, otherwise **detection wins**, and inline
+     `variant`/`tone`/`length`/`level`/`grade` still override the profile per
+     key. Resolve language, variant, reading level, tone, length, and English
+     `target_grade` for this case using the decision table in
+     `references/profile-resolution.md`. Do not prompt and do not rewrite the
+     profile. Add the language-mismatch note for Step 7.
 4. **No profile, no overrides** -> run the harness interview as below.
 
 Read the saved profile with:
@@ -424,8 +413,9 @@ Do not skip the interview, voice matching, or rewrite loop.
 
 ## Step 6: Run the loop
 
-Resolve the language L from the profile, the inline `language=` override, or the
-detected and confirmed language from Step 3. If L is not English, read
+Use the language L resolved in Step 3 (which already applies, in precedence
+order, any inline `language=`, the base language inferred from a `variant=`-only
+override, the detected and confirmed language, and the saved profile). If L is not English, read
 `references/multilingual.md` (the registry: readability formulas, band mapping,
 code normalization). Read `references/per-iteration-strategies.md` (the
 per-iteration cookbook). Then load the tell catalogue for L's branch below. The
@@ -620,9 +610,12 @@ Converged at iter 3 (<=40% AI, grade target 9 to 11).
 - <bullet 3 (optional)>
 ```
 
-**Language line.** Always show the resolved language, variant, and the
+**Language line.** Always show the resolved language and variant, plus the
 readability formula's display name from `references/multilingual.md`, for example
-"German (de-DE). Readability: Wiener Sachtextformel."
+"German (de-DE). Readability: Wiener Sachtextformel." For Norwegian Nynorsk
+(`nn`) and unsupported languages there is no formula (Step 6 skips readability),
+so render readability as unavailable instead, for example "Norwegian Nynorsk
+(nn). Readability: not available."
 When detection overrode a saved profile language, mark it and add the note, for
 example "German (de-DE, detected; saved profile language is English).
 Readability: Wiener Sachtextformel." followed by:
@@ -701,6 +694,8 @@ If voice extraction failed in Step 4, add this footer note instead:
 - `references/patterns.md` (the canonical 29 AI tells, English only)
 - `references/supplemental-ai-tells.md` (supplemental language-agnostic AI tells)
 - `references/multilingual.md` (the multilingual readability registry)
+- `references/profile-resolution.md` (the saved-profile vs detected-language
+  decision table for Step 3)
 - `references/ai-tells/<code>.md` (per-language tells: es, de, it, sv, da, no)
 - `references/per-iteration-strategies.md` (the loop cookbook)
 - `references/voice-fingerprint.md` (voice sample extraction and loop

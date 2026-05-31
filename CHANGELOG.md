@@ -233,6 +233,10 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The CLI probe path in `SKILL.md` Step 5 now states clearly that the detection
   score is a 0-1 decimal (multiply by 100 for a percentage) and readability
   grades are never percentages.
+- The Step 7 Language line now renders readability as not available for
+  Norwegian Nynorsk (`nn`) and unsupported languages, which have no formula
+  (Step 6 skips readability), instead of leaving the wording to imply a formula
+  name that does not exist.
 
 ## [0.2.0] (2026-05-21)
 
