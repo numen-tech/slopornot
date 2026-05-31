@@ -89,7 +89,9 @@ Slop or Not Pro:
    n/a, so `detect_text` adds nothing). For Nynorsk or unsupported, skip both
    (no readability is available).
 3. Short-circuit if the resolved language's targets already pass: for English,
-   both `score <= AI_THRESHOLD` and `|grade - target_grade| <= 1`; for supported
+   `score <= AI_THRESHOLD` and the same reading-level grade test used at
+   Termination above (so the Graduate band uses `grade >= 15` when Graduate was
+   selected as a band, not `|grade - 17| <= 1`); for supported
    non-English, the readability score already lands in the target band (the AI
    score is n/a, so readability alone is the gate). Return T with the note
    (English *"already passes both targets"*; non-English *"already in the target

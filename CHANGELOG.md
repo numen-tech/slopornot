@@ -55,6 +55,26 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- The `references/profile-resolution.md` table now resolves an unsupported inline
+  `language=` to the `other:<code>` variant (for example `other:fr`), not the
+  bare language code, matching `SKILL.md` and `references/multilingual.md` so the
+  saved-profile-mismatch path writes a v3-consistent variant.
+- The `references/profile-resolution.md` table now treats inline `grade=` as a
+  reading-level override for English only, ignoring it for non-English L (where
+  `level=` sets the band), so an English-only Flesch-Kincaid flag can no longer
+  retarget a non-English rewrite.
+- `/agentic-humanizer set dialect=us|uk` without an explicit `variant=` now
+  resets the saved variant to that alias's specific English variant (`en-US` or
+  `en-GB`) instead of the registry default, so `set dialect=uk` no longer
+  silently saves American English.
+- Step 3 now resolves rewrite keys not supplied inline through the saved profile
+  or interview instead of only running the interview when no overrides are
+  present, so a partial first-time call such as `tone=casual` still collects
+  language, variant, reading level, and length.
+- The Iteration 0 baseline short-circuit now uses the same Graduate-band grade
+  test as Termination (range membership `grade >= 15` for a band-selected
+  Graduate target), so an English source already at the Graduate band is no
+  longer rewritten unnecessarily.
 - Step 6 now uses the language resolved in Step 3, including a base language
   inferred from a `variant=`-only override (for example `variant=de-AT` resolves
   to German), in both the main skill and the Claude Desktop fork. Previously

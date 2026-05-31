@@ -21,7 +21,7 @@ language-mismatch note for Step 7.
 
 | Inline on this call | Resolved language L | Resolved variant |
 |---|---|---|
-| `language=` (with or without `variant=`) | the inline language (wins over detection and the profile) | inline `variant=` when its base language matches L, else L's registry default variant from `references/multilingual.md` (bare language code for an unsupported L) |
+| `language=` (with or without `variant=`) | the inline language (wins over detection and the profile) | inline `variant=` when its base language matches L, else L's registry default variant from `references/multilingual.md` (`other:<code>` for an unsupported L, for example `other:fr`, never the bare code) |
 | `variant=` only (no `language=`) | base language inferred from the variant's BCP-47 prefix (`other` when the prefix is unsupported) | the inline variant |
 | neither | `detected_language` (detection wins over the profile) | `detected_variant_hint` when it is a valid variant for L, else L's registry default variant |
 
@@ -29,7 +29,7 @@ language-mismatch note for Step 7.
 
 | Key | Source |
 |---|---|
-| `reading_level` | inline `level=` (or `grade=`) when given, else the profile's value. The band is language-agnostic; map it to L's metric via `references/multilingual.md`. |
+| `reading_level` | inline `level=` when given; for English only, an explicit `grade=N` also maps to its band. `grade=` is an English-only Flesch-Kincaid target, so it is ignored for non-English L (use `level=` there). Otherwise the profile's value. The band is language-agnostic; map it to L's metric via `references/multilingual.md`. |
 | `tone` | inline `tone=` when given, else the profile's value |
 | `length_policy` | inline `length=` when given, else the profile's value |
 
