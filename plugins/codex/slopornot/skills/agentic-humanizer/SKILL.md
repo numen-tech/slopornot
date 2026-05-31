@@ -169,7 +169,7 @@ write. `target_grade` drives termination only for English; for other languages
 the loop reads `reading_level` and maps via the registry.
 
 **Run the interview** by reading the harness file selected in Step 1 and
-following its interview protocol. The interview stays four questions. The
+following its interview protocol. The interview stays four rewrite questions (plus a separate language-disambiguation step when detection is ambiguous). The
 selected harness may batch the conditional voice question when it is eligible;
 Step 4 handles that answer. Capture these rewrite settings here:
 

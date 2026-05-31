@@ -335,7 +335,7 @@ per-iteration cookbook). Then load the tell catalogue for L's branch:
 The language branch composes with, and does not replace, the 5-iteration
 schedule.
 
-When `voice_active=true`, Iteration 2 and Iteration 5 consume the cached
+When `voice_active=true`, Iteration 2 and Iteration 5 consume the in-memory
 fingerprint using the contracts in `references/per-iteration-strategies.md`.
 No other iteration uses the voice fingerprint.
 

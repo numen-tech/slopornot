@@ -51,6 +51,7 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Clarify the interview question count in `SKILL.md`, make the Cursor ambiguous-language interview an explicit two-step flow to match the other one-call harnesses, and describe the Claude Desktop fork's run-only voice fingerprint as in-memory rather than cached.
 - The final post-loop scoring pass now follows the same per-language rule as the
   iterations: English scores `detect_text` and `analyze_readability`, supported
   non-English scores readability only, and Nynorsk or unsupported languages skip
