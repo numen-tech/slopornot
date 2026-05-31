@@ -57,7 +57,7 @@ return to step 2.
 |---|---|---|
 | `slop status --json` | Probe presence and cached Pro status | No |
 | `slop text --json` | Detect AI probability for text on stdin | Yes |
-| `slop readability --json` | Compute Flesch-Kincaid grade for text on stdin | Yes |
+| `slop readability --json` | Compute readability with the language's native formula for text on stdin | Yes |
 | `slop cleanup` | Strip zero-width chars, fancy punctuation, homoglyphs from text on stdin | Yes |
 | `slop image --json` | Detect AI probability for image bytes on stdin | Yes |
 | `slop score-image --json` | Return the raw OmniAID image score for image bytes on stdin | Yes |
@@ -119,8 +119,14 @@ instead of `detection.result._0`. Treat `_0` as a 0-1 decimal and multiply by
 100 when showing a percentage. Older or normalized clients may expose
 `ai_probability`; handle that field as the same score when present.
 
-For `slop readability --json`, read the grade from `readability.scores[]`
-where `kind` is `fleschKincaidGradeLevel`.
+For `slop readability --json`, read the value from `readability.scores[]`. The
+returned `kind` depends on the input language: English returns
+`fleschKincaidGradeLevel` (plus `fleschReadingEase`), German
+`wienerSachtextformel4`, Spanish `fleschSzigriszt`, Italian `gulpease`, and
+Swedish, Danish, and Norwegian Bokmal `lix`. Read whichever `kind` is present
+and map it to a reading-level band; see `references/multilingual.md` for the
+per-language formula table and band ranges. Pass `-l <code>` (normalized:
+Bokmal is `nb`, never `no` or `nn`) to force the language.
 
 For `slop score-image --json`, read the raw OmniAID score from
 `rawSlopScore`. It is a 0-1 decimal and is not a provenance-aware detection

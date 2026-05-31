@@ -6,29 +6,38 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
 
-// Self-contained skills are synced verbatim into each plugin payload at
-// the same skills/<name>/ relative path.
-const selfContainedSkillFiles = [
-  'skills/agentic-humanizer/SKILL.md',
-  'skills/agentic-humanizer/README.md',
-  'skills/agentic-humanizer/harnesses/claude-code.md',
-  'skills/agentic-humanizer/harnesses/codex.md',
-  'skills/agentic-humanizer/harnesses/cursor.md',
-  'skills/agentic-humanizer/harnesses/gemini-cli.md',
-  'skills/agentic-humanizer/harnesses/generic.md',
-  'skills/agentic-humanizer/harnesses/opencode.md',
-  'skills/agentic-humanizer/references/patterns.md',
-  'skills/agentic-humanizer/references/per-iteration-strategies.md',
-  'skills/agentic-humanizer/references/slop-cli-setup.md',
-  'skills/agentic-humanizer/references/slop-mcp-setup.md',
-  'skills/agentic-humanizer/references/supplemental-ai-tells.md',
-  'skills/agentic-humanizer/references/voice-fingerprint.md',
-  'skills/agentic-humanizer/examples/sample-ai-text.md',
-  'skills/slop-check/SKILL.md',
-  'skills/slop-check/README.md',
-  'skills/slop-check/references/slop-tools.md',
-  'skills/slop-check/references/slop-setup.md',
-];
+// Self-contained skills live entirely under skills/<name>/ and are copied
+// wholesale into each plugin payload (see sync-plugins.mjs). Derive the file
+// list from disk so new harnesses, references, or examples are covered
+// automatically instead of being hand-maintained here.
+const selfContainedSkills = ['agentic-humanizer', 'slop-check'];
+
+function listFilesRelative(dir, base) {
+  const files = [];
+
+  function walk(current) {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const entryPath = path.join(current, entry.name);
+      const stats = entry.isSymbolicLink() ? fs.statSync(entryPath) : entry;
+      if (stats.isDirectory()) {
+        walk(entryPath);
+      } else if (stats.isFile()) {
+        files.push(path.relative(base, entryPath));
+      }
+    }
+  }
+
+  if (fs.existsSync(dir)) {
+    walk(dir);
+  }
+  return files.sort();
+}
+
+function listSkillFiles(skill) {
+  return listFilesRelative(path.join(root, 'skills', skill), root);
+}
+
+const selfContainedSkillFiles = selfContainedSkills.flatMap(listSkillFiles);
 
 function readJson(relativePath) {
   const fullPath = path.join(root, relativePath);
@@ -65,8 +74,20 @@ function requireArrayIncludes(values, expected, label) {
   }
 }
 
+// Each self-contained source is compared against both plugin hosts, so cache
+// its contents and read it from disk only once.
+const sourceContentCache = new Map();
+
+function readSourceOnce(sourcePath) {
+  let content = sourceContentCache.get(sourcePath);
+  if (content === undefined) {
+    content = fs.readFileSync(path.join(root, sourcePath), 'utf8');
+    sourceContentCache.set(sourcePath, content);
+  }
+  return content;
+}
+
 function requireSyncedFile(sourcePath, destinationPath) {
-  const source = path.join(root, sourcePath);
   const destination = path.join(root, destinationPath);
 
   if (!fs.existsSync(destination)) {
@@ -74,10 +95,9 @@ function requireSyncedFile(sourcePath, destinationPath) {
     return;
   }
 
-  const sourceContent = fs.readFileSync(source, 'utf8');
   const destinationContent = fs.readFileSync(destination, 'utf8');
 
-  if (sourceContent !== destinationContent) {
+  if (readSourceOnce(sourcePath) !== destinationContent) {
     errors.push(`${destinationPath} is out of sync with ${sourcePath}`);
   }
 }
@@ -137,6 +157,8 @@ if (claudeMarketplace) {
   }
 }
 
+const selfContainedSkillFileSet = new Set(selfContainedSkillFiles);
+
 for (const host of ['codex', 'claude']) {
   const pluginRoot = `plugins/${host}/slopornot`;
 
@@ -145,6 +167,19 @@ for (const host of ['codex', 'claude']) {
 
   for (const sourceFile of selfContainedSkillFiles) {
     requireSyncedFile(sourceFile, `${pluginRoot}/${sourceFile}`);
+  }
+
+  // Reverse direction: flag payload files with no matching source (for example
+  // a file left behind in the payload after its source under skills/ was
+  // deleted). Only the synced skills tree is walked.
+  for (const skill of selfContainedSkills) {
+    const payloadSkillDir = path.join(root, pluginRoot, 'skills', skill);
+    const payloadFiles = listFilesRelative(payloadSkillDir, path.join(root, pluginRoot));
+    for (const payloadFile of payloadFiles) {
+      if (!selfContainedSkillFileSet.has(payloadFile)) {
+        errors.push(`${pluginRoot}/${payloadFile} has no source under skills/ (orphaned payload file)`);
+      }
+    }
   }
 }
 

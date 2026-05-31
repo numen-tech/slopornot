@@ -1,7 +1,7 @@
 ---
 name: agentic-humanizer
 version: 0.1.0
-description: Humanizes AI text with a five-pass rewrite workflow, optional voice matching, and Slop or Not Pro scoring when available. Use for /agentic-humanizer.
+description: Humanizes AI text in English and six other languages with a five-pass rewrite workflow, optional voice matching, and Slop or Not Pro scoring when available. Use for /agentic-humanizer.
 license: MIT
 compatibility: claude-desktop
 allowed-tools:
@@ -23,7 +23,9 @@ Pro adds measured on-device AI detector checks.
 
 **Slash command:** `/agentic-humanizer [paste text]`
 
-**Inline overrides:** `/agentic-humanizer dialect=us|uk grade=N tone=casual|professional|academic length=±10|exp|trim threshold=N max=N voice=off voice-skip skip-interview [paste]`
+**Inline overrides:** `/agentic-humanizer language=<code> variant=<spec> dialect=us|uk grade=N level=<band> tone=casual|professional|academic length=±10|exp|trim threshold=N max=N voice=off voice-skip skip-interview [paste]`
+
+`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `language=` without `variant=` uses that language's default variant from the registry (or `other:<code>` for an unsupported language). `variant=<tag>` without `language=` infers the base language from the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`); if the prefix is not a supported language, the run treats it as `language=other` and warns. `dialect=us|uk` is a legacy English alias. `grade=N` is English only; `level=<band>` (`elementary|middle|high_school|college|graduate`) sets the reading level for any language. See `references/multilingual.md`.
 
 ## What this skill does
 
@@ -52,12 +54,33 @@ Issue the four required questions below in sequence; do not bundle. Add the
 fifth voice question only when no inline `voice=off` or `voice-skip` override
 is present.
 
+Before Q1, detect the source language from the pasted text with the host LLM.
+If the text is under ~20 words or mixed, treat the language as ambiguous:
+because `ask_user_input_v0` caps at four options, do not list every supported
+language at once. Make the first call offer the three most likely languages
+plus "Other (a different language)"; if the user picks "Other", they name the
+language in their next message (resolve it against `references/multilingual.md`).
+Only after the language resolves do you ask that language's variant. Otherwise
+build Q1 from `references/multilingual.md`:
+present the detected language's variants plus "Other (different language)",
+staying within the four-option `ask_user_input_v0` cap. Populate Q2's options with the detected language's
+metric. The calls below show the English default. Variant sets that fit the cap:
+English (en-US, en-GB, Other = 3); German (de-DE, de-AT, de-CH, Other = 4);
+Norwegian Bokmal (nb, Other = 2); Norwegian Nynorsk (nn, Other = 2); Spanish
+(es-ES, es-419, Other = 3); Italian, Swedish, and Danish (single variant plus
+Other). Norwegian Bokmal (`nb`) and Norwegian Nynorsk (`nn`) are separate
+languages in the registry: Bokmal returns LIX readability while Nynorsk is
+unsupported for both readability and detection (tells-only). Map a chosen
+Norwegian option to `language: "nb"` or `language: "nn"`, never to
+`language: "nb", variant: "nn"`. If a language ever needs more than three named
+variants, keep the three most common plus "Other".
+
 ```text
 ask_user_input_v0({
   questions: [
     {
-      question: "Which English variant should the rewrite target?",
-      options: ["American English", "British English", "Other"]
+      question: "Detected English. Confirm the language and variant:",
+      options: ["American English (en-US)", "British English (en-GB)", "Other (different language)"]
     }
   ]
 })
@@ -75,7 +98,16 @@ ask_user_input_v0({
     }
   ]
 })
+```
 
+The example above shows English grade ranges. For a non-English run, replace
+the parenthetical ranges with the detected language's metric from the registry
+band table (`references/multilingual.md`), for example: German "High school
+(Wiener about 9 to 11)", Swedish "High school (LIX about 40 to 50)", Spanish
+"High school (Szigriszt about 55 to 65)". Never copy the English grade ranges
+literally for a non-English target language.
+
+```text
 ask_user_input_v0({
   questions: [
     {
@@ -112,11 +144,15 @@ ask_user_input_v0({
 
 Map the chosen labels to internal variables:
 
-- Q1 -> `dialect`: `American English` -> `us`, `British English` -> `uk`,
-  `Other` -> prompt for the dialect string in the next user turn.
-- Q2 -> `target_grade`: `Elementary (Grade 3-5)` -> `4`,
-  `Middle school (Grade 6-8)` -> `7`, `High school (Grade 9-11)` -> `10`,
-  `College or professional (Grade 12+)` -> `13`.
+- Q1 -> `language` and `variant`: read the chosen variant (`American English
+  (en-US)` -> `en`/`en-US`). `Other (different language)` -> prompt for the
+  language on the next turn, resolve against `references/multilingual.md`, then
+  ask its variant (warn if unsupported).
+- Q2 -> `reading_level`: `Elementary` -> `elementary`, `Middle school` ->
+  `middle`, `High school` -> `high_school`, `College or professional` ->
+  `college`. For English only, also set `target_grade` (4, 7, 10, 13). The
+  Desktop interview collapses College and Graduate into one option to stay
+  within the four-option cap; for non-English the loop reads `reading_level`.
 - Q3 -> `tone`: lowercase the label.
 - Q4 -> `length_policy`: `Keep within ±10% of original` -> `±10`,
   `Allow expansion` -> `exp`, `Allow trimming` -> `trim`.
@@ -125,9 +161,10 @@ Map the chosen labels to internal variables:
 
 When Q5 is `Yes`:
 
-1. If Q1 was `Other`, first capture the custom dialect string from the
-   user's next turn and finalize `dialect`. Only continue to step 2 after
-   the dialect is resolved.
+1. If Q1 was `Other (different language)`, first capture the language from the
+   user's next turn, resolve it and its variant against
+   `references/multilingual.md`, and finalize `language` and `variant`. Only
+   continue to step 2 after they are resolved.
 2. Say exactly: *"Paste 200+ words as your next message."*
 3. Capture the next user turn as the voice sample and return to Step 4
    for validation and fingerprint extraction.
@@ -146,17 +183,40 @@ limitation and stop. Do not probe Slop or run the loop.
 
 **Preference resolution order:**
 
-1. **Inline overrides** for all four rewrite parameters -> use them.
-2. **`skip-interview` flag** -> use defaults (American, High school,
-   Professional, ±10%).
-3. **No complete inline overrides** -> run the interview below.
+1. **Inline overrides** (`language=`, `variant=`, `dialect=`, `grade=`,
+   `level=`, `tone=`, `length=`) -> use them per key; do not interview for any
+   key that was supplied inline. Inline `language=`/`variant=` also override
+   detection. When `language=` is given without `variant=`, set the variant to
+   that language's default from `references/multilingual.md` (the first variant
+   listed), so the pair stays consistent (for example `language=de` alone
+   resolves to `variant=de-DE`; an unsupported language such as `language=fr`
+   resolves to `variant=other:fr`). When `variant=<tag>` is given without
+   `language=`, infer the base language from the variant's BCP-47 prefix (for
+   example `variant=de-AT` -> `language=de`); if the prefix is not a supported
+   language, treat it as `language=other` and warn. If an explicit `language=`
+   is also present and conflicts with the variant's base language, `language=`
+   wins and the run warns. For English, when `level=` is set without `grade=`,
+   derive `target_grade` from the band midpoint (elementary 4, middle 7,
+   high_school 10, college 13, graduate 17); an explicit `grade=N` always wins.
+   When the resolved language is not English, `grade=N` is ignored. Interview
+   runs only for the keys NOT supplied inline.
+2. **`skip-interview` flag** -> skip the interview and use defaults (High
+   school, Professional, ±10%). Detect the source language first (per Step 1)
+   and keep it with its default variant from `references/multilingual.md`; fall
+   back to English/en-US only when detection is ambiguous or no text was pasted.
+   For English, also set `target_grade` 10.
+3. **No inline overrides for a key** -> run the interview for that key.
 
-**Run the interview** using the protocol in Step 1. Capture these rewrite
-settings here:
+**Run the interview** using the protocol in Step 1 (which detects the source
+language and confirms it in Q1). Capture these rewrite settings here:
 
-- `dialect` in {`us`, `uk`, `other:<string>`}
-- `target_grade` in {4, 7, 10, 13} from the interview; any integer N from
-  inline `grade=N`
+- `language` (a base code such as `en`, `de`, `es`, `it`, `sv`, `da`, `nb`,
+  `nn`, or other) and `variant` (a BCP-47 tag or `other:<spec>`)
+- `reading_level` in {`elementary`, `middle`, `high_school`, `college`,
+  `graduate`}; for English also `target_grade` (the band midpoint 4, 7, 10, 13,
+  17, or any integer N from inline `grade=N`). When `level=` resolves to English
+  without `grade=`, derive `target_grade` from the band midpoint (graduate ->
+  17), even though the interview itself collapses College and Graduate.
 - `tone` in {`casual`, `professional`, `academic`}
 - `length_policy` in {`±10`, `exp`, `trim`}
 
@@ -249,6 +309,11 @@ has a numeric `score` or `ai_probability` field, set
 greater than 1. For readability, read the Flesch-Kincaid grade from
 `readability.scores[]` where `kind` is `fleschKincaidGradeLevel`.
 
+The probe fixture above is English, so its readability `kind` is always
+`fleschKincaidGradeLevel`. This call only proves Pro access; discard its
+readability value. Source-language readability is measured in Step 6, where the
+returned `kind` depends on the source language (see `references/multilingual.md`).
+
 Claude Desktop runs skills in a sandbox that cannot reach the user's machine,
 so there is no Slop or Not CLI fallback here: the MCP connector is the only
 Pro backend. If the MCP probe is unavailable or does not return a numeric
@@ -257,12 +322,37 @@ interview, voice matching, or rewrite loop.
 
 ## Step 6: Run the loop
 
-Read `references/patterns.md` (the 29-pattern rewrite vocabulary).
-Read `references/supplemental-ai-tells.md` (the supplemental AI-tell checks).
-Read `references/per-iteration-strategies.md` (the per-iteration cookbook).
-Apply the loop as specified there.
+Use the language L resolved in Step 3: any inline `language=`, else the base
+language inferred from a `variant=`-only override, else the detected and
+confirmed language from Step 1. If L is not English, read
+`references/multilingual.md` (the registry: readability formulas, band mapping,
+code normalization). Read `references/per-iteration-strategies.md` (the
+per-iteration cookbook). Then load the tell catalogue for L's branch:
 
-When `voice_active=true`, Iteration 2 and Iteration 5 consume the cached
+- **L is `en`:** read `references/patterns.md` (the 29-pattern rewrite
+  vocabulary) and `references/supplemental-ai-tells.md`. Use the full detector
+  path; read the Flesch-Kincaid grade where `kind` is `fleschKincaidGradeLevel`.
+  If `target_grade` is null or unset here (for example inherited from a
+  non-English saved profile through a partial inline override), derive it from
+  the resolved `reading_level` band midpoint (elementary 4, middle 7, high_school
+  10, college 13, graduate 17) before the termination check; an explicit inline
+  `grade=` always wins.
+- **L is `es`, `de`, `it`, `sv`, `da`, or `nb`:** do NOT read `patterns.md`
+  (English only). Read `references/supplemental-ai-tells.md` and
+  `references/ai-tells/<L>.md` (Norwegian Bokmal uses `ai-tells/no.md`). Pass the
+  normalized `language_code` and never pass `britishize`. Read whatever score
+  `kind` `scores[]` returns, label it by that kind, and map it to a band via the
+  registry. The AI score is `n/a` (`detect_text` returns `kind: "not_english"`
+  with a null score); call `analyze_readability` directly for readability.
+- **L is `nn` or an unsupported language:** do NOT read `patterns.md`. Read
+  `references/supplemental-ai-tells.md` (and `ai-tells/no.md`, Nynorsk section,
+  for `nn`). Readability is not available; the AI score is `n/a`; run all
+  iterations and select by quality. Warn the user.
+
+The language branch composes with, and does not replace, the 5-iteration
+schedule.
+
+When `voice_active=true`, Iteration 2 and Iteration 5 consume the in-memory
 fingerprint using the contracts in `references/per-iteration-strategies.md`.
 No other iteration uses the voice fingerprint.
 
@@ -311,22 +401,47 @@ Normalize those into this internal shape:
 
 ### Termination with Slop or Not Pro
 
-Termination: AI score <= `AI_THRESHOLD` AND `|grade - target_grade| <= 1`,
-or after `MAX_ITER`. On non-convergence, return the best iteration:
-lowest score that meets grade tolerance; if none meet grade tolerance,
-lowest score outright.
+**English (L is `en`):** AI score <= `AI_THRESHOLD` AND the reading-level grade
+test passes, or after `MAX_ITER`. The grade test depends on how the Graduate
+target was set. For elementary through college, the test is always
+`|grade - target_grade| <= 1`. For the Graduate band: when Graduate was selected
+as a band (via `level=graduate` or the interview, with `target_grade` derived as
+17), replace the grade test with range membership `grade >= 15` (the FK lower
+edge), so a College-level grade of 14 cannot satisfy a Graduate target; when an
+explicit inline `grade=N` was given, keep the symmetric
+`|grade - target_grade| <= 1` tolerance so the explicit target is honored.
+On non-convergence, return the best iteration: lowest score that meets the grade
+test; if none meet the grade test, lowest score outright.
+
+**Supported non-English (es, de, it, sv, da, nb):** no AI threshold (the AI
+score is `n/a`). Terminate when the readability score for L's formula lands in
+the target band (see `references/multilingual.md`) or after `MAX_ITER`. On
+non-convergence, return the iteration closest to the target band.
+
+**Nynorsk or unsupported:** tells-only, no readability and no AI score. Run all
+`MAX_ITER` iterations and select by quality.
 
 After selecting the final iteration, run Text Cleanup on that selected text.
-Store `final_cleanup_stats`, use the cleaned text as the final output, then
-run final `detect_text` and `analyze_readability` on the cleaned final text.
+Store `final_cleanup_stats` and use the cleaned text as the final output. Then
+run the final scoring pass gated by L, matching the loop's per-language rule:
+for English, run final `detect_text` and `analyze_readability`; for supported
+non-English (es, de, it, sv, da, nb), run final `analyze_readability` only (skip
+`detect_text`, which returns `not_english` with a null score); for Nynorsk or an
+unsupported language, skip both (readability returns `unsupported_language` and
+the AI score is `n/a`).
 
 ### Completion in Core mode
 
 Run all five rewrite strategies once unless the source is empty or unusable.
-Log score and grade as `null` for every iteration. Select the final iteration
-by rewrite quality: preserve meaning, honor the requested grade/tone/length,
-and remove the most visible AI tells from `references/patterns.md` and
-`references/supplemental-ai-tells.md`.
+Log AI score and readability as `null` for every iteration. Select the final
+iteration by rewrite quality: preserve meaning, honor the requested reading
+level, tone, and length, and remove the most visible AI tells from the tell
+files loaded for L's branch (English: `references/patterns.md` plus
+`references/supplemental-ai-tells.md`; supported non-English languages:
+`references/supplemental-ai-tells.md` plus `references/ai-tells/<L>.md`, where
+Norwegian Bokmal and Nynorsk both use `references/ai-tells/no.md`; unsupported
+languages: `references/supplemental-ai-tells.md` alone, since no per-language
+tell file exists).
 
 ### Mid-flight Pro-gate
 
@@ -337,20 +452,25 @@ to Core mode for the remaining iterations. See
 
 ## Step 7: Output
 
-Render this canonical block:
+Render this canonical block. The example shows English; the Language line and
+the readability column adapt to the resolved language (see the rules below the
+block).
 
 ```markdown
 ## Humanized text
 <final text>
 
+## Language
+English (en-US). Readability: Flesch-Kincaid grade.
+
 ## Loop history
-| Iter | AI score | Grade | Strategy |
+| Iter | AI score | Readability | Strategy |
 |---|---:|---:|---|
-| 0 | 92% | 11.4 | baseline |
-| 1 | 71% | 10.8 | pattern surgery |
-| 2 | 48% | 10.4 | dialect + tone |
-| 3 | 27% | 9.7 | grade gap |
-Converged at iter 3 (<=40% AI, grade target 9-11).
+| 0 | 92% | 11.4 (College) | baseline |
+| 1 | 71% | 10.8 (High school) | pattern surgery |
+| 2 | 48% | 10.4 (High school) | variant + tone |
+| 3 | 27% | 9.7 (High school) | grade gap |
+Converged at iter 3 (<=40% AI, grade target 9 to 11).
 
 ## Text Cleanup summary
 | Stage | Invisibles | Punctuation | Homoglyphs | Dialect substitutions |
@@ -364,6 +484,25 @@ Converged at iter 3 (<=40% AI, grade target 9-11).
 - <bullet 3 (optional)>
 ```
 
+**Language line.** Always show the resolved language and variant, plus the
+readability formula's display name from `references/multilingual.md`, for example
+"German (de-DE). Readability: Wiener Sachtextformel." For Norwegian Nynorsk
+(`nn`) and unsupported languages there is no formula (Step 6 skips readability),
+so render readability as unavailable instead, for example "Norwegian Nynorsk
+(nn). Readability: not available."
+
+**Readability column.** The formula is named once in the Language line (use its
+display name from `references/multilingual.md`). In the loop-history column show
+only the value and the band in parentheses, for example "10.6 (High school)".
+
+**AI score column (non-English).** Render "n/a (detector is English-only)" on
+the first row and "n/a" thereafter. In Core mode, render "n/a" for every row.
+
+**Convergence line (non-English with readability).** Reference the band, not the
+AI threshold, for example "Converged at iter 3 (readability in target band: High
+school)." For Nynorsk or an unsupported language, use "Completed MAX_ITER
+iterations (no readability available for this language; selected by quality)."
+
 Show `Text Cleanup summary` only when real Slop or Not Text Cleanup ran. Do
 not show backend names in the user-facing output.
 
@@ -374,12 +513,19 @@ If every cleanup count is zero, replace the table with:
 Slop or Not found no hidden characters, punctuation artifacts, homoglyphs, or dialect substitutions to clean.
 ```
 
-When Slop or Not Pro does not converge, replace the convergence line with:
+When Slop or Not Pro does not converge (English), replace the convergence line
+with:
 
 ```markdown
 Did not converge below threshold in MAX_ITER iterations. Best result shown above
 (iter N at S%). Re-run with `threshold=40 max=8` for a more aggressive loop,
 or `tone=casual` if professional tone is constraining the rewrite.
+```
+
+For non-English non-convergence, replace the convergence line with:
+
+```markdown
+Did not reach the target band in MAX_ITER iterations. Closest result shown above (iter N, <formula>: X.X). Re-run with a different `level=` to widen the target.
 ```
 
 When Slop or Not Pro is unavailable, render score and grade as `n/a` and add
@@ -410,8 +556,10 @@ If voice extraction failed in Step 4, add this footer note instead:
 
 ## Pointer files
 
-- `references/patterns.md` (the 29 AI-tells)
-- `references/supplemental-ai-tells.md` (supplemental AI tells)
+- `references/patterns.md` (the 29 AI-tells, English only)
+- `references/supplemental-ai-tells.md` (supplemental language-agnostic AI tells)
+- `references/multilingual.md` (the multilingual readability registry)
+- `references/ai-tells/<code>.md` (per-language tells: es, de, it, sv, da, no)
 - `references/per-iteration-strategies.md` (the loop cookbook)
 - `references/voice-fingerprint.md` (voice sample extraction and loop
   injection contracts)

@@ -13,6 +13,11 @@ AI-written. For source, citation, and verification artifacts, do not invent
 missing facts or citations: remove obvious wrappers only when they are
 non-content artifacts, otherwise flag the issue in the highest-impact edits.
 
+These tells are language-agnostic structural concepts and load on every run,
+English or not. The per-language catalogues in `ai-tells/<code>.md`
+cross-reference these tells by number (for example S5, S6, S7, S8) and add that
+language's lexical filler, so the two layers compose without contradiction.
+
 ## Supplemental catalogue
 
 ### S1. Placeholder Scaffolding

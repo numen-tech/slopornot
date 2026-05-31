@@ -5,6 +5,269 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Multilingual readability for Spanish, German, Italian, Swedish, Danish, and
+  Norwegian Bokmal. The agentic-humanizer loop loads the native readability
+  formula for the detected language (Flesch-Kincaid for English, Wiener
+  Sachtextformel for German, Flesch-Szigriszt for Spanish, Gulpease for Italian,
+  LIX for the Nordic languages), reads whatever score `kind` the app returns,
+  and maps it to a reading-level band.
+- Per-language AI-tell catalogues under `references/ai-tells/` for Spanish
+  (`es`), German (`de`), Italian (`it`), Swedish (`sv`), Danish (`da`), and
+  Norwegian (`no`, covering both Bokmal and Nynorsk), each with that language's
+  characteristic LLM filler and localized structural tells plus CC BY-SA
+  attribution.
+- Central registry `references/multilingual.md`: supported languages, BCP-47
+  variants, the readability formula per language, the reading-level band
+  mapping, and code-normalization rules (Norwegian Bokmal normalizes to `nb`).
+- German smoke-test fixture `examples/sample-ai-text-de.md`.
+- Inline overrides `language=<code>`, `variant=<spec>`, and `level=<band>` for
+  non-English rewrites and non-English reading-level control.
+
+### Changed
+
+- Extracted the dense saved-profile vs detected-language resolution logic from
+  `SKILL.md` Step 3 into a new `references/profile-resolution.md` decision table
+  (language, variant, reading level, tone, length, and English `target_grade`),
+  with a pointer from Step 3. No behavior change.
+- Interview Q1 generalized from "Which English variant?" to a language-confirm
+  and variant step. The skill detects the source language from the pasted text,
+  confirms it, and offers that language's variants from the registry. The
+  interview stays four questions.
+- Profile schema bumped to version 3: adds `language` (default `en`) and
+  `variant` (replacing `dialect`), and stores a `reading_level` band alongside
+  `target_grade`. Old profiles without `language` load as English with the
+  legacy `dialect` mapped to `variant`, and are rewritten as v3 on the next
+  save. The `dialect` inline override stays as an English alias.
+- Non-English AI score is reported as `n/a` with a caveat. The on-device
+  detector returns `kind: "not_english"` for non-English input, so the loop
+  converges on the reading-level band rather than the AI threshold.
+- `slop-check` labels readability by the returned formula instead of hardcoding
+  Flesch-Kincaid, shows the detected language and band, and handles
+  `unsupported_language` and short-input warnings gracefully.
+- `slop-check` handles `detect_text` returning `kind: "not_english"`: it reports
+  "AI text detection is English-only; no score available for <language>" and
+  still shows the readability block, never inventing a score.
+- `slop-check` and the humanizer normalize Norwegian Bokmal to
+  `language_code: "nb"` on tool calls; `no` and `nn` return
+  `unsupported_language`.
+
+### Fixed
+
+- The `references/profile-resolution.md` table now resolves an unsupported inline
+  `language=` to the `other:<code>` variant (for example `other:fr`), not the
+  bare language code, matching `SKILL.md` and `references/multilingual.md` so the
+  saved-profile-mismatch path writes a v3-consistent variant.
+- The `references/profile-resolution.md` table now treats inline `grade=` as a
+  reading-level override for English only, ignoring it for non-English L (where
+  `level=` sets the band), so an English-only Flesch-Kincaid flag can no longer
+  retarget a non-English rewrite.
+- `/agentic-humanizer set dialect=us|uk` without an explicit `variant=` now
+  resets the saved variant to that alias's specific English variant (`en-US` or
+  `en-GB`) instead of the registry default, so `set dialect=uk` no longer
+  silently saves American English.
+- Step 3 now resolves rewrite keys not supplied inline through the saved profile
+  or interview instead of only running the interview when no overrides are
+  present, so a partial first-time call such as `tone=casual` still collects
+  language, variant, reading level, and length.
+- The Iteration 0 baseline short-circuit now uses the same Graduate-band grade
+  test as Termination (range membership `grade >= 15` for a band-selected
+  Graduate target), so an English source already at the Graduate band is no
+  longer rewritten unnecessarily.
+- Step 6 now uses the language resolved in Step 3, including a base language
+  inferred from a `variant=`-only override (for example `variant=de-AT` resolves
+  to German), in both the main skill and the Claude Desktop fork. Previously
+  Step 6 re-derived the language from only the saved profile, inline `language=`,
+  or detection, so a variant-only override could still send the run down the
+  English tells and readability path.
+- Cursor's ambiguous-language branch now prepends one language-only `AskQuestion` call and then resumes the normal one-question-per-call sequence (variant, reading level, tone, length, optional voice). The previous wording described a single second call that bundled multiple questions, which is invalid because Cursor's `AskQuestion` takes one question per call.
+- The Claude Desktop fork's Step 3 now applies inline overrides per key: when only some parameters are supplied inline (for example `language=de` alone), the interview runs only for the keys not set inline. Previously, any partial set of inline overrides fell through to the full interview and could ignore an explicit `language=`.
+- English Graduate-band termination now distinguishes between band-selected and explicitly overridden targets. When Graduate was selected as a band (via `level=graduate` or the interview, `target_grade` derived as 17), termination uses range membership (`grade >= 15`). When an explicit inline `grade=N` was given, the symmetric `|grade - target_grade| <= 1` tolerance is kept so the explicit target is honored. German Wiener `level=graduate` is unaffected and always uses range membership.
+- `variant=<tag>` without `language=` now infers the base language from the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`, `variant=es-419` -> `language=es`), preventing incoherent pairs such as `language=en` with `variant=de-AT`. If the prefix is not a supported language, the run treats it as `language=other` and warns; if an explicit `language=` conflicts with the variant's prefix, `language=` wins and the run warns.
+- Clarify the interview question count in `SKILL.md`, make the Cursor ambiguous-language interview an explicit two-step flow to match the other one-call harnesses, and describe the Claude Desktop fork's run-only voice fingerprint as in-memory rather than cached.
+- The final post-loop scoring pass now follows the same per-language rule as the
+  iterations: English scores `detect_text` and `analyze_readability`, supported
+  non-English scores readability only, and Nynorsk or unsupported languages skip
+  both. Earlier the finalization ran `detect_text` and `analyze_readability`
+  unconditionally, so non-English and Nynorsk runs could surface a misleading
+  `not_english` or `unsupported_language` result after the loop.
+- Inline `language=` without `variant=` now resolves to that language's default
+  variant from the registry instead of inheriting the saved profile's variant,
+  so an English profile plus `language=de` no longer produces the inconsistent
+  `de` with `en-US` pair.
+- Legacy `dialect`/`target_grade` profiles are upgraded to the v3 schema before
+  the missing-rewrite-keys check, so returning users with an older profile keep
+  their preferences instead of being pushed back through the interview.
+- The per-iteration cookbook no longer points unsupported languages at a
+  non-existent `references/ai-tells/<code>.md`. Nynorsk and unsupported
+  languages load `references/supplemental-ai-tells.md` only (plus the Nynorsk
+  section of `ai-tells/no.md` for `nn`), matching `SKILL.md` Step 6.
+- Option-capped harnesses (Claude Code, Cursor, Gemini CLI, OpenCode) now
+  collapse College and Graduate into one "College or professional" reading-level
+  option so the question stays within the four-option cap; Graduate remains
+  reachable via inline `level=graduate` or `grade=N`. Plain-text (generic) and
+  free-text (Codex) harnesses, which have no option cap, keep all five bands.
+- Every harness now follows Step 3's ambiguous-language branch, asking for the
+  language before its variant when the source text is short or mixed, instead of
+  asserting a detected language.
+- `slop-check` readability handles the CLI's camelCase warning objects
+  (`unsupportedLanguage`, `insufficientText`) alongside the MCP colon-tagged
+  strings, so CLI-only runs surface the unsupported-language and short-input
+  messages.
+- Inline `tone`, `length`, and `level` overrides now survive a saved-profile
+  language mismatch. When the detected language differs from the saved profile,
+  the detection-wins path keeps explicit inline overrides and falls back to
+  profile values only for keys not set inline.
+- `/agentic-humanizer set language=<code>` (or legacy `dialect=`) without an
+  explicit `variant` now resets the saved `variant` to that language's registry
+  default instead of persisting a stale pair such as `de` with `en-US`.
+- `slop-check` bands English readability from the Flesch-Kincaid grade and shows
+  Reading Ease as a supplemental value, instead of risking a reading-level band
+  computed from the inverted Reading Ease scale.
+- `slop-check` routes native readability formula names (`LIX`, `Wiener
+  Sachtextformel`, `Gulpease`, `Flesch-Szigriszt`, `Reading Ease`) to the
+  readability operation instead of falling through to AI text detection.
+- The Claude Desktop bundle's ambiguous-language prompt now stays within the
+  four-option `ask_user_input_v0` cap: it offers the three most likely languages
+  plus "Other", instead of listing every supported language in one call.
+- Option-capped harnesses (Claude Code, Cursor, Gemini CLI, OpenCode) now cap the
+  ambiguous-language question at the three most likely languages plus "Other
+  (different language)", matching the Desktop bundle, instead of listing all
+  seven supported languages past the four-option cap. Generic and Codex, which
+  have no option cap, still list them all.
+- English `level=<band>` without `grade=` now derives `target_grade` from the
+  band midpoint (graduate maps to 17), so the English convergence check
+  `|grade - target_grade| <= 1` is always defined. Non-English profiles store
+  `target_grade: null`.
+- Added a deterministic band-assignment rule to `references/multilingual.md` and
+  the `slop-check` tool surface: a value on a shared band boundary belongs to the
+  higher-numeric band, and a grade score that lands in a gap takes the nearest
+  band midpoint (ties to the higher band), so reading-level labels and band-range
+  termination are unambiguous.
+- Corrected the `slop-check` skill description, which still advertised
+  Flesch-Kincaid readability only, to name each language's native formula.
+- Removed the ambiguous "we" row (`vi` in both standards) from the Norwegian
+  Nynorsk vs Bokmal contrast table in `references/ai-tells/no.md`, which could
+  flag legitimate Nynorsk `vi` as Bokmal contamination.
+- The per-iteration cookbook restates the non-English tell-file substitution at
+  each step that names `references/patterns.md`, and scopes the grade-tolerance
+  note to English (non-English grade scales use the target band midpoint).
+- Clarified in the READMEs that non-English reading-level band convergence
+  applies with Slop or Not Pro; the core workflow runs all five passes and
+  selects by quality, the same as English. The output Language line uses the
+  registry display name "Flesch-Kincaid grade".
+- Inline `variant=` matching the detected language is now honored on the
+  saved-profile language-mismatch path, instead of being overridden by the
+  registry default variant. This completes the inline-override preservation that
+  previously covered only `tone`, `length`, and `level`.
+- The English `target_grade` is now derived from the reading-level band midpoint
+  when a detected English run overrides a saved non-English profile (which stores
+  `target_grade: null`), so the English convergence check
+  `|grade - target_grade| <= 1` is always defined after a language switch.
+- The Slop MCP and CLI setup guides (`references/slop-mcp-setup.md`,
+  `references/slop-cli-setup.md`) now describe native per-language readability
+  instead of Flesch-Kincaid only, matching the runtime's multilingual scoring
+  path.
+- `/agentic-humanizer set level=<band>` (or `grade=N`) now keeps the saved
+  English `target_grade` and `reading_level` in sync, and writes
+  `target_grade: null` when the saved language becomes non-English. The
+  profile-management path stops before Step 3's derivation, so previously
+  changing only the level left a stale `target_grade` that future
+  profile-loaded English runs terminated against.
+- `skip-interview` with no saved profile now keeps the detected source language
+  and its registry default variant, defaulting only the reading level, tone, and
+  length. It falls back to English/en-US only when detection is ambiguous or no
+  text was pasted, so a non-English draft no longer takes the English variant,
+  tell catalogue, and detector path. The Claude Desktop bundle gets the same
+  detected-language fallback.
+- An explicit inline `language=` now wins over detection on the saved-profile
+  language-mismatch path, instead of the branch always running in the detected
+  language. Correcting a misdetection with `language=<code>` while a different
+  saved profile exists now loads that language's tells and readability rules.
+- Choosing `Never ask again` for the voice prompt no longer writes a complete
+  profile full of default rewrite settings when the user has no saved profile
+  (or declined to save one). The skill now persists a voice-only record holding
+  just `voice_skip`, so the next run still asks the language, tone, and
+  reading-level questions instead of silently skipping the interview.
+- Supported non-English Pro runs can again take the Iteration 0 baseline
+  short-circuit. The cookbook required both the AI and grade targets to pass,
+  which a non-English run (readability only, AI score `n/a`) could never satisfy;
+  it now short-circuits on readability band membership alone, matching the
+  non-English termination rule.
+- German (and other grade-scale) runs targeting `level=graduate` no longer stop
+  one band early. The open-ended Graduate band terminates on range membership
+  (`score >=` its lower edge, de Wiener `15`) instead of the symmetric
+  `|score - band_midpoint| <= 1` tolerance, so a College-level Wiener score of
+  `14` no longer satisfies a Graduate target.
+- The one-call harnesses (Claude Code, Gemini CLI, OpenCode) now spell out that
+  the ambiguous-language path is the one exception to the single
+  `AskUserQuestion` call: a first call resolves the language, then a second
+  carries the variant, reading-level, tone, length, and voice questions. The
+  previous wording required exactly one call yet also told the agent to ask the
+  language before building the variant question, which cannot both hold.
+- The generic harness's token-reply parse fallback keeps the language already
+  resolved for the run. After three unparseable replies it now defaults only the
+  reading level, tone, and length (keeping a detected or chosen non-English
+  language with its registry default variant) instead of hard-resetting to
+  American English, which had dropped a German or Spanish user onto the English
+  variant, tell, and detector path.
+- An unsupported `language=` override with no `variant=` (for example
+  `language=fr`) now resolves to a deterministic `other:<code>` variant instead
+  of leaving the variant undefined. The registry carried variant lists only for
+  supported languages, so Step 7 display and profile writes had no value to
+  record; `references/multilingual.md` now defines `other:<code>` as the default
+  variant for any unsupported code, and the inline-override, `set`, and
+  profile-resolution rules resolve to it.
+- `SKILL.md` Step 6 Core-mode completion no longer points unsupported languages
+  at a non-existent `references/ai-tells/<L>.md`. It now loads
+  `references/supplemental-ai-tells.md` alone for an unsupported language
+  (supported non-English languages still add `references/ai-tells/<L>.md`),
+  matching the Step 6 language branch and the per-iteration cookbook.
+- English `target_grade` is now always defined when entering the English
+  termination check via a partial inline override over a saved non-English
+  profile. The Step 6 English branch now derives `target_grade` from the
+  `reading_level` band midpoint (elementary 4, middle 7, high_school 10,
+  college 13, graduate 17) whenever it is null or unset; an explicit inline
+  `grade=` still wins.
+- English FK bands retiled to College 12-14 (target 13) and Graduate 15 and
+  above (target 17), matching the German Wiener layout. The open Graduate band
+  now terminates by range membership (`grade >= 15`) for English as well as
+  German, so a College-level FK grade of 14 can no longer satisfy a Graduate
+  target and any graduate-or-harder grade converges. The back-compat band
+  lookup (`12 to 14 -> college`, `15 and above -> graduate`) is updated to
+  match.
+- The reading-level label "Graduate or professional" is unified to "Graduate"
+  in all harness files that enumerate five bands, so the same intent maps to
+  the same band across harnesses. Option-capped harnesses retain their
+  intentional "College or professional" collapsed option.
+- The `detected_variant_hint` stored in Step 3 is now used: the
+  skip-interview no-profile path and the detection-wins variant-resolution
+  path both prefer `detected_variant_hint` when it is a valid variant for the
+  resolved language, falling back to the registry default only when the hint
+  is absent or invalid.
+- Clarified Norwegian Nynorsk (`nn`) behavior throughout: passing `nn` to
+  `detect_text` returns `kind: "not_english"` with a null score (harmless,
+  same as any non-English language); the AI score is always `n/a`. The
+  registry normalization table no longer implies detection produces a useful
+  result for Nynorsk.
+- `slop-check` and the slop-tools reference now document the `no`-to-`nb`
+  remap for Norwegian Bokmal: always remap a detected or user-supplied macro
+  `no` to `nb` before any tool call, so Bokmal text is scored instead of
+  returning `unsupported_language:no`.
+- Tie-break wording for range-membership scales rewritten to be unambiguous
+  for inverted ease scales: a boundary value belongs to the band that has it
+  as its lower bound (the band covering the numerically higher scores).
+- Stale "dialect" term in the per-iteration cookbook's Iteration 1 replaced
+  with "language and variant"; "grade level" replaced with "reading level".
+- The CLI probe path in `SKILL.md` Step 5 now states clearly that the detection
+  score is a 0-1 decimal (multiply by 100 for a percentage) and readability
+  grades are never percentages.
+- The Step 7 Language line now renders readability as not available for
+  Norwegian Nynorsk (`nn`) and unsupported languages, which have no formula
+  (Step 6 skips readability), instead of leaving the wording to imply a formula
+  name that does not exist.
+
 ## [0.2.0] (2026-05-21)
 
 ### Added
