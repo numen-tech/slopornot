@@ -22,9 +22,12 @@ use the cached fingerprint in Iteration 2 and Iteration 5 in either mode.
 - Grade tolerance: ±1 for elementary through college bands (English: of
   `target_grade` from interview Q2 or inline `grade=`/`level=`; non-English grade
   scales: of the target band midpoint in `references/multilingual.md`). For the
-  open-ended Graduate band on grade scales (English FK and German Wiener),
-  termination uses range membership (`grade >= 15`) instead of the symmetric
-  tolerance; see `references/multilingual.md` Termination semantics.
+  open-ended Graduate band: German Wiener always uses range membership
+  (`score >= 15`); English FK uses range membership when Graduate was selected as
+  a band (via `level=graduate` or the interview, `target_grade` derived as 17),
+  but keeps the symmetric `|grade - target_grade| <= 1` tolerance when an
+  explicit inline `grade=N` was given. See `references/multilingual.md`
+  Termination semantics.
 
 ## Termination
 
@@ -33,11 +36,15 @@ The orchestrator resolves a language L and branches loading and termination
 
 For **English** with Slop or Not Pro, stop when `score <= AI_THRESHOLD` AND the
 reading-level grade test passes, OR after `MAX_ITER` iterations. The grade test
-is `|grade - target_grade| <= 1` for elementary through college; for the Graduate
-band use range membership `grade >= 15` (FK lower edge) per
-`SKILL.md` Termination and `references/multilingual.md`. On non-convergence,
-return the best iteration: lowest score that also meets the grade test; if none
-meet the grade test, lowest score outright.
+is `|grade - target_grade| <= 1` for elementary through college. For the
+Graduate band, the test is conditional: when Graduate was selected as a band
+(via `level=graduate` or the interview, `target_grade` derived as 17), use range
+membership `grade >= 15` (FK lower edge); when an explicit inline `grade=N` was
+given, keep the symmetric `|grade - target_grade| <= 1` tolerance so the
+explicit target is honored. See `SKILL.md` Termination and
+`references/multilingual.md`. On non-convergence, return the best iteration:
+lowest score that also meets the grade test; if none meet the grade test, lowest
+score outright.
 
 For **supported non-English** (es, de, it, sv, da, nb) with Slop or Not Pro,
 there is no AI threshold (the AI score is `n/a`). Stop when the readability score

@@ -25,7 +25,7 @@ Pro adds measured on-device AI detector checks.
 
 **Inline overrides:** `/agentic-humanizer language=<code> variant=<spec> dialect=us|uk grade=N level=<band> tone=casual|professional|academic length=±10|exp|trim threshold=N max=N voice=off voice-skip skip-interview [paste]`
 
-`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `language=` without `variant=` uses that language's default variant from the registry (or `other:<code>` for an unsupported language). `dialect=us|uk` is a legacy English alias. `grade=N` is English only; `level=<band>` (`elementary|middle|high_school|college|graduate`) sets the reading level for any language. See `references/multilingual.md`.
+`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `language=` without `variant=` uses that language's default variant from the registry (or `other:<code>` for an unsupported language). `variant=<tag>` without `language=` infers the base language from the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`); if the prefix is not a supported language, the run treats it as `language=other` and warns. `dialect=us|uk` is a legacy English alias. `grade=N` is English only; `level=<band>` (`elementary|middle|high_school|college|graduate`) sets the reading level for any language. See `references/multilingual.md`.
 
 ## What this skill does
 
@@ -183,13 +183,29 @@ limitation and stop. Do not probe Slop or run the loop.
 
 **Preference resolution order:**
 
-1. **Inline overrides** for all four rewrite parameters -> use them.
+1. **Inline overrides** (`language=`, `variant=`, `dialect=`, `grade=`,
+   `level=`, `tone=`, `length=`) -> use them per key; do not interview for any
+   key that was supplied inline. Inline `language=`/`variant=` also override
+   detection. When `language=` is given without `variant=`, set the variant to
+   that language's default from `references/multilingual.md` (the first variant
+   listed), so the pair stays consistent (for example `language=de` alone
+   resolves to `variant=de-DE`; an unsupported language such as `language=fr`
+   resolves to `variant=other:fr`). When `variant=<tag>` is given without
+   `language=`, infer the base language from the variant's BCP-47 prefix (for
+   example `variant=de-AT` -> `language=de`); if the prefix is not a supported
+   language, treat it as `language=other` and warn. If an explicit `language=`
+   is also present and conflicts with the variant's base language, `language=`
+   wins and the run warns. For English, when `level=` is set without `grade=`,
+   derive `target_grade` from the band midpoint (elementary 4, middle 7,
+   high_school 10, college 13, graduate 17); an explicit `grade=N` always wins.
+   When the resolved language is not English, `grade=N` is ignored. Interview
+   runs only for the keys NOT supplied inline.
 2. **`skip-interview` flag** -> skip the interview and use defaults (High
    school, Professional, ±10%). Detect the source language first (per Step 1)
    and keep it with its default variant from `references/multilingual.md`; fall
    back to English/en-US only when detection is ambiguous or no text was pasted.
    For English, also set `target_grade` 10.
-3. **No complete inline overrides** -> run the interview below.
+3. **No inline overrides for a key** -> run the interview for that key.
 
 **Run the interview** using the protocol in Step 1 (which detects the source
 language and confirms it in Q1). Capture these rewrite settings here:
@@ -385,12 +401,16 @@ Normalize those into this internal shape:
 ### Termination with Slop or Not Pro
 
 **English (L is `en`):** AI score <= `AI_THRESHOLD` AND the reading-level grade
-test passes, or after `MAX_ITER`. The grade test is `|grade - target_grade| <= 1`
-for elementary through college; for the Graduate band, replace the grade test
-with range membership `grade >= 15` (FK lower edge), matching the per-scale
-semantics in `references/multilingual.md`. On non-convergence, return the best
-iteration: lowest score that meets the grade test; if none meet the grade test,
-lowest score outright.
+test passes, or after `MAX_ITER`. The grade test depends on how the Graduate
+target was set. For elementary through college, the test is always
+`|grade - target_grade| <= 1`. For the Graduate band: when Graduate was selected
+as a band (via `level=graduate` or the interview, with `target_grade` derived as
+17), replace the grade test with range membership `grade >= 15` (the FK lower
+edge), so a College-level grade of 14 cannot satisfy a Graduate target; when an
+explicit inline `grade=N` was given, keep the symmetric
+`|grade - target_grade| <= 1` tolerance so the explicit target is honored.
+On non-convergence, return the best iteration: lowest score that meets the grade
+test; if none meet the grade test, lowest score outright.
 
 **Supported non-English (es, de, it, sv, da, nb):** no AI threshold (the AI
 score is `n/a`). Terminate when the readability score for L's formula lands in

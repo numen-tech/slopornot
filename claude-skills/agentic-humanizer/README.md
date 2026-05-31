@@ -72,7 +72,7 @@ that run only; nothing is written to disk.
 | Flag | Effect |
 |---|---|
 | `language=<code>` | Set the target language (for example `language=de`). |
-| `variant=<spec>` | Set the variant (for example `variant=de-AT`). |
+| `variant=<spec>` | Set the variant (for example `variant=de-AT`). Without `language=`, infers the base language from the variant's BCP-47 prefix (for example `variant=de-AT` resolves to `language=de`). |
 | `dialect=us` or `dialect=uk` | Legacy English alias for `variant=en-US` or `variant=en-GB`. |
 | `grade=N` | Set the target Flesch-Kincaid grade (English only). |
 | `level=<band>` | Set the reading-level band for any language (`elementary` to `graduate`). |

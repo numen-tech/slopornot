@@ -100,7 +100,7 @@ Available flags:
 | Flag | Effect |
 |---|---|
 | `language=<code>` | Set the target language (for example `language=de`). Without `variant=`, uses that language's default variant from the registry, or `other:<code>` for an unsupported language. |
-| `variant=<spec>` | Set the variant (for example `variant=de-AT`). |
+| `variant=<spec>` | Set the variant (for example `variant=de-AT`). Without `language=`, the base language is inferred from the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`). |
 | `dialect=us` or `dialect=uk` | Legacy English alias for `variant=en-US` or `variant=en-GB`. |
 | `grade=N` | Set the target Flesch-Kincaid grade (English only). |
 | `level=<band>` | Set the reading-level band for any language (`elementary` to `graduate`). |

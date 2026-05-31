@@ -13,11 +13,12 @@ contain `"voice_skip": true`.
 
 Before Q1, detect the source language (see `SKILL.md` Step 3). If Step 3 flagged
 the language as ambiguous (text under ~20 words or mixed), follow its ambiguous
-branch with two AskQuestion calls: the first call asks only the language (the
-three most likely languages plus "Other (different language)", within the
-four-option cap); after it resolves, a second call asks that language's variant,
-reading level, tone, length, and any eligible voice questions. This two-step
-ambiguous-language path is the sole exception to the per-question sequence.
+branch with a prepended AskQuestion call that asks only the language (the three
+most likely languages plus "Other (different language)", within the four-option
+cap). After the language resolves, resume the normal one-question-per-call
+sequence: Q1 asks the resolved language's variant, then Q2 through Q4 (and
+optional Q5) follow in order exactly as the non-ambiguous path does. This
+prepended language-only call is the sole addition to the per-question sequence.
 Otherwise build Q1's options from `references/multilingual.md` for the detected
 language; show Q2's bands in that language's metric. The blocks below show the
 English default.

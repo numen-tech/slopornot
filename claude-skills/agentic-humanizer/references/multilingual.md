@@ -99,9 +99,13 @@ returned `kind`, and consults the band table.
   to the target band midpoint, not a hardcoded `target_grade`). Open-ended
   Graduate band exception: Graduate has no upper edge and its midpoint sits at
   the band's lower edge, so terminate on range membership (`score >=` the
-  Graduate lower edge) instead of the symmetric tolerance. This applies to both
-  English FK (Graduate lower edge: `15`) and German Wiener (Graduate lower edge:
-  `15`). Range membership stops a College-level score (FK `14` or Wiener `14`,
+  Graduate lower edge) instead of the symmetric tolerance. For German Wiener,
+  this range-membership rule applies unconditionally. For English FK, it applies
+  when Graduate was selected as a band (via `level=graduate` or the interview,
+  `target_grade` derived as 17); when an explicit inline `grade=N` was given
+  (English only), keep the symmetric `|grade - target_grade| <= 1` tolerance so
+  the explicit target is honored rather than collapsed to range membership.
+  Range membership stops a College-level score (FK `14` or Wiener `14`,
   which `|14 - 15| <= 1` would otherwise accept) from satisfying a Graduate
   target, while still converging on scores harder than the midpoint. Non-graduate
   bands (elementary through college) still use `|score - band_midpoint| <= 1`.

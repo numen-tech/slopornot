@@ -34,7 +34,7 @@ languages use native readability and per-language tells. See
 
 **Inline overrides:** `/agentic-humanizer language=<code> variant=<spec> dialect=us|uk grade=N level=<band> tone=casual|professional|academic length=±10|exp|trim threshold=N max=N voice=/path/to/file.txt|off voice-skip skip-interview [paste]`
 
-`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `dialect=us|uk` is a legacy English alias: `dialect=us` equals `language=en variant=en-US`, `dialect=uk` equals `language=en variant=en-GB`. `grade=N` sets the Flesch-Kincaid target and is English only; `level=<band>` sets the reading-level band (`elementary|middle|high_school|college|graduate`) for any language. Explicit `language=`/`variant=` win over `dialect=`. Setting `language=` without `variant=` uses that language's default variant from the registry (the first variant listed, or `other:<code>` for an unsupported language with no registry entry). See `references/multilingual.md` for supported codes and variants.
+`language=<code>` and `variant=<spec>` set the target language and variant (for example `language=de variant=de-AT`). `dialect=us|uk` is a legacy English alias: `dialect=us` equals `language=en variant=en-US`, `dialect=uk` equals `language=en variant=en-GB`. `grade=N` sets the Flesch-Kincaid target and is English only; `level=<band>` sets the reading-level band (`elementary|middle|high_school|college|graduate`) for any language. Explicit `language=`/`variant=` win over `dialect=`. Setting `language=` without `variant=` uses that language's default variant from the registry (the first variant listed, or `other:<code>` for an unsupported language with no registry entry). Setting `variant=<tag>` without `language=` infers the base language from the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`); if the prefix is not a supported language, the run treats it as `language=other` and warns. See `references/multilingual.md` for supported codes and variants.
 
 ## What this skill does
 
@@ -76,7 +76,7 @@ The user can manage their saved profile with these subcommands:
 |---|---|
 | `/agentic-humanizer show profile` | Print `~/.agentic-humanizer/profile.json` (or "no profile saved"). |
 | `/agentic-humanizer reset` | `rm ~/.agentic-humanizer/profile.json` and confirm. |
-| `/agentic-humanizer set language=de variant=de-AT level=high_school tone=casual length=±10` | Write a profile from inline params without running the interview. Recognized keys: `language`, `variant`, `dialect` (legacy English alias), `grade` (English only), `level`, `tone`, `length`. Any subset is allowed; missing keys keep their current value or use the default if no profile exists. When `language` (or legacy `dialect`) changes without an explicit `variant`, reset `variant` to that language's default from `references/multilingual.md` (the first variant listed, or `other:<code>` for an unsupported language) instead of keeping the old one, so the saved pair stays consistent (for example `set language=de` on an English profile writes `variant=de-DE`, not `en-US`). For English, keep the level fields consistent: `level=` sets `reading_level` and derives `target_grade` from the band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17), and `grade=N` sets `target_grade=N` and `reading_level` to that grade's band; when the saved `language` becomes non-English, write `target_grade: null` (the loop reads `reading_level`). |
+| `/agentic-humanizer set language=de variant=de-AT level=high_school tone=casual length=±10` | Write a profile from inline params without running the interview. Recognized keys: `language`, `variant`, `dialect` (legacy English alias), `grade` (English only), `level`, `tone`, `length`. Any subset is allowed; missing keys keep their current value or use the default if no profile exists. When `language` (or legacy `dialect`) changes without an explicit `variant`, reset `variant` to that language's default from `references/multilingual.md` (the first variant listed, or `other:<code>` for an unsupported language) instead of keeping the old one, so the saved pair stays consistent (for example `set language=de` on an English profile writes `variant=de-DE`, not `en-US`). When `variant=<tag>` is given without `language=`, infer the base language from the variant's BCP-47 prefix (for example `set variant=de-AT` -> `language=de`) and update the saved `language` accordingly; if the prefix is not a supported language, treat it as `language=other` and warn. For English, keep the level fields consistent: `level=` sets `reading_level` and derives `target_grade` from the band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17), and `grade=N` sets `target_grade=N` and `reading_level` to that grade's band; when the saved `language` becomes non-English, write `target_grade: null` (the loop reads `reading_level`). |
 | `/agentic-humanizer show voice` | Print `~/.agentic-humanizer/voice-fingerprint.json` if present, plus the sample path; otherwise say no voice is saved. |
 | `/agentic-humanizer reset voice` | Remove `~/.agentic-humanizer/voice.txt` and `~/.agentic-humanizer/voice-fingerprint.json`, then clear voice fields from the profile without deleting the rewrite preferences. |
 | `/agentic-humanizer set voice=/path/to/file.txt` | Save the profile's `voice_path`, clear `voice_skip`, and use that path on future runs. Do not extract the fingerprint until the next rewrite call. |
@@ -104,7 +104,15 @@ If the text is under ~20 words or mixed, treat the language as ambiguous.
    default from `references/multilingual.md` (the first variant listed), not the
    profile's variant, so the pair stays consistent (for example `language=de`
    alone resolves to `variant=de-DE`; an unsupported language with no registry
-   entry, such as `language=fr`, resolves to `variant=other:fr`). For English, when `level=` is set without `grade=`, derive `target_grade` from the resolved band midpoint (elementary 4, middle 7, high_school 10, college 13, graduate 17); an explicit `grade=N` always wins.
+   entry, such as `language=fr`, resolves to `variant=other:fr`). When
+   `variant=<tag>` is given without `language=`, infer the base language from
+   the variant's BCP-47 prefix (for example `variant=de-AT` -> `language=de`,
+   `variant=es-419` -> `language=es`); if the prefix is not a supported language,
+   treat it as `language=other` and warn. If an explicit `language=` is also
+   present and conflicts with the variant's base language, `language=` wins and
+   the run warns. For English, when `level=` is set without `grade=`, derive
+   `target_grade` from the resolved band midpoint (elementary 4, middle 7,
+   high_school 10, college 13, graduate 17); an explicit `grade=N` always wins.
 2. **`skip-interview` flag** -> use the saved profile if present. With no
    profile, keep the detected source language; for the variant, use
    `detected_variant_hint` when it is a valid variant for the resolved language,
@@ -524,12 +532,18 @@ Normalize those into this internal shape:
 ### Termination with Slop or Not Pro
 
 **English (L is `en`):** AI score <= `AI_THRESHOLD` AND the reading-level grade
-test passes, or after `MAX_ITER`. The grade test is `|grade - target_grade| <= 1`
-for elementary through college; for the Graduate band, replace the grade test
-with range membership `grade >= 15` (the Graduate lower edge in FK), matching
-the per-scale semantics in `references/multilingual.md`. On non-convergence,
-return the best iteration: lowest score that meets the grade test; if none meet
-the grade test, lowest score outright.
+test passes, or after `MAX_ITER`. The grade test depends on how the Graduate
+target was set. For elementary through college, the test is always
+`|grade - target_grade| <= 1`. For the Graduate band: when Graduate was selected
+as a band (via `level=graduate` or the interview, with `target_grade` derived as
+17), replace the grade test with range membership `grade >= 15` (the FK lower
+edge), so a College-level grade of 14 cannot satisfy a Graduate target; when an
+explicit inline `grade=N` was given (English only), keep the symmetric
+`|grade - target_grade| <= 1` tolerance regardless of the derived band, so the
+explicit target is honored. This conditional applies only to English FK; German
+Wiener `level=graduate` always uses range membership (no explicit numeric grade
+there). On non-convergence, return the best iteration: lowest score that meets
+the grade test; if none meet the grade test, lowest score outright.
 
 **Supported non-English (L in {es, de, it, sv, da, nb}):** no AI threshold (the
 AI score is `n/a`). Terminate when the readability score for L's formula lands
