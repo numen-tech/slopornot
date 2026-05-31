@@ -12,7 +12,7 @@ const errors = [];
 // automatically instead of being hand-maintained here.
 const selfContainedSkills = ['agentic-humanizer', 'slop-check'];
 
-function listSkillFiles(skill) {
+function listFilesRelative(dir, base) {
   const files = [];
 
   function walk(current) {
@@ -22,13 +22,19 @@ function listSkillFiles(skill) {
       if (stats.isDirectory()) {
         walk(entryPath);
       } else if (stats.isFile()) {
-        files.push(path.relative(root, entryPath));
+        files.push(path.relative(base, entryPath));
       }
     }
   }
 
-  walk(path.join(root, 'skills', skill));
+  if (fs.existsSync(dir)) {
+    walk(dir);
+  }
   return files.sort();
+}
+
+function listSkillFiles(skill) {
+  return listFilesRelative(path.join(root, 'skills', skill), root);
 }
 
 const selfContainedSkillFiles = selfContainedSkills.flatMap(listSkillFiles);
@@ -151,6 +157,8 @@ if (claudeMarketplace) {
   }
 }
 
+const selfContainedSkillFileSet = new Set(selfContainedSkillFiles);
+
 for (const host of ['codex', 'claude']) {
   const pluginRoot = `plugins/${host}/slopornot`;
 
@@ -159,6 +167,19 @@ for (const host of ['codex', 'claude']) {
 
   for (const sourceFile of selfContainedSkillFiles) {
     requireSyncedFile(sourceFile, `${pluginRoot}/${sourceFile}`);
+  }
+
+  // Reverse direction: flag payload files with no matching source (for example
+  // a file left behind in the payload after its source under skills/ was
+  // deleted). Only the synced skills tree is walked.
+  for (const skill of selfContainedSkills) {
+    const payloadSkillDir = path.join(root, pluginRoot, 'skills', skill);
+    const payloadFiles = listFilesRelative(payloadSkillDir, path.join(root, pluginRoot));
+    for (const payloadFile of payloadFiles) {
+      if (!selfContainedSkillFileSet.has(payloadFile)) {
+        errors.push(`${pluginRoot}/${payloadFile} has no source under skills/ (orphaned payload file)`);
+      }
+    }
   }
 }
 
