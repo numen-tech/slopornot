@@ -52,11 +52,13 @@ for L's formula lands in the target band (per the scale semantics in
 `references/multilingual.md`), OR after `MAX_ITER`. On non-convergence, return
 the iteration closest to the target band.
 
-In **Core mode**, and for **Nynorsk or unsupported languages** in any mode, run
-the full five strategy passes unless the source is empty or unusable. Return the
-best final rewrite by qualitative criteria: meaning preserved, requested reading
-level, tone, and length honored, and visible AI tells removed. Do not claim
-detector convergence.
+In **Core mode**, for **Nynorsk** in any mode, and for **unsupported languages**
+in any mode, run the full five strategy passes unless the source is empty or
+unusable. Return the best final rewrite by qualitative criteria: meaning
+preserved, requested reading level, tone, and length honored, and visible AI
+tells removed. For unsupported-language Slop or Not Pro runs, readability scores
+may be logged as advisory only; do not claim detector or readability-band
+convergence.
 
 **Language note (composes with this schedule).** All five iterations run for
 every language. Wherever an iteration below names `references/patterns.md`, that
@@ -76,8 +78,10 @@ Wherever an iteration below calls `detect_text` or says to "score and analyze,"
 that full detector path is English only. For supported non-English L (es, de, it,
 sv, da, nb), "score" means `analyze_readability` alone: do not call `detect_text`
 (it returns `kind: "not_english"` with a null score, adding nothing). For Nynorsk
-(nn) and unsupported languages, skip both `detect_text` and `analyze_readability`
-(no readability is available) and self-assess as in Core mode.
+(nn), skip both `detect_text` and `analyze_readability` and self-assess as in
+Core mode. For unsupported languages, skip `detect_text`, call
+`analyze_readability`, log any known score as advisory, and never use the score
+for short-circuiting, termination, or final selection.
 
 ## Iteration 0: baseline
 
@@ -86,8 +90,9 @@ Slop or Not Pro:
 1. Use the pre-cleaned source from `SKILL.md` Step 6.
 2. For English, call `detect_text(T)` and `analyze_readability(T)`. For
    supported non-English, call `analyze_readability(T)` only (the AI score is
-   n/a, so `detect_text` adds nothing). For Nynorsk or unsupported, skip both
-   (no readability is available).
+   n/a, so `detect_text` adds nothing). For Nynorsk, skip both. For unsupported
+   languages, call `analyze_readability(T)` only and log any known score as
+   advisory.
 3. Short-circuit if the resolved language's targets already pass: for English,
    `score <= AI_THRESHOLD` and the same reading-level grade test used at
    Termination above (so the Graduate band uses `grade >= 15` when Graduate was
@@ -96,7 +101,7 @@ Slop or Not Pro:
    score is n/a, so readability alone is the gate). Return T with the note
    (English *"already passes both targets"*; non-English *"already in the target
    readability band"*) and still run final Text Cleanup before output. Nynorsk
-   and unsupported languages have no measurable target here and never
+   and unsupported languages have no target-band gate here and never
    short-circuit.
 4. Otherwise log `{iter: 0, score, grade, strategy: "baseline"}`.
 
@@ -124,7 +129,8 @@ Goal: attack the most obvious AI tells in the source.
 4. Leave language, variant, tone, and reading level untouched in this iteration.
 5. Slop or Not Pro: score and analyze the result (per the language rule:
    English calls `detect_text` and `analyze_readability`; supported non-English
-   calls `analyze_readability` only; Nynorsk and unsupported languages skip both).
+   calls `analyze_readability` only; Nynorsk skips both; unsupported languages
+   call `analyze_readability` only for advisory logging).
 6. Core mode: self-check that the top-5 pattern hits were removed.
 7. Log `{iter: 1, score, grade, strategy: "pattern surgery (top-5)"}`. In
    Core mode, score and grade are `null`.
@@ -182,14 +188,16 @@ variant, tone, and voice-fingerprint alignment. Log
 
 Goal: close the gap between current grade and target.
 
-With Slop or Not Pro, read the latest readability score from `scores[]` for the
-resolved language L (read the `kind` and `value`; do not assume Flesch-Kincaid)
-and map it to the target band via `references/multilingual.md`. In Core mode, or
-for Nynorsk and unsupported languages, estimate the level from sentence length,
-word complexity, and the target band. English uses a direct grade; other scales
-compare against the band range, noting that the es Szigriszt and it Gulpease
-ease scales invert (higher = easier) while sv/da/nb LIX is a difficulty index
-(higher = harder).
+With Slop or Not Pro, read the latest readability score from `scores[]` for
+English and supported non-English L (read the `kind` and `value`; do not assume
+Flesch-Kincaid) and map it to the target band via `references/multilingual.md`.
+For unsupported languages, any known readability score is advisory only, so do
+not map or chase it as a target. In Core mode, for Nynorsk, and for unsupported
+languages, estimate the level from sentence length, word complexity, and the
+target band. English uses a direct grade; other supported scales compare
+against the band range, noting that the es Szigriszt and it Gulpease ease scales
+invert (higher = easier) while sv/da/nb LIX is a difficulty index (higher =
+harder).
 
 If the text is harder than the target band (en and de grade scales:
 `current_grade` above the band's upper edge; sv/da/nb LIX above the band; es

@@ -88,10 +88,11 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Clarify the interview question count in `SKILL.md`, make the Cursor ambiguous-language interview an explicit two-step flow to match the other one-call harnesses, and describe the Claude Desktop fork's run-only voice fingerprint as in-memory rather than cached.
 - The final post-loop scoring pass now follows the same per-language rule as the
   iterations: English scores `detect_text` and `analyze_readability`, supported
-  non-English scores readability only, and Nynorsk or unsupported languages skip
-  both. Earlier the finalization ran `detect_text` and `analyze_readability`
-  unconditionally, so non-English and Nynorsk runs could surface a misleading
-  `not_english` or `unsupported_language` result after the loop.
+  non-English scores readability only, Nynorsk skips both, and unsupported
+  languages run readability only for advisory logging. Earlier the finalization
+  ran `detect_text` and `analyze_readability` unconditionally, so non-English
+  and Nynorsk runs could surface a misleading `not_english` or
+  `unsupported_language` result after the loop.
 - Inline `language=` without `variant=` now resolves to that language's default
   variant from the registry instead of inheriting the saved profile's variant,
   so an English profile plus `language=de` no longer produces the inconsistent
@@ -264,9 +265,10 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   score is a 0-1 decimal (multiply by 100 for a percentage) and readability
   grades are never percentages.
 - The Step 7 Language line now renders readability as not available for
-  Norwegian Nynorsk (`nn`) and unsupported languages, which have no formula
-  (Step 6 skips readability), instead of leaving the wording to imply a formula
-  name that does not exist.
+  Norwegian Nynorsk (`nn`) and renders unsupported-language readability as
+  advisory when the app returns a known score, otherwise not available. It no
+  longer implies that an advisory unsupported-language score can drive
+  convergence.
 - Unsupported `variant=` prefixes now keep the inferred bare language code and
   inline variant instead of collapsing to the generic `other` language, so a call such as
   `variant=fr-CA` keeps `language=fr` while warning that French has no curated
@@ -277,6 +279,15 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The Claude Desktop README now documents that `skip-interview` uses detected
   language defaults when detection is clear, falling back to English/en-US only
   when the source language is ambiguous or absent.
+- `check-plugin-packaging.mjs` now fails when a skill listed for plugin sync is
+  missing from `skills/`, even if the corresponding generated payload directory
+  is also absent.
+- Unsupported-language Slop or Not Pro runs now call `analyze_readability` for
+  advisory logging when the app can return a known score, while still running all
+  iterations and selecting by quality instead of readability convergence.
+- `slop-check` now normalizes CLI `slop text --json` non-English detection
+  output before reading `detection.result`, so CLI-only runs report the
+  English-only detector caveat and still show readability when present.
 
 ## [0.2.0] (2026-05-21)
 

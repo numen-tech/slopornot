@@ -182,11 +182,17 @@ Map the verdict by rule (verdicts have gradations like `probably_ai_slop`):
 title-cased. Show the label, the raw verdict in parentheses, and the
 percentage.
 
-When `detect_text` returns `kind: "not_english"` (non-English input), `score`
-and `verdict` are null. Do not show an AI percentage. Print instead: "AI text
-detection is English-only; no score available for <language>." (read the
-language from the `language` field), then show the readability block if the
-response carries one. Never invent a score for non-English input.
+When MCP `detect_text` returns `kind: "not_english"` (non-English input),
+`score` and `verdict` are null. For CLI `slop text --json`, normalize the same
+case before reading `detection.result`: if `detection.notEnglish`,
+`detection.not_english`, or a normalized `kind: "not_english"` is present, or if
+the response has a non-English `detectedLanguage` / `readability.language` and
+no `detection.result` or `detection.resultFewSentences`, treat the AI score and
+verdict as null. Do not show an AI percentage. Print instead: "AI text detection
+is English-only; no score available for <language>." (read the language from the
+`language`, `detectedLanguage`, or `readability.language` field), then show the
+readability block if the response carries one. Never invent a score for
+non-English input.
 
 **Readability:**
 

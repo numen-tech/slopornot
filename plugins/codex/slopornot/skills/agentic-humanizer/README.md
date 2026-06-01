@@ -36,7 +36,9 @@ English, Wiener Sachtextformel for German, Flesch-Szigriszt for Spanish, Gulpeas
 for Italian, LIX for the Nordic languages). The on-device AI detector is English
 only, so other languages show the AI score as `n/a`; with Slop or Not Pro the
 loop then converges on the reading-level band, and the no-Slop core workflow runs
-all five passes and selects by quality, the same as English.
+all five passes and selects by quality, the same as English. Nynorsk has tells
+but no readability. Unsupported languages use language-agnostic structural tells;
+any returned readability score is advisory only and is not used for convergence.
 
 ## Install
 

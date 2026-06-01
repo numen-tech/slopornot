@@ -50,7 +50,9 @@ and, with Slop or Not Pro, the loop then converges on the reading-level band
 instead; the no-Slop core workflow runs all five passes and selects by quality,
 the same as English. Nynorsk runs with
 tells but without readability; other languages fall back to language-agnostic
-structural tells with a clear warning.
+structural tells with a clear warning. If the app returns a readability score
+for an unsupported language, the skill logs it as advisory only and does not use
+it for convergence.
 
 ## How It Runs
 

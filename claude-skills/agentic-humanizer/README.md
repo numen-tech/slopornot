@@ -50,7 +50,10 @@ Agentic Humanizer detects the source language, then asks four short questions
 matching a writing sample. Answers apply to the current run; the sandbox does
 not persist them between chats. It supports English, Spanish, German, Italian,
 Swedish, Danish, and Norwegian (Bokmal and Nynorsk); the AI score is English
-only, and other languages use native readability and per-language tells.
+only. Supported non-English languages use native readability and per-language
+tells; Nynorsk uses tells without readability. Unsupported languages use
+language-agnostic structural tells, and any returned readability score is
+advisory only.
 
 Skip the interview for one call by passing every preference inline, or pass
 `skip-interview` to use detected-language defaults:

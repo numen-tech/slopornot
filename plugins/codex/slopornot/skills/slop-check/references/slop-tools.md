@@ -129,10 +129,12 @@ language).
 - `approximate_syllable_counts:<lang>`: benign (syllable-based formulas: en,
   es, de). Do not surface it as an error.
 
-Detector language: `detect_text` returns `kind: "result"` for English and
+Detector language: MCP `detect_text` returns `kind: "result"` for English and
 `kind: "not_english"` for non-English input. For `not_english`, `score` and
-`verdict` are null but the `readability` block is still populated. Never invent
-an AI score for non-English input.
+`verdict` are null but the `readability` block is still populated. CLI
+`slop text --json` carries the same concept under `detection.notEnglish` (or a
+normalized `kind: "not_english"` in some clients), with readability still under
+`readability`. Never invent an AI score for non-English input.
 
 (Kinds and ranges verified against MCP v1.0.9 on 2026-05-29.)
 
@@ -267,6 +269,14 @@ at `detection.resultFewSentences._0` instead. Normalized clients may expose
 `ai_probability`. The verdict object is `detection.result._1` (single-key,
 e.g. `{"real": {}}` or `{"most_likely_ai_slop": {}}`).
 
+For non-English text, normalize before reading those result fields. If
+`detection.notEnglish`, `detection.not_english`, or a normalized
+`kind: "not_english"` is present, or if `detectedLanguage` /
+`readability.language` is non-English and both `detection.result` and
+`detection.resultFewSentences` are absent, treat the AI score and verdict as
+null. Report "AI text detection is English-only; no score available for
+<language>" and still format the `readability` block if present.
+
 `slop readability --json`: same `readability.scores[]` shape. Read the entry's
 `kind` and `value`; do not assume `fleschKincaidGradeLevel` (the kind depends on
 the language, see section 2). Pass `-l, --language <code>` to set the language
@@ -341,7 +351,7 @@ the probe returns a Pro-required error or exits non-zero, report
 
 | Operation | MCP tool | CLI command | Read from |
 |---|---|---|---|
-| text-detect | `detect_text` (`include_readability: true`, optional `language_code`) | `"/Applications/Slop Or Not.app/Contents/MacOS/slop" text --json [-l <code>]` (stdin) | MCP `score` / `verdict` (both null when `kind: not_english`); CLI `detection.result._0` / `._1` |
+| text-detect | `detect_text` (`include_readability: true`, optional `language_code`) | `"/Applications/Slop Or Not.app/Contents/MacOS/slop" text --json [-l <code>]` (stdin) | MCP `score` / `verdict` (both null when `kind: not_english`); CLI first normalize non-English (`detection.notEnglish` or no result for non-English), otherwise read `detection.result._0` / `._1` |
 | image-detect | `detect_image` (base64) | `"/Applications/Slop Or Not.app/Contents/MacOS/slop" image --json < file` | `verdict`, `score` / `detection.result` |
 | image-score (explicit OmniAID only) | `score_image` (base64) | `"/Applications/Slop Or Not.app/Contents/MacOS/slop" score-image --json < file` | MCP `raw_slop_score`; CLI `rawSlopScore` |
 | readability | `analyze_readability` (+ optional `language_code`) | `"/Applications/Slop Or Not.app/Contents/MacOS/slop" readability --json [-l <code>]` (stdin) | `scores[]` (read the returned `kind`, not always FK; see section 2); `warnings[]` for unsupported or short input |

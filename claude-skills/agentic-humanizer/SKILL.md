@@ -345,10 +345,15 @@ per-iteration cookbook). Then load the tell catalogue for L's branch:
   `kind` `scores[]` returns, label it by that kind, and map it to a band via the
   registry. The AI score is `n/a` (`detect_text` returns `kind: "not_english"`
   with a null score); call `analyze_readability` directly for readability.
-- **L is `nn` or an unsupported language:** do NOT read `patterns.md`. Read
-  `references/supplemental-ai-tells.md` (and `ai-tells/no.md`, Nynorsk section,
-  for `nn`). Readability is not available; the AI score is `n/a`; run all
-  iterations and select by quality. Warn the user.
+- **L is `nn`:** do NOT read `patterns.md`. Read
+  `references/supplemental-ai-tells.md` and `ai-tells/no.md`, Nynorsk section.
+  Readability is not available; the AI score is `n/a`; run all iterations and
+  select by quality. Warn the user.
+- **L is an unsupported language:** do NOT read `patterns.md`. Read
+  `references/supplemental-ai-tells.md` only. The AI score is `n/a`; do not call
+  `detect_text`. Call `analyze_readability` with the normalized language code;
+  if `scores[]` returns a known kind, log it as advisory only and never use it
+  for termination. Run all iterations and select by quality. Warn the user.
 
 The language branch composes with, and does not replace, the 5-iteration
 schedule.
@@ -419,17 +424,22 @@ score is `n/a`). Terminate when the readability score for L's formula lands in
 the target band (see `references/multilingual.md`) or after `MAX_ITER`. On
 non-convergence, return the iteration closest to the target band.
 
-**Nynorsk or unsupported:** tells-only, no readability and no AI score. Run all
-`MAX_ITER` iterations and select by quality.
+**Nynorsk:** tells-only, no readability and no AI score. Run all `MAX_ITER`
+iterations and select by quality.
+
+**Unsupported language:** tells-only with no AI score. Run all `MAX_ITER`
+iterations and select by quality. If `analyze_readability` returns a known
+score, log it as advisory only; never terminate or select the final iteration
+based on that advisory score.
 
 After selecting the final iteration, run Text Cleanup on that selected text.
 Store `final_cleanup_stats` and use the cleaned text as the final output. Then
 run the final scoring pass gated by L, matching the loop's per-language rule:
 for English, run final `detect_text` and `analyze_readability`; for supported
 non-English (es, de, it, sv, da, nb), run final `analyze_readability` only (skip
-`detect_text`, which returns `not_english` with a null score); for Nynorsk or an
-unsupported language, skip both (readability returns `unsupported_language` and
-the AI score is `n/a`).
+`detect_text`, which returns `not_english` with a null score); for Nynorsk, skip
+both; for an unsupported language, run final `analyze_readability` only and log
+any known score as advisory (the AI score is `n/a`).
 
 ### Completion in Core mode
 
@@ -488,21 +498,28 @@ Converged at iter 3 (<=40% AI, grade target 9 to 11).
 **Language line.** Always show the resolved language and variant, plus the
 readability formula's display name from `references/multilingual.md`, for example
 "German (de-DE). Readability: Wiener Sachtextformel." For Norwegian Nynorsk
-(`nn`) and unsupported languages there is no formula (Step 6 skips readability),
-so render readability as unavailable instead, for example "Norwegian Nynorsk
-(nn). Readability: not available."
+(`nn`), render readability as unavailable, for example "Norwegian Nynorsk (nn).
+Readability: not available." For an unsupported language, render readability as
+advisory when `analyze_readability` returned a known kind, for example "French
+(fr-CA). Readability: advisory Flesch-Szigriszt."; otherwise render it as not
+available.
 
 **Readability column.** The formula is named once in the Language line (use its
 display name from `references/multilingual.md`). In the loop-history column show
 only the value and the band in parentheses, for example "10.6 (High school)".
+For unsupported-language advisory readability, show only the value and
+"(advisory)", since there is no target band.
 
 **AI score column (non-English).** Render "n/a (detector is English-only)" on
 the first row and "n/a" thereafter. In Core mode, render "n/a" for every row.
 
 **Convergence line (non-English with readability).** Reference the band, not the
 AI threshold, for example "Converged at iter 3 (readability in target band: High
-school)." For Nynorsk or an unsupported language, use "Completed MAX_ITER
-iterations (no readability available for this language; selected by quality)."
+school)." For Nynorsk, or an unsupported language with no advisory readability
+score, use "Completed MAX_ITER iterations (no readability available for this
+language; selected by quality)." For an unsupported language with an advisory
+readability score, use "Completed MAX_ITER iterations (readability advisory only
+for this language; selected by quality)."
 
 Show `Text Cleanup summary` only when real Slop or Not Text Cleanup ran. Do
 not show backend names in the user-facing output.

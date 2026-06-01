@@ -34,7 +34,12 @@ function listFilesRelative(dir, base) {
 }
 
 function listSkillFiles(skill) {
-  return listFilesRelative(path.join(root, 'skills', skill), root);
+  const skillDir = path.join(root, 'skills', skill);
+  if (!fs.existsSync(skillDir)) {
+    errors.push(`skills/${skill} is missing`);
+    return [];
+  }
+  return listFilesRelative(skillDir, root);
 }
 
 const selfContainedSkillFiles = selfContainedSkills.flatMap(listSkillFiles);

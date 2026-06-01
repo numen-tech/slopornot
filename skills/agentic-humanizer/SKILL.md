@@ -451,14 +451,21 @@ or Not Pro with a single `analyze_readability` call; do not also call
 `detect_text`. Terminate on readability band membership (per-scale semantics in
 the registry) or after MAX_ITER; there is no AI threshold check.
 
-**L is `nn` (Norwegian Nynorsk) or an unsupported language.** Do NOT read
-`references/patterns.md`. Read `references/supplemental-ai-tells.md` (and
-`references/ai-tells/no.md`, Nynorsk section, for `nn`). Readability is not
-available (the app returns `unsupported_language`), so skip
-`analyze_readability`. The AI score is `n/a`. Run all MAX_ITER iterations and
-select the final iteration by quality (same as Core mode). Warn the user: for
-Nynorsk, "Readability scoring is not available for Norwegian Nynorsk in this app
-version"; for an unsupported language, follow the unsupported-language policy in
+**L is `nn` (Norwegian Nynorsk).** Do NOT read `references/patterns.md`. Read
+`references/supplemental-ai-tells.md` and `references/ai-tells/no.md`, Nynorsk
+section. Readability is not available (the app returns `unsupported_language`),
+so skip `analyze_readability`. The AI score is `n/a`. Run all MAX_ITER
+iterations and select the final iteration by quality (same as Core mode). Warn
+the user: "Readability scoring is not available for Norwegian Nynorsk in this
+app version."
+
+**L is an unsupported language.** Do NOT read `references/patterns.md`. Read
+`references/supplemental-ai-tells.md` only. The AI score is `n/a`. Do not call
+`detect_text`. Call `analyze_readability` with the normalized `language_code`;
+if `scores[]` returns a known kind, log the value as advisory only and never use
+it for termination; if `scores[]` is empty, treat readability as unavailable.
+Run all MAX_ITER iterations and select the final iteration by quality (same as
+Core mode). Follow the unsupported-language policy in
 `references/multilingual.md`.
 
 When `voice_active=true`, Iteration 2 and Iteration 5 consume the cached
@@ -548,18 +555,22 @@ cannot satisfy a Graduate target; ease scales and LIX use band-range membership;
 see `references/multilingual.md`) or after `MAX_ITER`. On non-convergence, return
 the iteration closest to the target band.
 
-**Nynorsk or unsupported (L is `nn` or other):** tells-only, no readability and
-no AI score. Run all `MAX_ITER` iterations and select by quality, as in Core
-mode.
+**Nynorsk (L is `nn`):** tells-only, no readability and no AI score. Run all
+`MAX_ITER` iterations and select by quality, as in Core mode.
+
+**Unsupported language (L is other):** tells-only with no AI score. Run all
+`MAX_ITER` iterations and select by quality, as in Core mode. If
+`analyze_readability` returns a known score, log it as advisory only; never
+terminate or select the final iteration based on that advisory score.
 
 After selecting the final iteration, run Text Cleanup on that selected text.
 Store `final_cleanup_stats` and use the cleaned text as the final output. Then
 run the final scoring pass gated by L, matching the loop's per-language rule:
 for English, run final `detect_text` and `analyze_readability`; for supported
 non-English (es, de, it, sv, da, nb), run final `analyze_readability` only (skip
-`detect_text`, which returns `not_english` with a null score); for Nynorsk or an
-unsupported language, skip both (readability returns `unsupported_language` and
-the AI score is `n/a`).
+`detect_text`, which returns `not_english` with a null score); for Nynorsk, skip
+both; for an unsupported language, run final `analyze_readability` only and log
+any known score as advisory (the AI score is `n/a`).
 
 ### Completion in Core mode
 
@@ -618,9 +629,11 @@ Converged at iter 3 (<=40% AI, grade target 9 to 11).
 **Language line.** Always show the resolved language and variant, plus the
 readability formula's display name from `references/multilingual.md`, for example
 "German (de-DE). Readability: Wiener Sachtextformel." For Norwegian Nynorsk
-(`nn`) and unsupported languages there is no formula (Step 6 skips readability),
-so render readability as unavailable instead, for example "Norwegian Nynorsk
-(nn). Readability: not available."
+(`nn`), render readability as unavailable, for example "Norwegian Nynorsk (nn).
+Readability: not available." For an unsupported language, render readability as
+advisory when `analyze_readability` returned a known kind, for example "French
+(fr-CA). Readability: advisory Flesch-Szigriszt."; otherwise render it as not
+available.
 When detection overrode a saved profile language, mark it and add the note, for
 example "German (de-DE, detected; saved profile language is English).
 Readability: Wiener Sachtextformel." followed by:
@@ -640,14 +653,19 @@ the wording from `references/profile-resolution.md`, for example:
 **Readability column.** The formula is named once in the Language line (use its
 display name from `references/multilingual.md`). In the loop-history column show
 only the value and the band in parentheses, for example "10.6 (High school)".
+For unsupported-language advisory readability, show only the value and
+"(advisory)", since there is no target band.
 
 **AI score column (non-English).** Render "n/a (detector is English-only)" on
 the first row and "n/a" thereafter. In Core mode, render "n/a" for every row.
 
 **Convergence line (non-English with readability).** Reference the band, not the
 AI threshold, for example "Converged at iter 3 (readability in target band: High
-school)." For Nynorsk or an unsupported language, use "Completed MAX_ITER
-iterations (no readability available for this language; selected by quality)."
+school)." For Nynorsk, or an unsupported language with no advisory readability
+score, use "Completed MAX_ITER iterations (no readability available for this
+language; selected by quality)." For an unsupported language with an advisory
+readability score, use "Completed MAX_ITER iterations (readability advisory only
+for this language; selected by quality)."
 
 Show `Text Cleanup summary` only when real Slop or Not Text Cleanup ran. Do
 not show backend names in the user-facing output.
