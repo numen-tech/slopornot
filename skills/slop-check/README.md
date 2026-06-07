@@ -2,8 +2,8 @@
 
 Slop Check is a one-shot on-device AI detector skill for AI coding and writing
 agents. Use it to check whether text or an image is AI-generated, score a
-draft with Flesch-Kincaid readability, or clean invisible characters and
-AI-looking punctuation from text. It is built for Claude, Codex, Hermes
+draft's readability in English or six other languages, or clean invisible
+characters and AI-looking punctuation from text. It is built for Claude, Codex, Hermes
 Agent, OpenClaw, OpenCode, Cursor, Gemini CLI, and other agents that can
 call local tools on your Mac.
 
@@ -20,7 +20,7 @@ Six operations, all callable in one shot:
 - Local AI text detection (verdict plus probability and readability)
 - Local AI image detection (JPEG, PNG, HEIC, WebP)
 - Raw OmniAID image score, only when explicitly requested
-- Readability scoring (Flesch-Kincaid grade and Reading Ease)
+- Readability scoring in English (Flesch-Kincaid) plus Spanish, German, Italian, Swedish, Danish, and Norwegian Bokmal (native formulas)
 - Text cleanup (zero-width characters, homoglyphs, fancy punctuation)
 - Setup and Pro status check, verified with a Pro-gated probe
 
@@ -107,8 +107,15 @@ values, not percentages:
 
 ```markdown
 **Flesch-Kincaid grade: 9.7** (Reading Ease 62.4)
-Words: 210 · Sentences: 14
+Language: en · Band: High school · Words: 210 · Sentences: 14
 ```
+
+For non-English text, readability is labeled by the native formula (for example
+"Wiener Sachtextformel" for German, "LIX" for the Nordic languages) with the
+detected language and a reading-level band. AI text detection is English only:
+for non-English input Slop Check reports "AI text detection is English-only; no
+score available for <language>" and still shows the readability block. It never
+invents a score.
 
 Cleanup prints the changed text in a fenced block:
 

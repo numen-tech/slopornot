@@ -12,7 +12,7 @@ needs in-session.
 **Core functionality does not require Slop or Not.** Without Slop or Not, the
 skill still interviews for preferences, can match a writing sample, runs all
 five rewrite passes, and returns the final draft. Slop or Not Pro only adds
-the measured local layer: AI score, Flesch-Kincaid readability, Text Cleanup
+the measured local layer: AI score (English only), native-language readability, Text Cleanup
 before and after humanization, and cleanup stats. If a Slop or Not MCP
 connector is attached in Claude Desktop, the skill uses it automatically;
 otherwise it runs the unscored core workflow.
@@ -45,12 +45,18 @@ one folder, `agentic-humanizer/`, with `SKILL.md`, this `README.md`, the
 [paste your AI-generated text here]
 ```
 
-Claude Desktop asks four short questions (dialect, reading level, tone,
-length), then optionally one about matching a writing sample. Answers apply
-to the current run; the sandbox does not persist them between chats.
+Agentic Humanizer detects the source language, then asks four short questions
+(language and variant, reading level, tone, length), then optionally one about
+matching a writing sample. Answers apply to the current run; the sandbox does
+not persist them between chats. It supports English, Spanish, German, Italian,
+Swedish, Danish, and Norwegian (Bokmal and Nynorsk); the AI score is English
+only. Supported non-English languages use native readability and per-language
+tells; Nynorsk uses tells without readability. Unsupported languages use
+language-agnostic structural tells, and any returned readability score is
+advisory only.
 
 Skip the interview for one call by passing every preference inline, or pass
-`skip-interview` to use defaults:
+`skip-interview` to use detected-language defaults:
 
 ```text
 /agentic-humanizer skip-interview [paste]
@@ -68,14 +74,17 @@ that run only; nothing is written to disk.
 
 | Flag | Effect |
 |---|---|
-| `dialect=us` or `dialect=uk` | Set the English variant. |
-| `grade=N` | Set the target Flesch-Kincaid grade. |
+| `language=<code>` | Set the target language (for example `language=de`). |
+| `variant=<spec>` | Set the variant (for example `variant=de-AT`). Without `language=`, infers the base language from the variant's BCP-47 prefix (for example `variant=de-AT` resolves to `language=de`). |
+| `dialect=us` or `dialect=uk` | Legacy English alias for `variant=en-US` or `variant=en-GB`. |
+| `grade=N` | Set the target Flesch-Kincaid grade (English only). |
+| `level=<band>` | Set the reading-level band for any language (`elementary` to `graduate`). |
 | `tone=casual`, `tone=professional`, or `tone=academic` | Set the rewrite tone. |
 | `length=±10`, `length=exp`, or `length=trim` | Keep length close, allow expansion, or allow trimming. |
 | `threshold=N` | Override the Slop or Not Pro AI-score target. |
 | `max=N` | Override the Slop or Not Pro measured-iteration cap. |
 | `voice=off` or `voice-skip` | Skip voice matching. |
-| `skip-interview` | Use defaults (American, High school, Professional, ±10%). |
+| `skip-interview` | Use detected language and its default variant when clear, otherwise English/en-US, with High school, Professional, and ±10%. |
 
 ## Sandbox notes
 

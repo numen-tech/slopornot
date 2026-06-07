@@ -281,4 +281,5 @@ source text being rewritten.
 | Host LLM unavailable | "No host LLM is available to extract a voice fingerprint, so I am running without voice matching for this call." | Set `voice_active=false`; keep the normal loop. |
 | Sample under 50 words | "That sample is under 50 words. Please paste at least 50 words, or run without voice matching." | Do not write the sample or profile voice fields. |
 | Binary or non-text sample | "I could not read that as plain text, so I am running without voice matching for this call." | Set `voice_active=false`; keep the normal loop. |
+| Sample language differs from source | "Your writing sample looks like a different language than the text; I am matching style anyway." | Warn once, then proceed; the fingerprint is stylometric and mostly language-agnostic. Keep voice matching on. |
 | Malformed edited JSON | "That edit removed required fingerprint fields. Please restore the schema or re-extract." | Do not save the malformed cache. |

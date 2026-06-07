@@ -19,7 +19,7 @@ or another MCP client).
 |---|---|
 | `mcp__SlopOrNot__slop_status` | Probe server health and cached Pro status |
 | `mcp__SlopOrNot__detect_text` | Detect AI probability for text |
-| `mcp__SlopOrNot__analyze_readability` | Compute Flesch-Kincaid grade |
+| `mcp__SlopOrNot__analyze_readability` | Compute readability with the language's native formula |
 | `mcp__SlopOrNot__clean_text` | Strip zero-width chars, homoglyphs |
 | `mcp__SlopOrNot__detect_image` | Detect AI-generated images |
 | `mcp__SlopOrNot__score_image` | Return the raw OmniAID image score |
@@ -30,9 +30,13 @@ CLI execution is unavailable.
 
 Current `detect_text` responses include a numeric `score` field, `verdict`,
 `language`, `sentence_count`, and optional `readability`. Treat `score` as a
-0-1 decimal and multiply by 100 when showing a percentage. Read the
-Flesch-Kincaid grade from `readability.scores[]` where `kind` is
-`fleschKincaidGradeLevel`.
+0-1 decimal and multiply by 100 when showing a percentage. The AI detector is
+English only. The `readability.scores[]` `kind` depends on the input language:
+English returns `fleschKincaidGradeLevel` (plus `fleschReadingEase`), German
+`wienerSachtextformel4`, Spanish `fleschSzigriszt`, Italian `gulpease`, and
+Swedish, Danish, and Norwegian Bokmal `lix`. Read whichever `kind` is present
+and map it to a reading-level band; see `references/multilingual.md` for the
+per-language formula table, scale directions, and band ranges.
 
 ## Client setup
 
