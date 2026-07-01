@@ -46,6 +46,11 @@ routing files.
 | `scripts/check-{frontmatter,links}.mjs` | Lint scripts run by CI. |
 | `scripts/sync-plugins.mjs` | Copies canonical runtime files into plugin payloads, with `--check` drift detection. |
 | `scripts/check-plugin-packaging.mjs` | Validates plugin manifests, marketplaces, required files, and sync state. |
+| `scripts/check-versions.mjs` | Verifies the six source version fields agree. CI gate. |
+| `scripts/version-fields.mjs` | Shared source-version-field list and read/write helpers for `check-versions.mjs` and `prepare-release.mjs`. |
+| `scripts/prepare-release.mjs` | Release-prep transform: promotes `[Unreleased]`, bumps all version fields, regenerates payloads. |
+| `.github/workflows/release-{prepare,publish}.yml` | Two-phase release automation: dispatch opens a release PR; merge tags and uploads release zips. |
+| `.github/workflows/prompt-review.yml` | Advisory prompt-quality review on prompt-surface PRs. Not a required check. |
 
 ## Critical rules
 
@@ -57,12 +62,20 @@ routing files.
    node scripts/check-links.mjs
    node scripts/sync-plugins.mjs --check
    node scripts/check-plugin-packaging.mjs
+   node scripts/check-versions.mjs
+   node --test scripts/*.test.mjs
    make -C claude-skills check
    ```
 
    GitHub also requires `lint` and `Run zizmor` on every PR. Do not add
    PR path filters to required workflows unless the repository ruleset is
    updated in the same change.
+
+   Releases are automated: run the "Prepare release" workflow with a version,
+   review and merge the `release/v*` PR it opens, and the publish workflow
+   tags, creates the GitHub Release, and attaches the Desktop and ChatGPT
+   zips. The prepare workflow needs the `RELEASE_APP_TOKEN` repo secret (a
+   GitHub App or fine-grained PAT with contents and pull-requests write).
 
 2. **No em-dashes in `README.md`, `SKILL.md`, `CHANGELOG.md`, `AGENTS.md`, commits, tag annotations, or release notes.** Use commas, colons, or parentheses. The user-facing surface of a humanizer can't credibly ship em-dash-laden copy. (Inherited em-dashes in `skills/agentic-humanizer/references/` and `skills/agentic-humanizer/harnesses/` predate the rule and are getting cleaned up incrementally; do not introduce new ones.)
 3. **Don't edit `skills/agentic-humanizer/references/patterns.md` for local taste.** The 29-pattern catalogue is licensed source material. Only refresh it intentionally with attribution and license notices checked.
