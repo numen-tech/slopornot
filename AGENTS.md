@@ -20,7 +20,8 @@ routing files.
 |---|---|
 | `skills/agentic-humanizer/SKILL.md` | Self-contained `agentic-humanizer` orchestrator. Steps 1-7 (harness detect, profile commands, preferences, voice, optional Slop probe, loop, output). |
 | `skills/agentic-humanizer/harnesses/{claude-code,codex,cursor,gemini-cli,opencode,generic}.md` | Per-harness interview protocols. Edit only the file for the harness you're targeting. |
-| `skills/agentic-humanizer/references/patterns.md` | 29-pattern rewrite vocabulary. Local divergence is out of scope. |
+| `skills/agentic-humanizer/references/patterns.md` | 33-pattern rewrite vocabulary. |
+| `skills/agentic-humanizer/references/detection-guidance.md` | English-only false-positive guard: what not to flag, and human-writing signals to preserve. Loaded on English runs alongside `patterns.md`. |
 | `skills/agentic-humanizer/references/supplemental-ai-tells.md` | SlopOrNot-authored supplemental AI-tell checks inspired by Wikipedia's field guide. Language-agnostic S1 to S8 concepts, loaded on every run. |
 | `skills/agentic-humanizer/references/multilingual.md` | Multilingual readability registry: supported languages, BCP-47 variants, readability formula per language, reading-level band mapping, code normalization (Norwegian Bokmal to `nb`). Single source of truth for non-English runs. |
 | `skills/agentic-humanizer/references/profile-resolution.md` | Decision table for `SKILL.md` Step 3 rule 3: how a saved profile resolves against an unambiguously detected different language (language, variant, reading level, tone, length, English `target_grade`). Loaded only on the saved-profile-versus-detected-language path. |
@@ -65,7 +66,7 @@ routing files.
    updated in the same change.
 
 2. **No em-dashes in `README.md`, `SKILL.md`, `CHANGELOG.md`, `AGENTS.md`, commits, tag annotations, or release notes.** Use commas, colons, or parentheses. The user-facing surface of a humanizer can't credibly ship em-dash-laden copy. (Inherited em-dashes in `skills/agentic-humanizer/references/` and `skills/agentic-humanizer/harnesses/` predate the rule and are getting cleaned up incrementally; do not introduce new ones.)
-3. **Don't edit `skills/agentic-humanizer/references/patterns.md` for local taste.** The 29-pattern catalogue is licensed source material. Only refresh it intentionally with attribution and license notices checked.
+3. **Change `skills/agentic-humanizer/references/patterns.md` deliberately.** The 33-pattern catalogue is the rewrite vocabulary the whole skill depends on; edit it intentionally and keep the numbering and format consistent.
 4. **Conventional Commits are required, not optional.** Format: `type(scope): subject`. Subject is imperative, lowercase, no trailing period. Allowed types and their changelog mapping:
 
    | Type | Changelog section | Use for |

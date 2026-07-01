@@ -6,6 +6,7 @@
 # Local notes — not committed
 notes/
 *.local.md
+*.local.json
 
 # Smoke-test outputs
 examples/output-*.md

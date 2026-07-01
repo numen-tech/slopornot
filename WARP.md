@@ -22,7 +22,7 @@ current `agentic-humanizer` skill.
     detection, profile commands, rewrite preferences, optional voice matching,
     optional Slop or Not probing, and the rewrite loop.
 - `skills/agentic-humanizer/references/patterns.md`
-  - The canonical 29-pattern rewrite catalogue.
+  - The canonical 33-pattern rewrite catalogue.
 - `skills/agentic-humanizer/README.md`
   - Dedicated Agentic Humanizer README for users and search indexing.
 - `skills/slop-check/SKILL.md`

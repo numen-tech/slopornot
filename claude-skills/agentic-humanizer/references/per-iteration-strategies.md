@@ -74,6 +74,14 @@ normalized `language_code` and never pass `britishize`. Read readability by the
 returned `kind` and map it to a band via `references/multilingual.md` (see
 `SKILL.md` Step 6).
 
+**False-positive guard (English).** On English runs, `references/detection-guidance.md`
+is loaded alongside `references/patterns.md`. Before cutting or rewriting a
+flagged tell, check it against that file: don't gut prose over an isolated
+signal it names as unreliable (one transition word, curly quotes alone, a single
+short sentence), and preserve the human-writing signals it lists. Weigh clusters
+of tells, not isolated ones. Pattern 14 is the exception: em and en dashes are
+always removed from the output regardless.
+
 Wherever an iteration below calls `detect_text` or says to "score and analyze,"
 that full detector path is English only. For supported non-English L (es, de, it,
 sv, da, nb), "score" means `analyze_readability` alone: do not call `detect_text`
@@ -119,7 +127,8 @@ Goal: attack the most obvious AI tells in the source.
 
 1. Read `references/patterns.md` and `references/supplemental-ai-tells.md` (for
    non-English L, use `references/ai-tells/<L>.md` in place of `patterns.md`,
-   per the language note above).
+   per the language note above). On English runs, apply
+   `references/detection-guidance.md` as the false-positive guard before cutting.
 2. Identify which canonical patterns and supplemental tells the source trips.
    List them in order of frequency, with the most common first.
 3. Attack the **top 5** by frequency. Rewrite each instance in place. Do not
@@ -233,7 +242,8 @@ Goal: address residual AI signal and mechanical text artifacts.
 2. Re-read `references/patterns.md` (or `references/ai-tells/<L>.md` for
    non-English L, per the language note above) and
    `references/supplemental-ai-tells.md`. Identify the 1-2 patterns or tells
-   that still appear most strongly.
+   that still appear most strongly. On English runs, re-check them against
+   `references/detection-guidance.md` before editing.
 3. Make targeted, small edits; do not retarget large sections of text in this
    iteration. The goal is residual signal, not bulk rewrite.
 4. Slop or Not Pro: score and analyze the result. Core mode: self-check

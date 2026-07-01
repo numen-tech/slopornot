@@ -1,19 +1,9 @@
-# Rewrite Playbook — 29 AI-Tells
-
-> **Attribution.** This file includes 29 AI-writing patterns originally created
-> by Siqi Chen and distributed under the MIT License. Edits to this file are
-> limited to:
->
-> - Adding this attribution header.
-> - Light formatting (markdown table cells, code-fence consistency).
->
-> Pattern definitions, examples, and rewrite guidance are used here under the
-> terms of the MIT License (see the project root `LICENSE` and README credits).
+# Rewrite Playbook: 33 AI-Tells
 
 ## How this file is used
 
 `SKILL.md` reads this file on every invocation when Slop or Not is reachable.
-The LLM uses these 29 patterns as the rewrite vocabulary. In the agentic
+The LLM uses these 33 patterns as the rewrite vocabulary. In the agentic
 loop, each iteration targets a specific subset of patterns (see
 `per-iteration-strategies.md`).
 
@@ -177,15 +167,25 @@ loop, each iteration targets a specific subset of patterns (see
 
 ## STYLE PATTERNS
 
-### 14. Em Dash Overuse
+### 14. Em Dashes (and En Dashes): Cut Them
 
-**Problem:** LLMs use em dashes (—) more than humans, mimicking "punchy" sales writing. In practice, most of these can be rewritten more cleanly with commas, periods, or parentheses.
+**Problem:** LLMs reach for em dashes (and en dashes) far more than human writers do, which makes them one of the most reliable AI tells.
+
+**Rule:** The final rewrite contains no em dashes (—) or en dashes (–). Treat this as a hard constraint, not a "use sparingly" preference. Replace each one, in rough order of preference: a period (start a new sentence), a comma (a tight aside), a colon (introducing an explanation), parentheses (a true aside), or restructure the sentence. Also catch spaced em dashes (` — `) and double hyphens (` -- `) used the same way. Exception: en dashes in numeric or date ranges (2020–2024, pp. 45–67) are not this tell; rewrite them as "to" or a hyphen only when it reads naturally, and don't force it.
 
 **Before:**
 > The term is primarily promoted by Dutch institutions—not by the people themselves. You don't say "Netherlands, Europe" as an address—yet this mislabeling continues—even in official documents.
 
 **After:**
-> The term is primarily promoted by Dutch institutions, not by the people themselves. You don't say "Netherlands, Europe" as an address, yet this mislabeling continues in official documents.
+> The term is primarily promoted by Dutch institutions, not by the people themselves. You don't say "Netherlands, Europe" as an address. This mislabeling continues even in official documents.
+
+**Before:**
+> The new policy — announced without warning — affects thousands of workers. The changes -- long overdue according to critics -- will take effect immediately.
+
+**After:**
+> The new policy, announced without warning, affects thousands of workers. The changes (long overdue according to critics) will take effect immediately.
+
+The two rewrites show the range: a comma for a tight aside, a period to split a run-on, parentheses for a true aside, and restructuring for the rest. Before returning the final rewrite, scan it for `—` and `–`. Any hit that isn't a numeric or date range means the draft isn't done.
 
 ### 15. Overuse of Boldface
 
@@ -258,17 +258,23 @@ loop, each iteration targets a specific subset of patterns (see
 **After:**
 > The French Revolution began in 1789 when financial crisis and food shortages led to widespread unrest.
 
-### 21. Knowledge-Cutoff Disclaimers
+### 21. Knowledge-Cutoff Disclaimers and Speculative Gap-Filling
 
-**Words to watch:** as of [date], Up to my last training update, While specific details are limited/scarce..., based on available information...
+**Words to watch:** as of [date], Up to my last training update, While specific details are limited/scarce..., based on available information, not publicly available, maintains a low profile, keeps personal details private, prefers to stay out of the spotlight, likely [grew up/studied/began], it is believed that
 
-**Problem:** AI disclaimers about incomplete information get left in text.
+**Problem:** Two related tells. (a) Older models leave hard knowledge-cutoff disclaimers in the text. (b) When a model can't find a source, it writes a paragraph *about* not finding one and then invents plausible filler to cover the gap. For a private person the guess almost always lands on the same stock phrases ("maintains a low profile," "keeps personal details private"), none of it sourced. Say what isn't known, or cut the sentence; don't dress a guess up as fact.
 
-**Before:**
+**Before (cutoff disclaimer):**
 > While specific details about the company's founding are not extensively documented in readily available sources, it appears to have been established sometime in the 1990s.
 
 **After:**
 > The company was founded in 1994, according to its registration documents.
+
+**Before (speculative gap-fill):**
+> Information about her early life is not publicly available, suggesting she maintains a low profile and keeps personal details private. She likely grew up in a middle-class household, which shaped her later interest in education reform.
+
+**After:**
+> Her early life is not documented in the available sources. (Or omit the section.)
 
 ### 22. Sycophantic/Servile Tone
 
@@ -371,3 +377,47 @@ loop, each iteration targets a specific subset of patterns (see
 >
 > When users hit a slow page, they leave.
 <!-- markdownlint-enable MD024 -->
+
+### 30. Diff-Anchored Writing
+
+**Problem:** Documentation or comments written as if narrating a change rather than describing the thing as it is. Unless the document is inherently version-scoped (changelogs, release notes, migration guides), it should read coherently without knowing what changed in the last commit.
+
+**Before:**
+> This function was added to replace the previous approach of iterating through all items, which caused O(n²) performance.
+
+**After:**
+> This function uses a hash map for O(1) lookups, avoiding the O(n²) cost of naive iteration.
+
+### 31. Manufactured Punchlines and Staccato Drama
+
+**Problem:** LLMs often make every sentence land like a quotable closer, then stack short declarative fragments to manufacture drama. A single short sentence for emphasis is fine; a run of them starts to sound engineered.
+
+**Before:**
+> Then AlphaEvolve arrived. It had no preference for symmetry. No aesthetic prior. No nostalgia for human taste. The old rules were gone.
+
+**After:**
+> AlphaEvolve changed the search because it did not favor symmetry or human-looking designs. That made some of the older assumptions less useful.
+
+### 32. Aphorism Formulas
+
+**Words to watch:** X is the Y of Z, X becomes a trap, X is not a tool but a mirror, the language of, the currency of, the architecture of
+
+**Problem:** LLMs turn ordinary claims into reusable aphorisms that sound profound without adding precision. Replace the formula with the concrete claim it is gesturing at.
+
+**Before:**
+> Symmetry is the language of trust. Efficiency becomes a trap when teams forget the human layer.
+
+**After:**
+> Symmetric layouts often feel more predictable to users. Teams can over-optimize workflows and miss how people actually use them.
+
+### 33. Conversational Rhetorical Openers
+
+**Phrases to watch:** Honestly?, Look, Here's the thing, The thing is, Let's be honest, Real talk, when used as standalone hooks or fake-candid pauses before an ordinary point.
+
+**Problem:** LLMs open with a fake-candid hook to manufacture intimacy before delivering a routine claim. The tell is the theatrical pause-and-reveal: a one-word question or aside, then the "real" answer. A person being honest usually just says the thing. Distinct from pattern 28 (signposting): 28 previews upcoming content ("let's look at X"); 33 fakes a candid pause before an ordinary claim ("honestly, X"). Cut either way.
+
+**Before:**
+> Is it worth the price? Honestly? It depends on how often you'll use it.
+
+**After:**
+> Whether it's worth the price depends on how often you'll use it.
