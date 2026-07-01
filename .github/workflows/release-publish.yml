@@ -1,0 +1,77 @@
+name: Publish release
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'release/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Checkout the merge commit explicitly: on closed events the default
+      # ref is the PR merge ref, which is unreliable after the merge.
+      # persist-credentials stays on: the tag push below uses GITHUB_TOKEN.
+      - name: Checkout merge commit
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Derive version from branch name
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: echo "VERSION=${HEAD_REF#release/v}" >> "$GITHUB_ENV"
+
+      - name: Create annotated tag
+        run: |
+          if [ -n "$(git ls-remote --tags origin "refs/tags/v${VERSION}")" ]; then
+            echo "tag v${VERSION} already exists; skipping"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "v${VERSION}" -m "v${VERSION}"
+            git push origin "v${VERSION}"
+          fi
+
+      - name: Build Desktop zip
+        run: make -C claude-skills
+
+      - name: Build ChatGPT skill zip
+        run: cd skills && zip -r ../agentic-humanizer-chatgpt.zip agentic-humanizer -x '*/.DS_Store'
+
+      - name: Extract release notes
+        run: |
+          awk -v ver="${VERSION}" '
+            index($0, "## [" ver "]") == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if ! grep -q '[^[:space:]]' release-notes.md; then
+            echo "no CHANGELOG section found for v${VERSION}" >&2
+            exit 1
+          fi
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v${VERSION}" >/dev/null 2>&1; then
+            echo "release v${VERSION} already exists; skipping"
+          else
+            gh release create "v${VERSION}" \
+              --title "v${VERSION}" \
+              --notes-file release-notes.md \
+              claude-skills/agentic-humanizer-desktop.zip \
+              agentic-humanizer-chatgpt.zip
+          fi
