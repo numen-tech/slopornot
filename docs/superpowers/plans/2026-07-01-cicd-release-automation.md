@@ -701,10 +701,17 @@ git-side check the script cannot do (tag existence).
 Run: `python3 -c "import yaml; yaml.safe_load(open('.github/workflows/release-prepare.yml')); print('yaml ok')"`
 Expected: `yaml ok`.
 
-If zizmor is available locally (`brew install zizmor` or `uvx zizmor`), run:
-`zizmor .github/workflows/release-prepare.yml` and expect no findings above
-informational. Otherwise the required `Run zizmor` CI check verifies this on
-the PR.
+If zizmor is available locally (`brew install zizmor` or `uvx zizmor`), run
+`uvx zizmor .github/workflows/release-prepare.yml`. Expect exactly one finding:
+`artipacked` (medium) on the `Checkout main` step, because it intentionally
+persists the App token to push the release branch. That is expected and
+accepted: the existing `.github/workflows/claude-code-review.yml` carries the
+same unsuppressed `artipacked` finding, and the CI `Run zizmor` gate
+(`zizmorcore/zizmor-action`) uploads SARIF to code scanning as advisory and
+does not fail the job on findings. Do not add a `# zizmor: ignore` comment or
+change `persist-credentials` to silence it; match the repo's existing
+convention. (The bare local CLI uses a stricter blanket policy than the CI
+action, so it surfaces this as medium; CI still passes.)
 
 - [ ] **Step 3: Commit**
 
@@ -961,7 +968,12 @@ existing `claude-code-review.yml`; the two should be bumped together.
 - [ ] **Step 2: Verify the YAML**
 
 Run: `python3 -c "import yaml; yaml.safe_load(open('.github/workflows/prompt-review.yml')); print('yaml ok')"`
-Expected: `yaml ok`. Run `zizmor` on it too if installed locally.
+Expected: `yaml ok`. If you run `uvx zizmor .github/workflows/prompt-review.yml`
+locally, expect one `unpinned-uses` finding on `anthropics/claude-code-action@v1`.
+That is intentional and accepted (the existing `claude-code-review.yml` uses the
+same tag pin unsuppressed); the CI `Run zizmor` gate uploads SARIF as advisory
+and does not fail on it. Do not SHA-pin `claude-code-action` or add a
+`# zizmor: ignore` comment.
 
 - [ ] **Step 3: Commit**
 
