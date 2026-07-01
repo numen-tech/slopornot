@@ -31,7 +31,13 @@ jobs:
       - name: Derive version from branch name
         env:
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
-        run: echo "VERSION=${HEAD_REF#release/v}" >> "$GITHUB_ENV"
+        run: |
+          VERSION="${HEAD_REF#release/v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "invalid version '${VERSION}' derived from branch '${HEAD_REF}'" >&2
+            exit 1
+          fi
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
 
       - name: Create annotated tag
         run: |
@@ -67,7 +73,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           if gh release view "v${VERSION}" >/dev/null 2>&1; then
-            echo "release v${VERSION} already exists; skipping"
+            echo "release v${VERSION} already exists; ensuring assets are attached"
+            gh release upload "v${VERSION}" \
+              claude-skills/agentic-humanizer-desktop.zip \
+              agentic-humanizer-chatgpt.zip \
+              --clobber
           else
             gh release create "v${VERSION}" \
               --title "v${VERSION}" \
