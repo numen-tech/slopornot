@@ -282,8 +282,12 @@ git commit -m "ci(scripts): add version-consistency check across source version 
 
 - Consumes: `scripts/check-versions.mjs` CLI from Task 1.
 - Produces: the `lint` job (a required check) now enforces all eight gates.
-  Note `node --test scripts/` auto-discovers every `scripts/*.test.mjs`, so
-  Task 3's tests join CI with no further workflow edit.
+  Note the `scripts/*.test.mjs` glob auto-discovers every test file, so
+  Task 3's tests join CI with no further workflow edit. Use the glob, not a
+  bare directory argument (`node --test scripts/`): the bare-directory form
+  is not a stable discovery root across Node versions (Node 26 treats it as a
+  single module and fails), whereas the shell-expanded glob reduces to
+  explicit file paths that every Node version accepts.
 
 - [ ] **Step 1: Append the new steps**
 
@@ -299,7 +303,7 @@ Add to the end of the `steps:` list in `.github/workflows/lint-skill.yml`
         run: node scripts/check-plugin-packaging.mjs
 
       - name: Unit tests
-        run: node --test scripts/
+        run: node --test scripts/*.test.mjs
 
       - name: Desktop bundle drift
         run: make -C claude-skills check
@@ -315,7 +319,7 @@ Run each command and confirm exit 0:
 ```bash
 node scripts/sync-plugins.mjs --check
 node scripts/check-plugin-packaging.mjs
-node --test scripts/
+node --test scripts/*.test.mjs
 make -C claude-skills check
 node scripts/check-versions.mjs
 ```
@@ -583,7 +587,7 @@ console.log(`[OK]   prepared release v${version} (${date})`);
 Run: `node --test scripts/prepare-release.test.mjs`
 Expected: PASS (4 tests).
 
-Run: `node --test scripts/`
+Run: `node --test scripts/*.test.mjs`
 Expected: PASS (all suites: packaging, check-versions, prepare-release).
 
 - [ ] **Step 5: Commit**
@@ -1104,7 +1108,7 @@ node scripts/check-links.mjs
 node scripts/sync-plugins.mjs --check
 node scripts/check-plugin-packaging.mjs
 node scripts/check-versions.mjs
-node --test scripts/
+node --test scripts/*.test.mjs
 make -C claude-skills check
 ```
 
@@ -1227,7 +1231,7 @@ node scripts/check-links.mjs
 node scripts/sync-plugins.mjs --check
 node scripts/check-plugin-packaging.mjs
 node scripts/check-versions.mjs
-node --test scripts/
+node --test scripts/*.test.mjs
 make -C claude-skills check
 ```
 
@@ -1261,7 +1265,7 @@ node scripts/check-links.mjs
 node scripts/sync-plugins.mjs --check
 node scripts/check-plugin-packaging.mjs
 node scripts/check-versions.mjs
-node --test scripts/
+node --test scripts/*.test.mjs
 make -C claude-skills check
 ```
 

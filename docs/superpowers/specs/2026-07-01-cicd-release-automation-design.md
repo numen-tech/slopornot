@@ -121,7 +121,7 @@ after the current three steps:
 - name: Plugin packaging
   run: node scripts/check-plugin-packaging.mjs
 - name: Unit tests
-  run: node --test scripts/
+  run: node --test scripts/*.test.mjs
 - name: Desktop bundle drift
   run: make -C claude-skills check
 - name: Version consistency
@@ -133,10 +133,13 @@ Notes for the implementer:
 - `make` and `zip` are present on `ubuntu-latest`; no extra install needed for
   `make -C claude-skills check` (it only runs `diff -r`).
 - Keep `permissions: contents: read` and `persist-credentials: false` as-is.
-- Confirm the runner Node (24) runs `node --test scripts/` cleanly. The
-  directory form discovers every `scripts/*.test.mjs`, so the existing
+- The `scripts/*.test.mjs` glob discovers every test file, so the existing
   packaging test and the new `check-versions` / `prepare-release` tests all
-  run without listing files one by one.
+  run without listing files one by one. Use the glob, not a bare directory
+  argument (`node --test scripts/`): the bare-directory form is not a stable
+  discovery root across Node versions (Node 26 treats it as a single module
+  and fails with "Cannot find module"), whereas the shell-expanded glob
+  reduces to explicit file paths that every Node version accepts.
 
 ### New script: `scripts/check-versions.mjs`
 
@@ -311,7 +314,7 @@ Implementer notes:
 ## Doc-sync required in the same PR
 
 - `AGENTS.md` Critical rules rule 1: add `node scripts/check-versions.mjs` and
-  `node --test scripts/` to the pre-PR gate list so the documented local gates
+  `node --test scripts/*.test.mjs` to the pre-PR gate list so the documented local gates
   match CI; note the new release workflows and the App/PAT secret.
 - `CONTRIBUTING.md`: document the release process (run "Prepare release" with a
   version, review + merge the release PR, publish happens automatically).
@@ -349,7 +352,7 @@ Implementer notes:
 - **Workflows:** validate YAML with the existing zizmor gate; dry-run
   `prepare-release.mjs` locally against a scratch checkout; verify the full
   pre-PR gate list (eight commands once `check-versions.mjs` and
-  `node --test scripts/` are added) passes on this PR itself.
+  `node --test scripts/*.test.mjs` are added) passes on this PR itself.
 - **ChatGPT zip:** confirm the Component 5a command produces a single top-level
   `agentic-humanizer/` folder containing `SKILL.md` (verify with `unzip -l`), and
   that it stays under ChatGPT's limits (50 MB zip, 500 files, 25 MB per
