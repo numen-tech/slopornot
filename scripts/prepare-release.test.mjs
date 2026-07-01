@@ -35,7 +35,7 @@ const CHANGELOG = [
   '',
 ].join('\n');
 
-function makeFixture(t, { unreleasedBody = true } = {}) {
+function makeFixture(t, { unreleasedBody = true, failBuild = false } = {}) {
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'slopornot-prepare-'));
   t.after(() => fs.rmSync(fixture, { recursive: true, force: true }));
 
@@ -51,7 +51,10 @@ function makeFixture(t, { unreleasedBody = true } = {}) {
     path.join(fixture, 'scripts/sync-plugins.mjs'),
     "import fs from 'node:fs';\nfs.writeFileSync(new URL('../sync-ran.marker', import.meta.url), 'ok\\n');\n"
   );
-  writeFile(path.join(fixture, 'claude-skills/Makefile'), 'build:\n\ttouch build-ran.marker\n');
+  writeFile(
+    path.join(fixture, 'claude-skills/Makefile'),
+    failBuild ? 'build:\n\t@exit 1\n' : 'build:\n\ttouch build-ran.marker\n'
+  );
 
   writeFile(path.join(fixture, 'skills/agentic-humanizer/SKILL.md'), skillMd('0.1.0'));
   writeFile(path.join(fixture, 'skills/slop-check/SKILL.md'), skillMd('0.1.0'));
@@ -139,4 +142,11 @@ test('prepare-release rejects an empty [Unreleased] section', (t) => {
   const result = run(fixture, ['0.2.0']);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /\[Unreleased\] is empty/);
+});
+
+test('prepare-release reports a [FAIL] when propagation fails', (t) => {
+  const fixture = makeFixture(t, { failBuild: true });
+  const result = run(fixture, ['0.2.0']);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /\[FAIL\] release preparation failed after version validation/);
 });

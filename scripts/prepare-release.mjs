@@ -53,11 +53,13 @@ if (!body.trim()) fail('CHANGELOG.md [Unreleased] is empty; nothing to release')
 
 // Read the date once so it is deterministic within a run. UTC by contract.
 const date = new Date().toISOString().slice(0, 10);
-fs.writeFileSync(changelogPath, changelog.replace(marker, `${marker}\n\n## [${version}] (${date})`));
-
-writeVersions(root, version);
-
-execFileSync(process.execPath, [path.join(root, 'scripts/sync-plugins.mjs')], { stdio: 'inherit' });
-execFileSync('make', ['-C', path.join(root, 'claude-skills'), 'build'], { stdio: 'inherit' });
+try {
+  fs.writeFileSync(changelogPath, changelog.replace(marker, `${marker}\n\n## [${version}] (${date})`));
+  writeVersions(root, version);
+  execFileSync(process.execPath, [path.join(root, 'scripts/sync-plugins.mjs')], { stdio: 'inherit' });
+  execFileSync('make', ['-C', path.join(root, 'claude-skills'), 'build'], { stdio: 'inherit' });
+} catch (error) {
+  fail(`release preparation failed after version validation: ${error.message}`);
+}
 
 console.log(`[OK]   prepared release v${version} (${date})`);
