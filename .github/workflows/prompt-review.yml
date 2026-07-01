@@ -1,0 +1,65 @@
+name: Prompt Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+    paths:
+      - '**/SKILL.md'
+      - 'skills/agentic-humanizer/harnesses/**'
+      - 'skills/**/references/**'
+      - 'AGENTS.md'
+      - 'README.md'
+
+permissions: {}
+
+concurrency:
+  group: prompt-review-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prompt-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Run prompt review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Review pull request #${{ github.event.pull_request.number }} in
+            ${{ github.repository }} as a prompt engineer, not a code
+            reviewer.
+
+            Scope: only changed files that are prompt surfaces (SKILL.md
+            files, skills/agentic-humanizer/harnesses/*.md, files under
+            skills/*/references/, AGENTS.md, README.md). Ignore generated
+            copies under plugins/ and all other changes.
+
+            For each in-scope changed file, check:
+            - Clarity: instructions are imperative, unambiguous, testable.
+            - Structure: heading hierarchy and step ordering a model can
+              follow without backtracking.
+            - Consistency: no instruction contradicts SKILL.md or another
+              file it references.
+            - Staleness: every referenced file path, tool name, step
+              number, and constant exists in the repo at this PR's head.
+              Verify paths before reporting.
+            - Doc-sync: the change satisfies the doc-sync matrix in
+              AGENTS.md Critical rules rule 5.
+
+            Post one PR comment with findings grouped by file, citing line
+            numbers, prefixed "Advisory prompt review (non-blocking)". If
+            nothing is wrong, post a single sentence saying the prompt
+            surfaces look good. Never request changes; this review must not
+            block merge.
