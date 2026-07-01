@@ -24,6 +24,11 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - German smoke-test fixture `examples/sample-ai-text-de.md`.
 - Inline overrides `language=<code>`, `variant=<spec>`, and `level=<band>` for
   non-English rewrites and non-English reading-level control.
+- ChatGPT Skills distribution: releases now attach
+  `agentic-humanizer-chatgpt.zip`, the canonical `agentic-humanizer` skill
+  zipped for upload via ChatGPT > Skills > New skill (plan-gated beta).
+  ChatGPT runs the core 5-pass rewrite through the generic plain-text path;
+  Slop or Not Pro scoring is unavailable there.
 
 ### Changed
 
@@ -52,6 +57,8 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `slop-check` and the humanizer normalize Norwegian Bokmal to
   `language_code: "nb"` on tool calls; `no` and `nn` return
   `unsupported_language`.
+- The generic harness and `SKILL.md` Step 1 now name ChatGPT Skills as a
+  supported generic runtime.
 
 ### Fixed
 
