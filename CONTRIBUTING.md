@@ -65,25 +65,32 @@ Releases are automated in two phases:
    bundle copies, and opens a `release/v0.3.0` PR.
 2. Review and merge that PR. On merge, the publish workflow creates the
    annotated `v0.3.0` tag and a GitHub Release with the CHANGELOG section
-   as notes, attaching `agentic-humanizer-desktop.zip` and
+   as notes, running `make dist` to attach
+   `agentic-humanizer-claude-desktop.zip` and
    `agentic-humanizer-chatgpt.zip`.
 
 The prepare workflow requires the `RELEASE_APP_TOKEN` repository secret (a
 GitHub App or fine-grained PAT with contents and pull-requests write; it
-does not need to bypass branch protection). The release title defaults to
-`v<version>`; edit the Release afterward to append a theme, matching
-earlier releases.
+does not need to bypass branch protection). It also honors an optional
+`DEEPSEEK_API_KEY` secret: when set, the prepare step auto-drafts a
+Highlights summary atop the promoted CHANGELOG section for you to review in
+the release PR; when absent, the release proceeds without highlights. The
+release title defaults to `v<version>`; edit the Release afterward to append
+a theme, matching earlier releases.
 
 ## ChatGPT Skills upload
 
 ChatGPT (Business, Enterprise, Edu, Teachers, and Healthcare plans; beta)
 runs `agentic-humanizer` as an uploaded skill. Download
-`agentic-humanizer-chatgpt.zip` from the latest GitHub Release, or build
-it locally:
+`agentic-humanizer-chatgpt.zip` from the latest GitHub Release, or build the
+release zips locally with `make dist`:
 
 ```bash
-cd skills && zip -r ../agentic-humanizer-chatgpt.zip agentic-humanizer -x '*/.DS_Store'
+make dist
 ```
+
+`make dist` writes `agentic-humanizer-chatgpt.zip` (repo root) and
+`claude-skills/agentic-humanizer-claude-desktop.zip`.
 
 Then in ChatGPT: Skills > New skill > Upload from your computer. Do not
 upload `plugins/codex/slopornot/`; that is the Codex plugin payload, not
