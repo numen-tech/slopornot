@@ -7,6 +7,8 @@ questions and parse the user's reply manually.
 ## When this file applies
 
 - Any harness not listed in `harnesses/` (AiderDesk, future wrappers, etc.)
+- ChatGPT Skills (the uploaded `agentic-humanizer-chatgpt.zip`); see the
+  ChatGPT note below
 - A recognized harness where the question tool fails or returns an error
 - A user override: invoking `/agentic-humanizer plain-text [paste]`
 
@@ -156,3 +158,16 @@ Step 4 reaches that gate, degrade to print-and-continue:
    per `SKILL.md` Step 4's `Yes` branch, and proceed.
 
 Do not block the loop on a question the harness cannot render cleanly.
+
+## ChatGPT note
+
+When running as an uploaded ChatGPT skill, keep the interview fully
+plain-text as above and assume none of the local-agent surface exists: no
+local files, no shell, no MCP tools, and no durable profile storage under
+`~/.agentic-humanizer/`. Treat every run as profile-less: skip saved-profile
+reads and writes, and take voice samples only as text pasted in the current
+conversation. Keep the question set and order unchanged; when the user
+answers `never` to the voice question, treat it as `n` for this run, since
+nothing persists across conversations. Slop or Not Pro scoring is
+unavailable unless the chat has a connected tool that can reach it, so the
+loop normally runs unscored with `n/a` score and grade values.

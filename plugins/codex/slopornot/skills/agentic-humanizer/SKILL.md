@@ -64,7 +64,7 @@ question tool. Use the first match:
 | Cursor | `AskQuestion` | `harnesses/cursor.md` |
 | Gemini CLI | `ask_user` (or equivalent structured-question tool) | `harnesses/gemini-cli.md` |
 | OpenCode | OpenCode's built-in `question` tool, or AUQ MCP | `harnesses/opencode.md` |
-| Anything else | n/a; fall back to plain text | `harnesses/generic.md` |
+| Anything else (e.g. ChatGPT Skills) | n/a; fall back to plain text | `harnesses/generic.md` |
 
 Do not load the harness file yet. Save the choice for Step 3.
 

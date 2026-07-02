@@ -8,7 +8,10 @@ let errors = 0;
 
 function* walk(dir) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    // Skip the top-level docs/ planning tree: its design docs name files
+    // (e.g. SKILL.md) in prose as examples, not as resolvable relative links.
     if (e.name.startsWith('.git') || e.name === 'node_modules') continue;
+    if (e.isDirectory() && dir === root && e.name === 'docs') continue;
     const p = path.join(dir, e.name);
     if (e.isDirectory()) yield* walk(p);
     else if (e.name.endsWith('.md')) yield p;

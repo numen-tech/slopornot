@@ -30,6 +30,11 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `references/detection-guidance.md`, an English-only false-positive guard
   loaded alongside `patterns.md`: what not to flag (clean human writing that
   trips the patterns) and which human-writing signals to preserve.
+- ChatGPT Skills distribution: releases now attach
+  `agentic-humanizer-chatgpt.zip`, the canonical `agentic-humanizer` skill
+  zipped for upload via ChatGPT > Skills > New skill (plan-gated beta).
+  ChatGPT runs the core 5-pass rewrite through the generic plain-text path;
+  Slop or Not Pro scoring is unavailable there.
 
 ### Changed
 
@@ -64,6 +69,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   source cannot be found), alongside knowledge-cutoff disclaimers.
 - The rewrite loop carries a content-preservation guardrail: rewrite rather than
   delete, covering every fact and section the source covers.
+- The generic harness and `SKILL.md` Step 1 now name ChatGPT Skills as a
+  supported generic runtime.
+- Release download renamed to `agentic-humanizer-claude-desktop.zip` (was
+  `agentic-humanizer-desktop.zip`) so the Claude Desktop and ChatGPT
+  (`agentic-humanizer-chatgpt.zip`) assets read consistently. A single
+  `make dist` builds both.
 
 ### Fixed
 

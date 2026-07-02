@@ -1,6 +1,6 @@
 CANONICAL := ../skills/agentic-humanizer
 BUNDLE    := agentic-humanizer
-ZIP       := agentic-humanizer-desktop.zip
+ZIP       := agentic-humanizer-claude-desktop.zip
 
 .PHONY: zip build check clean
 
