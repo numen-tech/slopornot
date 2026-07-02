@@ -49,6 +49,16 @@ jobs:
           VERSION: ${{ inputs.version }}
         run: node scripts/prepare-release.mjs "${VERSION}"
 
+      # Optional: draft a Highlights summary atop the promoted CHANGELOG
+      # section. Non-blocking by contract: without DEEPSEEK_API_KEY, or on any
+      # API failure, the script leaves the changelog unchanged and exits 0, so
+      # a release is never blocked on note polish. The drafted highlights land
+      # in the release PR for human review before publish.
+      - name: Draft release highlights
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: node scripts/draft-highlights.mjs
+
       - name: Push release branch
         env:
           VERSION: ${{ inputs.version }}
