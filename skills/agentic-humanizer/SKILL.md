@@ -1,6 +1,6 @@
 ---
 name: agentic-humanizer
-version: 0.1.0
+version: 0.3.0
 description: |
   Humanizes AI-generated text with a 5-pass rewrite workflow in English and six
   other languages, optional saved preferences, and optional stylometric voice
