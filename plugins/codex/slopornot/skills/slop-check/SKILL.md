@@ -1,6 +1,6 @@
 ---
 name: slop-check
-version: 0.1.0
+version: 0.3.0
 description: |
   Routes a request to Slop or Not Pro's on-device tools: detect whether
   text or an image is AI-generated, clean AI artifacts out of text, and

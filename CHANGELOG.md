@@ -5,6 +5,16 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.3.0] (2026-07-02)
+
+### Highlights
+
+- Multilingual readability and AI-tell support for Spanish, German, Italian, Swedish, Danish, and Norwegian Bokmal, with per-language native readability formulas (Flesch-Szigriszt, Wiener Sachtextformel, Gulpease, LIX) mapped to reading-level bands
+- Inline overrides (`language=`, `variant=`, `level=`) now fully control non-English rewrites and reading-level targets, with profile schema v3 storing `language`, `variant`, and `reading_level` alongside legacy fields
+- `slop-check` reports readability by the detected language's native formula, handles `not_english` detection gracefully, and normalizes Norwegian Bokmal to `nb`; non-English AI scores show as `n/a`
+- ChatGPT Skills distribution added via `agentic-humanizer-chatgpt.zip`; Claude Desktop download renamed for consistency, with `make dist` building both
+- Dozens of fixes across harness compatibility (option-capped devices, Cursor, generic), profile upgrade paths, termination logic, Norwegian Nynorsk handling, and inline override preservation on language-mismatch branches
+
 ### Added
 
 - Multilingual readability for Spanish, German, Italian, Swedish, Danish, and
