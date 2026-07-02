@@ -1,6 +1,6 @@
 {
   "name": "slopornot",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Slop or Not tools for AI humanization, voice matching, local AI text detection, AI image detection, readability analysis, and Text Cleanup for Codex, Claude, Hermes Agent, and OpenClaw.",
   "author": {
     "name": "Numen Technologies",
@@ -29,7 +29,10 @@
     "longDescription": "Bundle Slop or Not assistant skills for AI humanization, voice matching, local AI text detection, AI image detection, readability analysis, and Text Cleanup across Codex, Claude, Hermes Agent, OpenClaw, and other agents. Agentic Humanizer works without Slop or Not for core rewriting; Slop or Not Pro adds local scoring and cleanup stats. Slop Check uses the local Pro tools directly.",
     "developerName": "Numen Technologies",
     "category": "Productivity",
-    "capabilities": ["Read", "Write"],
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
     "websiteURL": "https://slopornot.ai",
     "defaultPrompt": [
       "Humanize this draft with Agentic Humanizer.",

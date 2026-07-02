@@ -1,6 +1,6 @@
 ---
 name: agentic-humanizer
-version: 0.1.0
+version: 0.3.0
 description: Humanizes AI text in English and six other languages with a five-pass rewrite workflow, optional voice matching, and Slop or Not Pro scoring when available. Use for /agentic-humanizer.
 license: MIT
 compatibility: claude-desktop

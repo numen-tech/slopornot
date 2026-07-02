@@ -1,7 +1,7 @@
 {
   "name": "slopornot",
   "description": "Slop or Not tools for AI humanization, voice matching, local AI text detection, AI image detection, readability analysis, and Text Cleanup for Claude, Codex, Hermes Agent, and OpenClaw.",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "author": {
     "name": "Numen Technologies",
     "url": "https://github.com/numen-tech"

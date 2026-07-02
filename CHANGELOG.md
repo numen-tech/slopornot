@@ -5,6 +5,16 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.3.0] (2026-07-02)
+
+### Highlights
+
+- Multilingual support: readability scoring now works natively for Spanish, German, Italian, Swedish, Danish, and Norwegian Bokmal, using each language's own formula (Flesch-Szigriszt, Wiener Sachtextformel, Gulpease, LIX). The tool detects the source language, loads the correct readability formula, and maps scores to reading-level bands.
+- ChatGPT Skills distribution: releases include a zipped ChatGPT skill (`agentic-humanizer-chatgpt.zip`) that runs the core 5-pass rewrite. Slop or Not Pro scoring is not available inside ChatGPT.
+- Inline overrides `language=`, `variant=`, and `level=` now work correctly for non-English rewrites, including partial overrides that interact properly with saved profiles and language detection. Variant-only overrides infer the base language from the BCP-47 prefix.
+- Non-English AI scores: The tool now reports `n/a` for non-English input and converges on the reading-level band instead of the AI threshold, avoiding misleading English-only detection results. Norwegian Nynorsk skips scoring entirely.
+- Multiple fixes for option-capped harnesses (Claude Code, Cursor, Gemini CLI, OpenCode): they now collapse reading-level options to stay within a four-option cap, and the ambiguous-language question offers only the three most likely languages plus "Other".
+
 ### Added
 
 - Multilingual readability for Spanish, German, Italian, Swedish, Danish, and
