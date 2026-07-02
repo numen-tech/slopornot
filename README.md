@@ -184,11 +184,27 @@ git clone https://github.com/numen-tech/slopornot /tmp/slopornot
 make -C /tmp/slopornot/claude-skills
 ```
 
-This writes `claude-skills/agentic-humanizer-desktop.zip`. In Claude Desktop,
+This writes `claude-skills/agentic-humanizer-claude-desktop.zip`. In Claude Desktop,
 open `Settings`, then `Capabilities`, then `Skills`, choose `Upload skill`,
 and select that zip. This build has no harness routing: it runs a built-in
 interview using Claude Desktop's `ask_user_input_v0` prompt, one question at
 a time, and uses a Slop or Not MCP connector when one is attached.
+
+### ChatGPT (beta)
+
+ChatGPT Skills can run `agentic-humanizer` as an uploaded skill on
+Business, Enterprise, Edu, Teachers, and Healthcare plans. Download
+`agentic-humanizer-chatgpt.zip` from the
+[latest release](https://github.com/numen-tech/slopornot/releases/latest),
+then in ChatGPT open `Skills`, choose `New skill`, then
+`Upload from your computer`, and select the zip.
+
+ChatGPT runs the core 5-pass rewrite through the plain-text generic path.
+Slop or Not Pro scoring, saved profiles, and voice files are unavailable
+there; paste a voice sample into the chat instead. Skills do not sync
+across products, so a ChatGPT upload is independent of a Codex or Claude
+install. `slop-check` is not available on ChatGPT because it depends on
+local Pro tools.
 
 ## Optional: Set Up Slop or Not Pro
 

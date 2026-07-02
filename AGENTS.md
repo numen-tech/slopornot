@@ -46,6 +46,13 @@ routing files.
 | `scripts/check-{frontmatter,links}.mjs` | Lint scripts run by CI. |
 | `scripts/sync-plugins.mjs` | Copies canonical runtime files into plugin payloads, with `--check` drift detection. |
 | `scripts/check-plugin-packaging.mjs` | Validates plugin manifests, marketplaces, required files, and sync state. |
+| `scripts/check-versions.mjs` | Verifies the six source version fields agree. CI gate. |
+| `scripts/version-fields.mjs` | Shared source-version-field list and read/write helpers for `check-versions.mjs` and `prepare-release.mjs`. |
+| `scripts/prepare-release.mjs` | Release-prep transform: promotes `[Unreleased]`, bumps all version fields, regenerates payloads. |
+| `scripts/draft-highlights.mjs` | Optional DeepSeek-drafted release-notes Highlights, injected atop the promoted CHANGELOG section during prepare. Non-blocking: no-op without `DEEPSEEK_API_KEY`. |
+| `Makefile` | `make dist` builds both release zips: `claude-skills/agentic-humanizer-claude-desktop.zip` and `agentic-humanizer-chatgpt.zip`. |
+| `.github/workflows/release-{prepare,publish}.yml` | Two-phase release automation: dispatch opens a release PR (with optional DeepSeek highlights); merge tags and uploads the Desktop and ChatGPT zips. |
+| `.github/workflows/prompt-review.yml` | Advisory prompt-quality review on prompt-surface PRs. Not a required check. |
 
 ## Critical rules
 
@@ -57,12 +64,24 @@ routing files.
    node scripts/check-links.mjs
    node scripts/sync-plugins.mjs --check
    node scripts/check-plugin-packaging.mjs
+   node scripts/check-versions.mjs
+   node --test scripts/*.test.mjs
    make -C claude-skills check
    ```
 
    GitHub also requires `lint` and `Run zizmor` on every PR. Do not add
    PR path filters to required workflows unless the repository ruleset is
    updated in the same change.
+
+   Releases are automated: run the "Prepare release" workflow with a version,
+   review and merge the `release/v*` PR it opens, and the publish workflow
+   tags, creates the GitHub Release, and runs `make dist` to attach
+   `agentic-humanizer-claude-desktop.zip` and `agentic-humanizer-chatgpt.zip`.
+   The prepare workflow needs the `RELEASE_APP_TOKEN` repo secret (a
+   GitHub App or fine-grained PAT with contents and pull-requests write). It
+   also honors an optional `DEEPSEEK_API_KEY` secret: when set, prepare
+   auto-drafts a Highlights summary atop the release notes for review; when
+   absent, the release proceeds unchanged.
 
 2. **No em-dashes in `README.md`, `SKILL.md`, `CHANGELOG.md`, `AGENTS.md`, commits, tag annotations, or release notes.** Use commas, colons, or parentheses. The user-facing surface of a humanizer can't credibly ship em-dash-laden copy. (Inherited em-dashes in `skills/agentic-humanizer/references/` and `skills/agentic-humanizer/harnesses/` predate the rule and are getting cleaned up incrementally; do not introduce new ones.)
 3. **Don't edit `skills/agentic-humanizer/references/patterns.md` for local taste.** The 29-pattern catalogue is licensed source material. Only refresh it intentionally with attribution and license notices checked.
@@ -80,7 +99,7 @@ routing files.
    | `chore` | (omit) | housekeeping, dependency bumps |
    | `revert` | matches reverted type | use `revert: <original subject>` |
 
-   Use `!` after the type/scope or a `BREAKING CHANGE:` footer for breaking changes (these always land in changelog under "Changed" with a "BREAKING" prefix). Common scopes: `harnesses`, `references`, `docs`, `ci`, `chore`, `scripts`. The changelog generator reads commit history, so a malformed subject silently drops the change from the next release notes.
+   Use `!` after the type/scope or a `BREAKING CHANGE:` footer for breaking changes (these always land in changelog under "Changed" with a "BREAKING" prefix). Common scopes: `harnesses`, `references`, `docs`, `ci`, `chore`, `scripts`. There is no automated commit-to-changelog generator: hand-write each user-visible change into `CHANGELOG.md` `[Unreleased]` under the mapped section, and the release script promotes that section verbatim. An entry you forget to add never appears in the next release notes.
 
 5. **Doc-sync is part of the change, not a follow-up.** Any PR that changes runtime behavior MUST update every affected surface in the same commit (or stack of commits). Use this matrix:
 

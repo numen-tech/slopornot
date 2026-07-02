@@ -35,3 +35,18 @@ jobs:
 
       - name: Relative-link check
         run: node scripts/check-links.mjs
+
+      - name: Plugin sync drift
+        run: node scripts/sync-plugins.mjs --check
+
+      - name: Plugin packaging
+        run: node scripts/check-plugin-packaging.mjs
+
+      - name: Unit tests
+        run: node --test scripts/*.test.mjs
+
+      - name: Desktop bundle drift
+        run: make -C claude-skills check
+
+      - name: Version consistency
+        run: node scripts/check-versions.mjs

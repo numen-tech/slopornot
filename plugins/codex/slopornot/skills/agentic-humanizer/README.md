@@ -72,6 +72,14 @@ Direct skill installs and non-plugin clients invoke:
 /agentic-humanizer
 ```
 
+ChatGPT (Business, Enterprise, Edu, Teachers, and Healthcare plans; beta)
+runs this skill as an upload: download `agentic-humanizer-chatgpt.zip` from
+the [latest release](https://github.com/numen-tech/slopornot/releases/latest),
+then open `Skills`, choose `New skill`, then `Upload from your computer`.
+ChatGPT uses the plain-text generic interview; Slop or Not Pro scoring,
+saved profiles, and voice files are unavailable there, so paste a voice
+sample instead.
+
 ## Usage
 
 ```text

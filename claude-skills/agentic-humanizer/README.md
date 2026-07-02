@@ -19,10 +19,10 @@ otherwise it runs the unscored core workflow.
 
 ## Install in Claude Desktop
 
-1. Get `agentic-humanizer-desktop.zip`. Build it with `make` (see below) or
+1. Get `agentic-humanizer-claude-desktop.zip`. Build it with `make` (see below) or
    download it from a release.
 2. In Claude Desktop, open `Settings`, then `Capabilities`, then `Skills`.
-3. Choose `Upload skill` and select `agentic-humanizer-desktop.zip`.
+3. Choose `Upload skill` and select `agentic-humanizer-claude-desktop.zip`.
 4. Start a chat and ask Claude to humanize text, or type
    `/agentic-humanizer` followed by your text.
 
@@ -34,7 +34,7 @@ From the repository root:
 make -C claude-skills
 ```
 
-This produces `claude-skills/agentic-humanizer-desktop.zip`. The zip contains
+This produces `claude-skills/agentic-humanizer-claude-desktop.zip`. The zip contains
 one folder, `agentic-humanizer/`, with `SKILL.md`, this `README.md`, the
 `references/` docs, and the `examples/` fixture.
 
