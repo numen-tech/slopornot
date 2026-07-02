@@ -24,6 +24,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - German smoke-test fixture `examples/sample-ai-text-de.md`.
 - Inline overrides `language=<code>`, `variant=<spec>`, and `level=<band>` for
   non-English rewrites and non-English reading-level control.
+- Four rewrite patterns in the English playbook (30 to 33): diff-anchored
+  writing, manufactured punchlines and staccato drama, aphorism formulas, and
+  conversational rhetorical openers. The catalogue is now 33 patterns.
+- `references/detection-guidance.md`, an English-only false-positive guard
+  loaded alongside `patterns.md`: what not to flag (clean human writing that
+  trips the patterns) and which human-writing signals to preserve.
 - ChatGPT Skills distribution: releases now attach
   `agentic-humanizer-chatgpt.zip`, the canonical `agentic-humanizer` skill
   zipped for upload via ChatGPT > Skills > New skill (plan-gated beta).
@@ -57,6 +63,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `slop-check` and the humanizer normalize Norwegian Bokmal to
   `language_code: "nb"` on tool calls; `no` and `nn` return
   `unsupported_language`.
+- Pattern 14 now cuts em dashes and en dashes as a hard constraint, with a final
+  scan pass, rather than a "use sparingly" preference.
+- Pattern 21 now also covers speculative gap-filling (invented filler when a
+  source cannot be found), alongside knowledge-cutoff disclaimers.
+- The rewrite loop carries a content-preservation guardrail: rewrite rather than
+  delete, covering every fact and section the source covers.
 - The generic harness and `SKILL.md` Step 1 now name ChatGPT Skills as a
   supported generic runtime.
 - Release download renamed to `agentic-humanizer-claude-desktop.zip` (was

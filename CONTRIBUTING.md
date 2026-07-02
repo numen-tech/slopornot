@@ -9,9 +9,9 @@ Thanks for your interest in SlopOrNot.
 - New per-iteration strategies are welcome, but they should compose with
   the existing 5-iteration schedule, not replace it. Open an issue first
   to discuss.
-- Edits to `skills/agentic-humanizer/references/patterns.md` only when
-  intentionally refreshing the licensed source material. Local divergence on
-  the 29 patterns is out of scope.
+- Edits to `skills/agentic-humanizer/references/patterns.md` are welcome, but
+  the catalogue is the rewrite vocabulary the whole skill depends on, so change
+  it deliberately and keep the numbering and format consistent.
 - Plugin payload files under `plugins/codex/slopornot/skills/` and
   `plugins/claude/slopornot/skills/` are generated from the canonical skill
   files under `skills/agentic-humanizer/` and `skills/slop-check/`. Edit the

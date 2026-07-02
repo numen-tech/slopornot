@@ -328,10 +328,19 @@ language inferred from a `variant=`-only override, else the detected and
 confirmed language from Step 1. If L is not English, read
 `references/multilingual.md` (the registry: readability formulas, band mapping,
 code normalization). Read `references/per-iteration-strategies.md` (the
-per-iteration cookbook). Then load the tell catalogue for L's branch:
+per-iteration cookbook), then load the tell catalogue for L's branch.
 
-- **L is `en`:** read `references/patterns.md` (the 29-pattern rewrite
-  vocabulary) and `references/supplemental-ai-tells.md`. Use the full detector
+**Preserve coverage.** Rewrite, don't delete: keep every fact and section the
+source covers and preserve the core meaning. Removing an AI tell never means
+dropping content. Under `length_policy=trim`, cut only redundancy, filler, and
+restated points, never a unique fact or a whole section; shorten a fact's
+phrasing rather than removing it. Length changes come only from the resolved
+`length_policy`, never from silent omission.
+
+- **L is `en`:** read `references/patterns.md` (the 33-pattern rewrite
+  vocabulary), `references/supplemental-ai-tells.md`, and
+  `references/detection-guidance.md` (a false-positive guard: what not to flag
+  and which human-writing signals to preserve). Use the full detector
   path; read the Flesch-Kincaid grade where `kind` is `fleschKincaidGradeLevel`.
   If `target_grade` is null or unset here (for example inherited from a
   non-English saved profile through a partial inline override), derive it from
@@ -417,7 +426,9 @@ edge), so a College-level grade of 14 cannot satisfy a Graduate target; when an
 explicit inline `grade=N` was given, keep the symmetric
 `|grade - target_grade| <= 1` tolerance so the explicit target is honored.
 On non-convergence, return the best iteration: lowest score that meets the grade
-test; if none meet the grade test, lowest score outright.
+test; if none meet the grade test, lowest score outright. Do not select an
+iteration that dropped a source fact or section to lower the score; the Preserve
+coverage rule above governs the final choice.
 
 **Supported non-English (es, de, it, sv, da, nb):** no AI threshold (the AI
 score is `n/a`). Terminate when the readability score for L's formula lands in
@@ -445,7 +456,8 @@ any known score as advisory (the AI score is `n/a`).
 
 Run all five rewrite strategies once unless the source is empty or unusable.
 Log AI score and readability as `null` for every iteration. Select the final
-iteration by rewrite quality: preserve meaning, honor the requested reading
+iteration by rewrite quality: preserve meaning and the source's fact and section
+coverage, honor the requested reading
 level, tone, and length, and remove the most visible AI tells from the tell
 files loaded for L's branch (English: `references/patterns.md` plus
 `references/supplemental-ai-tells.md`; supported non-English languages:
@@ -574,7 +586,9 @@ If voice extraction failed in Step 4, add this footer note instead:
 
 ## Pointer files
 
-- `references/patterns.md` (the 29 AI-tells, English only)
+- `references/patterns.md` (the 33 AI-tells, English only)
+- `references/detection-guidance.md` (English-only false-positive guard: what
+  not to flag, human-writing signals to preserve)
 - `references/supplemental-ai-tells.md` (supplemental language-agnostic AI tells)
 - `references/multilingual.md` (the multilingual readability registry)
 - `references/ai-tells/<code>.md` (per-language tells: es, de, it, sv, da, no)
