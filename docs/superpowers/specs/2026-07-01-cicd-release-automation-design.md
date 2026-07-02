@@ -13,7 +13,7 @@ SlopOrNot ships through three distribution channels:
    these is implicit: whatever is on the ref users install from is live.
    `scripts/sync-plugins.mjs` keeps those payloads in sync with the canonical
    `skills/` sources.
-2. **Claude Desktop bundle**: a zip (`agentic-humanizer-desktop.zip`) built by
+2. **Claude Desktop bundle**: a zip (`agentic-humanizer-claude-desktop.zip`) built by
    `make -C claude-skills` and attached to a GitHub Release as an asset. This
    is the *only* Desktop distribution channel. The `v0.2.0` release carries
    this zip (411 downloads at time of writing). The zip is not tracked in git.
@@ -225,7 +225,7 @@ Implementer notes:
      unreliable after the merge.
   2. Derive `<version>` from the head branch name (`release/v<version>`).
   3. Create and push annotated tag `v<version>`.
-  4. `make -C claude-skills` to build `agentic-humanizer-desktop.zip`.
+  4. `make -C claude-skills` to build `agentic-humanizer-claude-desktop.zip`.
   5. Build `agentic-humanizer-chatgpt.zip` from the canonical skill (inline; see
      Component 5).
   6. `gh release create v<version>` with:
@@ -233,7 +233,7 @@ Implementer notes:
        afterward to append a theme, matching the `v0.2.0` convention),
      - notes = the promoted `## [<version>]` CHANGELOG section (extract with a
        small step or `awk`),
-     - assets `claude-skills/agentic-humanizer-desktop.zip` and
+     - assets `claude-skills/agentic-humanizer-claude-desktop.zip` and
        `agentic-humanizer-chatgpt.zip`.
   7. Uses `GITHUB_TOKEN`; no special credential needed to tag/release.
 

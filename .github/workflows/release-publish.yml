@@ -50,11 +50,8 @@ jobs:
             git push origin "v${VERSION}"
           fi
 
-      - name: Build Desktop zip
-        run: make -C claude-skills
-
-      - name: Build ChatGPT skill zip
-        run: cd skills && zip -r ../agentic-humanizer-chatgpt.zip agentic-humanizer -x '*/.DS_Store'
+      - name: Build release zips
+        run: make dist
 
       - name: Extract release notes
         run: |
@@ -75,13 +72,13 @@ jobs:
           if gh release view "v${VERSION}" >/dev/null 2>&1; then
             echo "release v${VERSION} already exists; ensuring assets are attached"
             gh release upload "v${VERSION}" \
-              claude-skills/agentic-humanizer-desktop.zip \
+              claude-skills/agentic-humanizer-claude-desktop.zip \
               agentic-humanizer-chatgpt.zip \
               --clobber
           else
             gh release create "v${VERSION}" \
               --title "v${VERSION}" \
               --notes-file release-notes.md \
-              claude-skills/agentic-humanizer-desktop.zip \
+              claude-skills/agentic-humanizer-claude-desktop.zip \
               agentic-humanizer-chatgpt.zip
           fi

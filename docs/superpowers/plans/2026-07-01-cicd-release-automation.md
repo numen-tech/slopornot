@@ -734,7 +734,7 @@ git commit -m "ci(release): add prepare-release workflow"
   CHANGELOG heading format `## [<version>] (<YYYY-MM-DD>)` written by Task 3.
 - Produces: annotated tag `v<version>`, a GitHub Release titled `v<version>`
   with the CHANGELOG section as notes, and two assets:
-  `claude-skills/agentic-humanizer-desktop.zip` and
+  `claude-skills/agentic-humanizer-claude-desktop.zip` and
   `agentic-humanizer-chatgpt.zip`.
 
 - [ ] **Step 1: Create the workflow**
@@ -816,7 +816,7 @@ jobs:
             gh release create "v${VERSION}" \
               --title "v${VERSION}" \
               --notes-file release-notes.md \
-              claude-skills/agentic-humanizer-desktop.zip \
+              claude-skills/agentic-humanizer-claude-desktop.zip \
               agentic-humanizer-chatgpt.zip
           fi
 ```
@@ -1168,7 +1168,7 @@ Releases are automated in two phases:
    bundle copies, and opens a `release/v0.3.0` PR.
 2. Review and merge that PR. On merge, the publish workflow creates the
    annotated `v0.3.0` tag and a GitHub Release with the CHANGELOG section
-   as notes, attaching `agentic-humanizer-desktop.zip` and
+   as notes, attaching `agentic-humanizer-claude-desktop.zip` and
    `agentic-humanizer-chatgpt.zip`.
 
 The prepare workflow requires the `RELEASE_APP_TOKEN` repository secret (a

@@ -9,3 +9,7 @@ notes/
 
 # Smoke-test outputs
 examples/output-*.md
+
+# Release build artifacts (produced by `make dist`)
+claude-skills/agentic-humanizer-claude-desktop.zip
+agentic-humanizer-chatgpt.zip

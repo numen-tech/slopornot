@@ -59,6 +59,10 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `unsupported_language`.
 - The generic harness and `SKILL.md` Step 1 now name ChatGPT Skills as a
   supported generic runtime.
+- Release download renamed to `agentic-humanizer-claude-desktop.zip` (was
+  `agentic-humanizer-desktop.zip`) so the Claude Desktop and ChatGPT
+  (`agentic-humanizer-chatgpt.zip`) assets read consistently. A single
+  `make dist` builds both.
 
 ### Fixed
 
